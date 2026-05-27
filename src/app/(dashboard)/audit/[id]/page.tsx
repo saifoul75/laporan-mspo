@@ -6,7 +6,9 @@ import { Butang } from "@/components/ui/butang";
 import { Badge } from "@/components/ui/badge";
 import { BadgeStatus } from "@/components/ui/badge-status";
 import { TimelineAktivitiAudit } from "@/components/audit/timeline-aktiviti";
-import { formatTarikh } from "@/lib/utils";
+import { BorangMuktamadkanAudit } from "@/components/audit/borang-muktamadkan-audit";
+import { BadgeCapCountdown } from "@/components/audit/badge-cap-countdown";
+import { formatTarikh, formatTarikhMasa } from "@/lib/utils";
 
 export default async function HalamanAudit({
   params,
@@ -27,6 +29,22 @@ export default async function HalamanAudit({
     .eq("id", params.id)
     .single();
   if (!audit) notFound();
+
+  // Ambil profil pengguna semasa untuk check rol
+  const { data: profil } = await supabase
+    .from("pengguna")
+    .select("rol")
+    .eq("id", user.id)
+    .single();
+
+  // Ambil status_display_en dari view
+  const { data: statusLive } = await supabase
+    .from("audit_status_live")
+    .select(
+      "status_display_en, start_date_live, end_date_live, cap_baki_hari"
+    )
+    .eq("audit_id", params.id)
+    .single();
 
   const po = audit.pusat_operasi as
     | {
@@ -67,6 +85,26 @@ export default async function HalamanAudit({
     stats[d.status as string] = (stats[d.status as string] ?? 0) + 1;
   }
 
+  // Logik kebenaran muktamadkan
+  const rolBoleh = profil?.rol && ["admin", "lead_auditor"].includes(profil.rol);
+  const sudahMuktamad = !!audit.tarikh_muktamad;
+  const statusBoleh = !["draf", "selesai", "dibatalkan"].includes(audit.status);
+  const adaPending = (stats.Pending ?? 0) > 0;
+
+  const bolehMuktamad = !!(rolBoleh && !sudahMuktamad && statusBoleh && !adaPending);
+  let sebabTakBoleh: string | null = null;
+  if (!rolBoleh) {
+    sebabTakBoleh = "Hanya Admin atau Lead Auditor boleh muktamadkan audit.";
+  } else if (sudahMuktamad) {
+    sebabTakBoleh = `Audit ini sudah dimuktamadkan pada ${formatTarikhMasa(audit.tarikh_muktamad)}.`;
+  } else if (audit.status === "draf") {
+    sebabTakBoleh = "Audit masih draf. Mulakan audit dahulu sebelum muktamadkan.";
+  } else if (audit.status === "selesai" || audit.status === "dibatalkan") {
+    sebabTakBoleh = `Audit berstatus "${audit.status}".`;
+  } else if (adaPending) {
+    sebabTakBoleh = `Masih ada ${stats.Pending} dapatan Pending. Lengkapkan checklist dahulu.`;
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -74,7 +112,31 @@ export default async function HalamanAudit({
           ← Senarai Audit
         </Link>
         <h2 className="mt-2 text-2xl font-bold">{audit.no_rujukan}</h2>
+        {statusLive?.status_display_en && (
+          <div className="mt-1 text-sm text-muted-foreground">
+            Status semasa:{" "}
+            <span className="font-medium text-foreground">
+              {statusLive.status_display_en}
+            </span>
+          </div>
+        )}
       </div>
+
+      {/* Badge CAP countdown — hanya tunjuk kalau dah muktamadkan */}
+      {sudahMuktamad && (
+        <BadgeCapCountdown
+          capDueDate={audit.cap_due_date as string | null}
+          capDueDays={audit.cap_due_days as number | null}
+          capGradeBasis={audit.cap_grade_basis as "major" | "minor" | null}
+          capGradeSource={
+            audit.cap_grade_source as
+              | "auto_highest_finding"
+              | "manual_lead_auditor"
+              | null
+          }
+          status={audit.status}
+        />
+      )}
 
       <Card>
         <CardHeader>
@@ -97,6 +159,27 @@ export default async function HalamanAudit({
             label="Status"
             nilai={<Badge>{audit.status}</Badge>}
           />
+          {audit.tarikh_muktamad && (
+            <Maklumat
+              label="Tarikh Muktamadkan"
+              nilai={formatTarikhMasa(audit.tarikh_muktamad)}
+            />
+          )}
+          {audit.cap_grade_override_reason && (
+            <div className="sm:col-span-2 rounded-md border border-blue-300 bg-blue-50 p-3">
+              <div className="text-xs font-semibold uppercase text-blue-900">
+                Override Lead Auditor
+              </div>
+              <div className="mt-1 text-sm text-blue-900">
+                {audit.cap_grade_override_reason}
+              </div>
+              {audit.cap_grade_overridden_at && (
+                <div className="mt-1 text-xs text-blue-800">
+                  Pada {formatTarikhMasa(audit.cap_grade_overridden_at)}
+                </div>
+              )}
+            </div>
+          )}
           {audit.catatan && (
             <div className="sm:col-span-2">
               <div className="text-xs uppercase text-muted-foreground">Catatan</div>
@@ -125,6 +208,16 @@ export default async function HalamanAudit({
           </div>
         </CardContent>
       </Card>
+
+      {/* Borang Muktamadkan — Modul 3.4 */}
+      {!sudahMuktamad && (
+        <BorangMuktamadkanAudit
+          auditId={audit.id}
+          noRujukan={audit.no_rujukan}
+          bolehMuktamad={bolehMuktamad}
+          sebabTakBoleh={sebabTakBoleh}
+        />
+      )}
 
       <div className="flex flex-wrap gap-2">
         <Link href={`/audit/${audit.id}/checklist`}>
