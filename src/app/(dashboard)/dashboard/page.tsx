@@ -18,10 +18,11 @@ type AuditTerkini = {
 export default async function HalamanDashboard() {
   const supabase = createClient();
 
-  const [{ count: jumlahAudit }, { count: jumlahPO }, { data: auditTerkini }] =
+  const [{ count: jumlahAudit }, { count: jumlahPO }, { count: jumlahItem }, { data: auditTerkini }] =
     await Promise.all([
       supabase.from("audit").select("*", { count: "exact", head: true }),
       supabase.from("pusat_operasi").select("*", { count: "exact", head: true }),
+      supabase.from("item_semakan").select("*", { count: "exact", head: true }),
       supabase
         .from("audit")
         .select(
@@ -49,7 +50,7 @@ export default async function HalamanDashboard() {
         <KadStatistik tajuk="Jumlah Audit" nilai={jumlahAudit ?? 0} />
         <KadStatistik tajuk="Pusat Operasi" nilai={jumlahPO ?? 0} />
         <KadStatistik tajuk="Standard" nilai="MS2530-2-2:2022" kecil />
-        <KadStatistik tajuk="Item Semakan" nilai={74} />
+        <KadStatistik tajuk="Item Semakan" nilai={jumlahItem ?? 0} />
       </div>
 
       <Card>

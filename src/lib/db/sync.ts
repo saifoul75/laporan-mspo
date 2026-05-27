@@ -124,12 +124,14 @@ async function prosesSatu(
 
   if (item.jenis === "audit") {
     // Tidak digunakan buat masa ini — audit dicipta secara online sahaja.
-    throw new Error("Sync untuk audit belum disokong");
+    // Skip sahaja, jangan throw supaya cubaan tidak bertambah.
+    return;
   }
 
   if (item.jenis === "bukti") {
     // Bukti perlu upload ke Storage; belum implement upload offline blob.
-    throw new Error("Sync untuk bukti belum disokong");
+    // Skip sahaja, jangan throw supaya cubaan tidak bertambah.
+    return;
   }
 }
 
