@@ -46,6 +46,19 @@ export async function GET(
     );
   }
 
+  // Ambil nama lead auditor dari table pengguna
+  let namaLeadAuditor = "MOHD SAIFOUL AZUAN BIN MOHD ISA";
+  if (audit.lead_auditor_id) {
+    const { data: leadAuditorProfil } = await supabase
+      .from("pengguna")
+      .select("nama_penuh")
+      .eq("id", audit.lead_auditor_id)
+      .single();
+    if (leadAuditorProfil?.nama_penuh) {
+      namaLeadAuditor = leadAuditorProfil.nama_penuh;
+    }
+  }
+
   const { data: dapatan, error: ralatDapatan } = await supabase
     .from("dapatan")
     .select(
@@ -65,7 +78,11 @@ export async function GET(
   }
 
   const buffer = await renderToBuffer(
-    <LaporanPDF audit={audit as never} dapatan={(dapatan ?? []) as never} />
+    <LaporanPDF
+      audit={audit as never}
+      dapatan={(dapatan ?? []) as never}
+      namaLeadAuditor={namaLeadAuditor}
+    />
   );
 
   return new NextResponse(new Uint8Array(buffer), {
