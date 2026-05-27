@@ -269,4 +269,26 @@ export function LaporanPDF({ audit, dapatan }: LaporanPDFProps) {
               </View>
               {ofiList.map((r) => (
                 <View key={r.id} style={styles.tableRow}>
-              
+                  <Text style={styles.cellKlausa}>{r.item_semakan?.kod}</Text>
+                  <Text style={styles.cellTajuk}>{r.item_semakan?.tajuk}</Text>
+                  <Text style={styles.cellFail}>
+                    {r.item_semakan?.fail_rujukan
+                      ? `Fail ${r.item_semakan.fail_rujukan}`
+                      : "-"}
+                  </Text>
+                  <Text style={styles.cellCatatan}>
+                    {r.catatan ?? r.cadangan_tindakan ?? "-"}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </>
+        )}
+
+        <Text style={styles.footer}>
+          Dijana oleh Sistem MSPO Audit | {new Date().toLocaleString("ms-MY")}
+        </Text>
+      </Page>
+    </Document>
+  );
+}

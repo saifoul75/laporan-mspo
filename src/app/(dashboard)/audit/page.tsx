@@ -4,6 +4,7 @@ import { Butang } from "@/components/ui/butang";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatTarikh } from "@/lib/utils";
+import { ButangPadamAudit } from "@/components/audit/butang-padam-audit";
 
 const LABEL_STATUS: Record<string, string> = {
   draf: "Draf",
@@ -64,12 +65,14 @@ export default async function HalamanSenaraiAudit() {
           ) : (
             <div className="divide-y">
               {(senarai as unknown as BarisSenaraiAudit[]).map((a) => (
-                <Link
+                <div
                   key={a.id}
-                  href={`/audit/${a.id}`}
-                  className="flex flex-col gap-2 p-4 hover:bg-accent/50 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between"
                 >
-                  <div className="space-y-1">
+                  <Link
+                    href={`/audit/${a.id}`}
+                    className="flex-1 space-y-1 hover:opacity-80"
+                  >
                     <div className="flex items-center gap-2">
                       <span className="font-semibold">{a.no_rujukan}</span>
                       <Badge variant="outline">
@@ -81,9 +84,14 @@ export default async function HalamanSenaraiAudit() {
                       {a.pusat_operasi?.wilayah ?? "-"} ·{" "}
                       {formatTarikh(a.tarikh_audit)}
                     </div>
+                  </Link>
+                  <div className="flex items-center gap-2">
+                    <Badge>{LABEL_STATUS[a.status] ?? a.status}</Badge>
+                    {a.status === "draf" && (
+                      <ButangPadamAudit auditId={a.id} noRujukan={a.no_rujukan} />
+                    )}
                   </div>
-                  <Badge>{LABEL_STATUS[a.status] ?? a.status}</Badge>
-                </Link>
+                </div>
               ))}
             </div>
           )}

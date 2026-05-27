@@ -22,7 +22,16 @@ const skema = z.object({
 
 type DataPO = z.infer<typeof skema>;
 
-const WILAYAH = ["Utara 1", "Utara 2", "Tengah 1", "Tengah 2", "Selatan 1", "Selatan 2", "Timur 1", "Timur 2"];
+const WILAYAH = [
+  { nilai: "Utara 1",   label: "Utara 1 — Kuala Kangsar" },
+  { nilai: "Utara 2",   label: "Utara 2 — Manjung / Tapah" },
+  { nilai: "Timur 1",   label: "Timur 1 — Machang" },
+  { nilai: "Timur 2",   label: "Timur 2 — Terengganu" },
+  { nilai: "Tengah 1",  label: "Tengah 1 — Kuantan / Temerloh" },
+  { nilai: "Tengah 2",  label: "Tengah 2 — Raub / Lipis" },
+  { nilai: "Selatan 1", label: "Selatan 1 — Melaka / Johor" },
+  { nilai: "Selatan 2", label: "Selatan 2 — Negeri Sembilan" },
+];
 
 export function BorangPusatOperasi() {
   const router = useRouter();
@@ -75,8 +84,8 @@ export function BorangPusatOperasi() {
           <Select id="wilayah" {...register("wilayah")}>
             <option value="">-- Pilih --</option>
             {WILAYAH.map((w) => (
-              <option key={w} value={w}>
-                Wilayah {w}
+              <option key={w.nilai} value={w.nilai}>
+                {w.label}
               </option>
             ))}
           </Select>

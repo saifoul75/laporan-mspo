@@ -449,4 +449,13 @@ function BorangDapatan({
           {pending ? "Menyimpan..." : "Simpan"}
         </Butang>
         {mesej && <span className="text-xs text-muted-foreground">{mesej}</span>}
-      
+      </div>
+
+      {dapatan.id && (
+        <div className="border-t pt-3">
+          <MuatNaikBukti dapatanId={dapatan.id} />
+        </div>
+      )}
+    </div>
+  );
+}
