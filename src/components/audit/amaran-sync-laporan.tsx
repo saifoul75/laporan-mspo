@@ -143,8 +143,14 @@ export function AmaranSyncLaporan({ auditId }: { auditId: string }) {
         await antrikanSync("dapatan", d.id, "kemaskini", payload);
         await db.dapatan.update(d.id, {
           sync_status: "menunggu",
-          ralat_sync: null,
         });
+        // Clear ralat_sync field secara berasingan untuk elak isu typing Dexie
+        await db.dapatan
+          .where("id")
+          .equals(d.id)
+          .modify((r) => {
+            delete (r as unknown as Record<string, unknown>).ralat_sync;
+          });
         bilangan++;
       }
 

@@ -67,6 +67,13 @@ class PangkalanDataMSPO extends Dexie {
       bukti: "id, dapatan_id, sync_status",
       barisan_sync: "++id, jenis, rekod_id, dicipta_pada",
     });
+
+    // v2: Tambah index `cubaan` pada barisan_sync supaya
+    // jalankanSync(), kiraBaki(), kiraGagal() boleh query ikut cubaan.
+    // Tanpa index ini, semua sync operations akan throw SchemaError.
+    this.version(2).stores({
+      barisan_sync: "++id, jenis, rekod_id, dicipta_pada, cubaan",
+    });
   }
 }
 
