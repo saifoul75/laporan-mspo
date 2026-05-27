@@ -21,6 +21,56 @@
 
 ---
 
+## 🚀 PANDUAN PENGGUNA RINGKAS
+
+### Cara cipta audit baru + assign Lead/Auditor
+1. Login → klik **Audit** di sidebar → klik **+ Audit Baru**
+2. Pilih **Pusat Operasi** dari dropdown
+3. Pilih **Lead Auditor** (default = anda sendiri kalau anda admin/lead_auditor)
+4. Tick **Auditor Pembantu** lain dari senarai checkbox
+5. Isi tarikh mula + jenis audit
+6. Klik **Cipta & Mula Checklist**
+
+### Cara muktamadkan audit (Closing Modul 3.4)
+1. Login sebagai **Lead Auditor** atau **Admin** untuk audit tersebut
+2. Buka audit dari senarai → page detail
+3. Pastikan status audit **bukan** `draf` (kena Mula Audit dulu kalau masih draf)
+4. Pastikan **tiada dapatan Pending** (semua item checklist mesti dijawab)
+5. Panel kuning **"Mulakan Closing"** akan muncul di atas page (selepas badge status)
+6. Klik **Mulakan Closing** → preview gred (Auto-detect Major/Minor) + tarikh akhir CAP
+7. Pilih mode:
+   - **Auto** → sistem ambil gred tertinggi dari dapatan
+   - **Manual Override (Lead Auditor)** → boleh turun gred dengan reason wajib (min 10 aksara)
+8. Klik **Muktamadkan Sekarang**
+9. Page refresh — badge countdown muncul di atas
+
+### Bila panel Closing tidak muncul?
+| Sebab | Penyelesaian |
+|-------|--------------|
+| Anda bukan Admin / Lead Auditor untuk audit ini | Login sebagai Lead Auditor yang betul |
+| Audit status `draf` | Klik Buka Checklist, mula isi dapatan supaya status auto-tukar ke `sedang_dijalankan` |
+| Audit status `selesai` / `dibatalkan` | Audit dah closed — buat audit baru kalau perlu |
+| Audit dah dimuktamadkan sebelum ini | Badge countdown akan tunjuk; tak boleh ulang |
+| Ada dapatan masih Pending | Buka checklist, jawab semua item (Y/N/NC/OFI/NA) |
+
+### Cara reset audit untuk re-test (developer only)
+```sql
+-- Run di Supabase SQL Editor
+update public.audit
+   set status                    = 'sedang_dijalankan',
+       tarikh_muktamad           = null,
+       cap_due_date              = null,
+       cap_due_days              = null,
+       cap_grade_basis           = null,
+       cap_grade_source          = null,
+       cap_grade_override_reason = null,
+       cap_grade_overridden_by   = null,
+       cap_grade_overridden_at   = null
+ where id = '<audit_id>';
+```
+
+---
+
 ## ✅ KERJA SIAP
 
 ### Sesi 28 Mei 2026
@@ -118,14 +168,13 @@
 - [ ] Email template (BM) dengan link CAP submission
 - [ ] pg_cron schedule (1x daily, 8am MYT)
 
-### UI Assign Lead + Auditor untuk Audit Baru
-**Skop:** Borang create audit perlu ada field assign team.
-
-- [ ] `src/components/audit/borang-audit-baru.tsx` — tambah:
-  - Select dropdown Lead Auditor (rol = `lead_auditor` atau `admin`)
-  - Multi-select Auditor (rol = `auditor` / `lead_auditor` / `admin`)
-- [ ] Validasi: minimum 1 lead, kosong-kan auditor_ids dibenarkan
-- [ ] Update server action `ciptaAudit` untuk handle field baru
+### UI Assign Lead + Auditor untuk Audit Baru ✅ SIAP (28 Mei 2026)
+- `src/components/audit/borang-audit-baru.tsx` — tambah:
+  - Select dropdown Lead Auditor (rol = `lead_auditor` atau `admin`), default = pengguna semasa
+  - Multi-select checkbox Auditor Pembantu (rol = `auditor` / `lead_auditor`)
+  - Auto-exclude lead dari senarai pembantu (badge "Sudah jadi Lead")
+- Update server action `ciptaAudit` untuk handle field baru
+- Validasi: minimum 1 lead via zod schema
 
 ### Modul 3.1 — Opening Meeting Attendance
 **Skop:** Sahkan kehadiran auditee semasa audit start.

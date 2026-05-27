@@ -138,6 +138,16 @@ export default async function HalamanAudit({
         />
       )}
 
+      {/* Borang Muktamadkan — Modul 3.4 (paparan paling atas supaya senang dijumpai) */}
+      {!sudahMuktamad && audit.status !== "selesai" && audit.status !== "dibatalkan" && (
+        <BorangMuktamadkanAudit
+          auditId={audit.id}
+          noRujukan={audit.no_rujukan}
+          bolehMuktamad={bolehMuktamad}
+          sebabTakBoleh={sebabTakBoleh}
+        />
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle>Maklumat Audit</CardTitle>
@@ -209,8 +219,8 @@ export default async function HalamanAudit({
         </CardContent>
       </Card>
 
-      {/* Borang Muktamadkan — Modul 3.4 */}
-      {!sudahMuktamad && (
+      {/* Borang Muktamadkan — Modul 3.4 (paparan kedua untuk reminder kalau scroll bawah) */}
+      {!sudahMuktamad && audit.status !== "selesai" && audit.status !== "dibatalkan" && (
         <BorangMuktamadkanAudit
           auditId={audit.id}
           noRujukan={audit.no_rujukan}

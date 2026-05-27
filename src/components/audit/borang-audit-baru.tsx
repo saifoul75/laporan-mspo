@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 const skema = z.object({
   pusat_operasi_id: z.string().uuid("Pilih Pusat Operasi"),
+  lead_auditor_id: z.string().uuid("Pilih Lead Auditor"),
   tarikh_audit: z.string().min(1, "Pilih tarikh audit"),
   tarikh_tamat: z.string().optional(),
   jenis_audit: z.enum([
@@ -41,19 +42,43 @@ function janaNoRujukan() {
   return `MSPO-${yyyy}${mm}-${random}`;
 }
 
-export function BorangAuditBaru({ senaraiPO, penggunaSemasa }: Props) {
+export function BorangAuditBaru({
+  senaraiPO,
+  senaraiAuditor,
+  penggunaSemasa,
+}: Props) {
   const router = useRouter();
   const [memuat, setMemuat] = useState(false);
   const [ralat, setRalat] = useState<string | null>(null);
+  const [auditorIds, setAuditorIds] = useState<string[]>([]);
+
+  // Lead boleh dipilih dari rol lead_auditor atau admin
+  const senaraiLead = senaraiAuditor.filter(
+    (a) => a.rol === "lead_auditor" || a.rol === "admin"
+  );
+  // Auditor (pembantu) — semua kecuali admin
+  const senaraiPembantu = senaraiAuditor.filter((a) => a.rol !== "admin");
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<DataAudit>({
     resolver: zodResolver(skema),
-    defaultValues: { jenis_audit: "audit_dalaman" },
+    defaultValues: {
+      jenis_audit: "audit_dalaman",
+      lead_auditor_id: penggunaSemasa.id,
+    },
   });
+
+  const leadDipilih = watch("lead_auditor_id");
+
+  function toggleAuditor(id: string) {
+    setAuditorIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  }
 
   async function onSubmit(data: DataAudit) {
     setMemuat(true);
@@ -61,13 +86,18 @@ export function BorangAuditBaru({ senaraiPO, penggunaSemasa }: Props) {
     const supabase = createClient();
     const noRujukan = janaNoRujukan();
 
+    // Pastikan auditor_ids tidak duplikasi dengan lead_auditor
+    const auditorIdsBersih = auditorIds.filter(
+      (id) => id !== data.lead_auditor_id
+    );
+
     const { data: audit, error } = await supabase
       .from("audit")
       .insert({
         no_rujukan: noRujukan,
         pusat_operasi_id: data.pusat_operasi_id,
-        lead_auditor_id: penggunaSemasa.id,
-        auditor_ids: [penggunaSemasa.id],
+        lead_auditor_id: data.lead_auditor_id,
+        auditor_ids: auditorIdsBersih,
         tarikh_audit: data.tarikh_audit,
         tarikh_tamat: data.tarikh_tamat || null,
         jenis_audit: data.jenis_audit,
@@ -112,6 +142,79 @@ export function BorangAuditBaru({ senaraiPO, penggunaSemasa }: Props) {
         )}
       </div>
 
+      <div className="space-y-2">
+        <Label htmlFor="lead_auditor_id">
+          Lead Auditor <span className="text-destructive">*</span>
+        </Label>
+        <Select id="lead_auditor_id" {...register("lead_auditor_id")}>
+          <option value="">-- Pilih Lead Auditor --</option>
+          {senaraiLead.map((l) => (
+            <option key={l.id} value={l.id}>
+              {l.nama_penuh} ({l.rol === "admin" ? "Admin" : "Lead Auditor"})
+            </option>
+          ))}
+        </Select>
+        {errors.lead_auditor_id && (
+          <p className="text-xs text-destructive">
+            {errors.lead_auditor_id.message}
+          </p>
+        )}
+        <p className="text-xs text-muted-foreground">
+          Lead Auditor bertanggungjawab muktamadkan keputusan audit (Modul 3.4).
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Auditor Pembantu (opsyenal)</Label>
+        <div className="space-y-1 rounded-md border border-input p-2">
+          {senaraiPembantu.length === 0 ? (
+            <p className="p-2 text-xs text-muted-foreground">
+              Tiada auditor lain didaftar.
+            </p>
+          ) : (
+            senaraiPembantu.map((a) => {
+              const adalahLead = a.id === leadDipilih;
+              const dipilih = auditorIds.includes(a.id);
+              return (
+                <label
+                  key={a.id}
+                  className={`flex cursor-pointer items-center gap-2 rounded p-2 text-sm transition-colors ${
+                    adalahLead
+                      ? "cursor-not-allowed bg-muted/50 text-muted-foreground"
+                      : dipilih
+                        ? "bg-primary/10"
+                        : "hover:bg-accent"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 accent-primary"
+                    checked={dipilih && !adalahLead}
+                    disabled={adalahLead}
+                    onChange={() => toggleAuditor(a.id)}
+                  />
+                  <span className="flex-1">
+                    {a.nama_penuh}{" "}
+                    <span className="text-xs text-muted-foreground">
+                      ({a.rol === "lead_auditor" ? "Lead Auditor" : "Auditor"})
+                    </span>
+                    {adalahLead && (
+                      <span className="ml-2 rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-blue-800">
+                        Sudah jadi Lead
+                      </span>
+                    )}
+                  </span>
+                </label>
+              );
+            })
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Pilih ahli pasukan audit lain (selain Lead). Mereka akan dapat akses
+          isi checklist.
+        </p>
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="tarikh_audit">Tarikh Mula</Label>
@@ -148,7 +251,7 @@ export function BorangAuditBaru({ senaraiPO, penggunaSemasa }: Props) {
         <Textarea
           id="catatan"
           rows={3}
-          placeholder="Skop, ahli auditor lain, nota khas..."
+          placeholder="Skop, nota khas..."
           {...register("catatan")}
         />
       </div>
