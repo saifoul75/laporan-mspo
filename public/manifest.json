@@ -1,0 +1,27 @@
+{
+  "name": "MSPO Audit",
+  "short_name": "MSPO Audit",
+  "description": "Sistem audit MSPO MS2530-2-2:2022 untuk Pusat Operasi RISDA Plantation",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#1f7a45",
+  "lang": "ms-MY",
+  "categories": ["productivity", "business"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
