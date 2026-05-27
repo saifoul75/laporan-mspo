@@ -1,0 +1,186 @@
+# PROGRESS — MSPO Audit System
+
+> Log progress untuk kerja Fasa 3 (Modul 3.1 - 3.4) sistem audit MSPO.
+> Tarikh kemaskini terakhir: 28 Mei 2026
+>
+> **Cara guna:** Bila buka sesi Kilo baru, taip _"Baca PROGRESS.md dan sambung kerja dari task yang belum siap"_.
+
+---
+
+## Stack & Konteks
+
+- **Repo:** `C:\Projects\mspo-audit`
+- **Stack:** Next.js 14 App Router · Supabase SSR (PG17) · @react-pdf/renderer · Dexie · Tailwind + shadcn/ui
+- **Supabase project:** `lbklwflwiujdnuricxbt`
+- **Dev server:** `npm run dev` → http://localhost:3000
+- **Briefing folder:** `D:\JANET COWORKER\` (spec + SQL reference untuk Janet)
+
+### Tools yang dah install di mesin ini
+- Scoop package manager (`%USERPROFILE%\scoop\`)
+- Supabase CLI v2.101.0 (logged in + linked)
+
+---
+
+## ✅ KERJA SIAP
+
+### Sesi 28 Mei 2026
+
+#### 1. PDF Laporan — Format Word (4 halaman)
+- `src/app/api/laporan/[id]/pdf/route.tsx` — fetch nama lead auditor dari `pengguna`
+- `src/lib/pdf/laporan-pdf.tsx` — rewrite penuh:
+  - Page 1: Cover (RISDA org, info table, Contents, dual signature)
+  - Page 2: Summary (4 perenggan introduction + count NCR Major/Minor + OFI)
+  - Page 3: NCR/OFI Table (No, Status, Juruaudit, Kenyataan, Klausa, Bukti)
+  - Page 4: Side Notes (2 reminder MSPO 4.1.10.1 dan 4.1.5.1)
+
+#### 2. Migration 0009 — Schema Fasa 3
+- `supabase/migrations/0009_fasa3_perancangan_cap.sql` — applied ke remote DB ✅
+- `supabase/rollbacks/0009_fasa3_perancangan_cap_DOWN.sql` — rollback manual
+- `D:\JANET COWORKER\Spesifikasi_Sistem_Audit_MSPO_Fasa3.md` — spec lengkap
+
+**Yang ditambah ke DB:**
+- Table `sesi_audit` (6 sesi 2026 di-seed: Timur 1-2, Tengah 1-2, Selatan 1-2)
+- 15 column baru pada `audit`:
+  - `sesi_id`, `planned_start_date`, `planned_end_date`, `tarikh_muktamad`
+  - `cap_due_date`, `cap_due_days`, `cap_grade_basis`
+  - `cap_grade_source`, `cap_grade_override_reason`, `cap_grade_overridden_by`, `cap_grade_overridden_at`
+  - `notif_cap_15_pada`, `notif_cap_25_pada`, `notif_cap_30_pada`, `notif_cap_bulanan_terakhir_pada`
+- Type `cap_grade_source` enum (`auto_highest_finding`, `manual_lead_auditor`)
+- Function `fn_kira_cap_due_date(gred_nc, date) → date`
+- Function `fn_kira_gred_basis(audit_id) → gred_nc` (auto-detect Major > Minor > NULL)
+- Function `fn_lock_audit_muktamad()` (trigger function)
+- Trigger `trg_audit_muktamad BEFORE UPDATE ON audit`
+- View `audit_status_live` (security_invoker = true)
+- Backfill `planned_start_date`/`planned_end_date` dari `tarikh_audit`/`tarikh_tamat`
+
+#### 3. Task B — UI Modul 3.4 (Closing Lock Logic)
+- `src/components/audit/borang-muktamadkan-audit.tsx` — borang Closing dengan:
+  - Preview live ringkasan dapatan (NC Major/Minor/OFI/Pending)
+  - Auto-detect gred (Major > Minor > Tiada CAP)
+  - Manual override panel (gred + reason min 10 aksara)
+  - Preview tarikh akhir CAP sebelum submit
+  - Validasi block kalau ada Pending
+- `src/components/audit/badge-cap-countdown.tsx` — badge countdown dengan tier warna:
+  - Hijau (>15 hari) · Kuning (≤15 hari) · Merah kritikal (≤5 hari) · Merah lewat (<0)
+- `src/app/(dashboard)/audit/actions.ts` — server actions:
+  - `previewGredCap(auditId)` — auto-detect untuk UI sneak-peek
+  - `muktamadkanAudit({auditId, override?})` — write to DB, trigger handle rest
+- `src/app/(dashboard)/audit/[id]/page.tsx` — integrate borang + badge + paparan English status
+
+**Verified:** TypeScript ✅, Next.js build ✅, DB trigger end-to-end ✅
+
+#### 4. Setup Auditor (data testing)
+3 user dicipta + assigned ikut spec Janet:
+
+| Audit | PO | Status semasa | Lead Auditor | Auditor lain |
+|-------|-----|---------------|--------------|--------------|
+| MSPO-202604-UT1-01 | KK (PO1) | sedang_dijalankan | Anuar (anuar@risdaplantation.com.my) | Saifoul |
+| MSPO-202605-UT2-MNJ | Manjung (PO2) | selesai | Saifoul (saifoul@risdaplantation.com.my) | Ikhwan |
+| MSPO-202605-6861 | Tapah (PO3) | selesai | Saifoul | Ikhwan (ikhwan@risdaplantation.com.my) |
+
+**KK ready untuk testing flow Closing — login sebagai Anuar.**
+
+### Kerja sebelum ni (commit lama, sebagai reference)
+- `9455fbb` Tambah butang Padam Draf + kemaskini wilayah RPSB
+- `6e598d9` Fix 3 isu PDF laporan
+- `4a56553` Fix sync queue index, listing filter, dan UI feedback amaran sync
+- `f3558aa` Fix 4 isu dari semakan kod
+- `86aa957` Kemas kini sistem laporan Ringkasan Penemuan dan amaran sync
+
+---
+
+## ⏳ TASK BELUM SIAP (untuk sesi seterusnya)
+
+### Task C — Modul 3.2 GPS/EXIF Bukti Foto (BESAR)
+**Skop:** Capture foto bukti dengan timestamp + GPS coordinates dari hardware.
+
+- [ ] Schema baru `bukti_foto_meta`:
+  - `audit_id`, `dapatan_id`, `fail_path`, `latitude`, `longitude`
+  - `exif_taken_at`, `created_at_server`, `exif_camera_model`
+- [ ] EXIF parser (cadangan: `exifr` library) — server-side parse selepas upload
+- [ ] Component `MuatNaikBuktiFoto` dengan GPS prompt
+- [ ] Storage bucket policy untuk `bukti-foto/`
+- [ ] Validation: timestamp foto mesti dalam julat tarikh audit
+
+**Reference dalam briefing:**
+- Sistem ekstrak EXIF + GPS terus dari peranti
+- Untuk buktikan auditor di ladang pada tarikh tersebut
+
+### Task D — Email Cron Notifikasi CAP
+**Skop:** Hantar amaran auto kepada auditee bila CAP belum dihantar.
+
+- [ ] Pilih library: Resend + Supabase Edge Function (recommended)
+- [ ] Edge function harian — query `audit_status_live` untuk audit Pending CAP
+- [ ] Logik notifikasi:
+  - **Major NC (30 hari):** day-15 warning, day-25 final warning
+  - **Minor NC (90 hari):** monthly reminder
+- [ ] Update column `notif_cap_15_pada`, `notif_cap_25_pada`, `notif_cap_30_pada`, `notif_cap_bulanan_terakhir_pada`
+- [ ] Email template (BM) dengan link CAP submission
+- [ ] pg_cron schedule (1x daily, 8am MYT)
+
+### UI Assign Lead + Auditor untuk Audit Baru
+**Skop:** Borang create audit perlu ada field assign team.
+
+- [ ] `src/components/audit/borang-audit-baru.tsx` — tambah:
+  - Select dropdown Lead Auditor (rol = `lead_auditor` atau `admin`)
+  - Multi-select Auditor (rol = `auditor` / `lead_auditor` / `admin`)
+- [ ] Validasi: minimum 1 lead, kosong-kan auditor_ids dibenarkan
+- [ ] Update server action `ciptaAudit` untuk handle field baru
+
+### Modul 3.1 — Opening Meeting Attendance
+**Skop:** Sahkan kehadiran auditee semasa audit start.
+
+- [ ] Table baru `kehadiran_opening_meeting` (audit_id, nama, jawatan, ditandatangan_pada server timestamp)
+- [ ] Component sign-in (no manual date entry — server time only)
+- [ ] Auto-shift status `dijadual` → `sedang_dijalankan` bila Opening confirmed
+
+### CAP Submission UI (Modul 3.5 — selepas Closing)
+**Skop:** Auditee submit CAP dalam tempoh due date.
+
+- [ ] Page baru `/audit/[id]/cap` untuk auditee submit tindakan pembetulan
+- [ ] Form per dapatan NC: tindakan_pembetulan, bukti_pembetulan upload
+- [ ] Status NC: `open` → `in_progress` → `closed` → `verified`
+- [ ] Lead Auditor verify CAP dan tukar status audit ke `selesai`
+
+---
+
+## NOTA TEKNIKAL
+
+- `item_semakan` table ada non-unique `kod` — query MESTI pakai `LIMIT 1`
+- Git lock fix: `del .git\index.lock` dari Windows terminal (bukan sandbox)
+- PowerShell path dengan `(dashboard)` — guna single quotes atau `git add -A`
+- PostgreSQL version: PG17.0.6 (support `security_invoker` view ✅)
+- Aktiviti table logging via PostgreSQL trigger (migration 0008)
+- `pengguna` table (bukan `profiles`) — `nama_penuh`, `rol`, `email`
+- `gred_nc` enum: lowercase (`major`, `minor`) — bukan uppercase
+- `status_audit` enum BM kekal — mapping ke English buat di view `audit_status_live`
+
+## SQL Snippet Berguna
+
+```sql
+-- Reset audit untuk re-test Closing flow
+update public.audit
+   set status                    = 'sedang_dijalankan',
+       tarikh_muktamad           = null,
+       cap_due_date              = null,
+       cap_due_days              = null,
+       cap_grade_basis           = null,
+       cap_grade_source          = null,
+       cap_grade_override_reason = null,
+       cap_grade_overridden_by   = null,
+       cap_grade_overridden_at   = null
+ where id = '<audit_id>';
+
+-- Cek state audit live
+select audit_id, no_rujukan, status_db, status_display_en,
+       cap_due_date, cap_baki_hari, cap_grade_basis, cap_grade_source
+  from public.audit_status_live
+ order by start_date_live desc;
+
+-- Run query via CLI
+-- supabase db query --linked --output json "<SQL>"
+```
+
+---
+
+*Generated: 28 Mei 2026 02:30 MYT*
