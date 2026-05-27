@@ -281,6 +281,11 @@ function BorangDapatan({
 
   async function simpan() {
     setMesej(null);
+    // Gred wajib dipilih bila status NC
+    if (status === "NC" && !gredNC) {
+      setMesej("Pilih Gred NC (Major / Minor) sebelum simpan.");
+      return;
+    }
     const payload = {
       audit_id: auditId,
       item_semakan_id: item.id,
@@ -444,13 +449,4 @@ function BorangDapatan({
           {pending ? "Menyimpan..." : "Simpan"}
         </Butang>
         {mesej && <span className="text-xs text-muted-foreground">{mesej}</span>}
-      </div>
-
-      {dapatan.id && (
-        <div className="border-t pt-3">
-          <MuatNaikBukti dapatanId={dapatan.id} />
-        </div>
-      )}
-    </div>
-  );
-}
+      

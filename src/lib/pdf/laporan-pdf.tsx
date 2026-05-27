@@ -1,5 +1,8 @@
-import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet, Font } from "@react-pdf/renderer";
 import React from "react";
+
+// Matikan auto-hyphenation — elak perkataan terpotong salah (contoh: "disedi-akan")
+Font.registerHyphenationCallback((word) => [word]);
 
 const styles = StyleSheet.create({
   page: {
@@ -52,10 +55,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     borderBottom: "1 solid #e5e7eb",
   },
-  cellKlausa: { width: 60, fontSize: 9 },
-  cellTajuk: { flex: 2, fontSize: 9 },
-  cellFail: { width: 50, fontSize: 9 },
-  cellStatus: { width: 70, fontSize: 9, fontWeight: "bold" },
+  cellKlausa: { width: 50, fontSize: 9 },
+  cellTajuk: { flex: 3, fontSize: 9 },
+  cellFail: { width: 40, fontSize: 9 },
+  cellStatus: { width: 45, fontSize: 9, fontWeight: "bold" },
   cellCatatan: { flex: 2, fontSize: 9 },
   ringkasan: {
     flexDirection: "row",
@@ -119,6 +122,30 @@ function formatTarikh(d: string | null | undefined) {
   });
 }
 
+const LABEL_JENIS: Record<string, string> = {
+  audit_dalaman: "Audit Dalaman",
+  audit_pensijilan: "Audit Pensijilan",
+  audit_pengawasan: "Audit Pengawasan",
+  audit_persijilan_semula: "Audit Persijilan Semula",
+};
+
+const LABEL_STATUS: Record<string, string> = {
+  draf: "Draf",
+  dijadual: "Dijadual",
+  sedang_dijalankan: "Sedang Dijalankan",
+  menunggu_semakan: "Menunggu Semakan",
+  selesai: "Selesai",
+  dibatalkan: "Dibatalkan",
+};
+
+function labelJenis(val: string) {
+  return LABEL_JENIS[val] ?? val;
+}
+
+function labelStatus(val: string) {
+  return LABEL_STATUS[val] ?? val;
+}
+
 export function LaporanPDF({ audit, dapatan }: LaporanPDFProps) {
   const stats = { Y: 0, N: 0, NC: 0, OFI: 0, NA: 0, Pending: 0 } as Record<
     string,
@@ -170,11 +197,11 @@ export function LaporanPDF({ audit, dapatan }: LaporanPDFProps) {
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>Jenis Audit</Text>
-          <Text style={styles.value}>{audit.jenis_audit}</Text>
+          <Text style={styles.value}>{labelJenis(audit.jenis_audit)}</Text>
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>Status</Text>
-          <Text style={styles.value}>{audit.status}</Text>
+          <Text style={styles.value}>{labelStatus(audit.status)}</Text>
         </View>
 
         {/* Ringkasan */}
@@ -242,26 +269,4 @@ export function LaporanPDF({ audit, dapatan }: LaporanPDFProps) {
               </View>
               {ofiList.map((r) => (
                 <View key={r.id} style={styles.tableRow}>
-                  <Text style={styles.cellKlausa}>{r.item_semakan?.kod}</Text>
-                  <Text style={styles.cellTajuk}>{r.item_semakan?.tajuk}</Text>
-                  <Text style={styles.cellFail}>
-                    {r.item_semakan?.fail_rujukan
-                      ? `Fail ${r.item_semakan.fail_rujukan}`
-                      : "-"}
-                  </Text>
-                  <Text style={styles.cellCatatan}>
-                    {r.catatan ?? r.cadangan_tindakan ?? "-"}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          </>
-        )}
-
-        <Text style={styles.footer}>
-          Dijana oleh Sistem MSPO Audit | {new Date().toLocaleString("ms-MY")}
-        </Text>
-      </Page>
-    </Document>
-  );
-}
+              
