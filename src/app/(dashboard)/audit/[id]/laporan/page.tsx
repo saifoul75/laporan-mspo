@@ -116,6 +116,14 @@ export default async function HalamanLaporan({
           >
             Muat Turun PDF
           </a>
+          <a
+            href={`/api/laporan/${params.id}/pptx`}
+            target="_blank"
+            rel="noopener"
+            className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            Muat Turun PowerPoint
+          </a>
           <ButangCetak />
         </div>
       </div>
