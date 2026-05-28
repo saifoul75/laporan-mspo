@@ -7,7 +7,6 @@ Font.registerHyphenationCallback((word) => [word]);
 const HIJAU = "#1f7a45";
 const KELABU = "#6b7280";
 const KELABU_CERAH = "#f3f4f6";
-const SEMPADAN = "#d1d5db";
 
 const s = StyleSheet.create({
   page: { padding: 36, fontSize: 9, fontFamily: "Helvetica", color: "#1f2937" },
@@ -149,6 +148,7 @@ function PageHeader(props: { tajuk: string; wilayah: string; julat: string; logo
   return (
     <View style={s.pageHeaderWrap}>
       {props.logoBase64 && (
+        // eslint-disable-next-line jsx-a11y/alt-text -- @react-pdf/renderer Image, bukan HTML img
         <Image src={props.logoBase64} style={{ width: 36, height: 36, marginBottom: 4 } as never} />
       )}
       <Text style={s.seksyenOrg}>RISDA PLANTATION SDN. BHD. (0324822-D)</Text>
@@ -232,6 +232,7 @@ export function LaporanPDF(props: LaporanPDFProps) {
       <Page size="A4" style={s.page}>
         {logoBase64 != null && (
           <View style={s.logoWrap}>
+            {/* eslint-disable-next-line jsx-a11y/alt-text -- @react-pdf/renderer Image, bukan HTML img */}
             <Image src={logoBase64} style={s.logo} />
           </View>
         )}

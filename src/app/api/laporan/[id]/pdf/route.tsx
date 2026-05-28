@@ -94,7 +94,7 @@ export async function GET(
     if (fs.existsSync(logoPath)) {
       logoBase64 = "data:image/png;base64," + fs.readFileSync(logoPath).toString("base64");
     }
-  } catch (_e) { /* logo optional */ }
+  } catch { /* logo optional */ }
 
   const buffer = await renderToBuffer(
     <LaporanPDF
