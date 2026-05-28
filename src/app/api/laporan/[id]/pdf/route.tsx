@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { LaporanPDF } from "@/lib/pdf/laporan-pdf";
+import fs from "fs";
+import path from "path";
 
 export async function GET(
   _req: Request,
@@ -9,7 +11,6 @@ export async function GET(
 ) {
   const supabase = createClient();
 
-  // Pastikan user authenticated supaya RLS tidak senyap pulangkan kosong
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -46,17 +47,27 @@ export async function GET(
     );
   }
 
-  // Ambil nama lead auditor dari table pengguna
   let namaLeadAuditor = "MOHD SAIFOUL AZUAN BIN MOHD ISA";
+  let namaAuditorLain: string | null = null;
+
   if (audit.lead_auditor_id) {
-    const { data: leadAuditorProfil } = await supabase
+    const { data: leadProfil } = await supabase
       .from("pengguna")
       .select("nama_penuh")
       .eq("id", audit.lead_auditor_id)
       .single();
-    if (leadAuditorProfil?.nama_penuh) {
-      namaLeadAuditor = leadAuditorProfil.nama_penuh;
-    }
+    if (leadProfil?.nama_penuh) namaLeadAuditor = leadProfil.nama_penuh;
+  }
+
+  const auditorIds: string[] = audit.auditor_ids ?? [];
+  const pembantuId = auditorIds.find((id: string) => id !== audit.lead_auditor_id);
+  if (pembantuId) {
+    const { data: pembantuProfil } = await supabase
+      .from("pengguna")
+      .select("nama_penuh")
+      .eq("id", pembantuId)
+      .single();
+    if (pembantuProfil?.nama_penuh) namaAuditorLain = pembantuProfil.nama_penuh;
   }
 
   const { data: dapatan, error: ralatDapatan } = await supabase
@@ -77,11 +88,21 @@ export async function GET(
     );
   }
 
+  let logoBase64: string | null = null;
+  try {
+    const logoPath = path.join(process.cwd(), "public", "logo-risda.png");
+    if (fs.existsSync(logoPath)) {
+      logoBase64 = "data:image/png;base64," + fs.readFileSync(logoPath).toString("base64");
+    }
+  } catch (_e) { /* logo optional */ }
+
   const buffer = await renderToBuffer(
     <LaporanPDF
       audit={audit as never}
       dapatan={(dapatan ?? []) as never}
       namaLeadAuditor={namaLeadAuditor}
+      namaAuditorLain={namaAuditorLain}
+      logoBase64={logoBase64}
     />
   );
 
