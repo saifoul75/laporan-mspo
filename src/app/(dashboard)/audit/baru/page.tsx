@@ -15,7 +15,7 @@ export default async function HalamanAuditBaru() {
     supabase
       .from("pengguna")
       .select("id, nama_penuh, rol")
-      .in("rol", ["lead_auditor", "auditor"])
+      .in("rol", ["admin", "lead_auditor", "auditor"])
       .order("nama_penuh"),
   ]);
 

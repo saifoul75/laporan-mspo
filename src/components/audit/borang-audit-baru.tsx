@@ -56,8 +56,8 @@ export function BorangAuditBaru({
   const senaraiLead = senaraiAuditor.filter(
     (a) => a.rol === "lead_auditor" || a.rol === "admin"
   );
-  // Auditor (pembantu) — semua kecuali admin
-  const senaraiPembantu = senaraiAuditor.filter((a) => a.rol !== "admin");
+  // Auditor (pembantu) — semua (termasuk admin boleh jadi pembantu)
+  const senaraiPembantu = senaraiAuditor;
 
   const {
     register,
@@ -148,11 +148,15 @@ export function BorangAuditBaru({
         </Label>
         <Select id="lead_auditor_id" {...register("lead_auditor_id")}>
           <option value="">-- Pilih Lead Auditor --</option>
-          {senaraiLead.map((l) => (
-            <option key={l.id} value={l.id}>
-              {l.nama_penuh} ({l.rol === "admin" ? "Admin" : "Lead Auditor"})
-            </option>
-          ))}
+          {senaraiLead.map((l) => {
+            const adalahAnda = l.id === penggunaSemasa.id;
+            const labelRol = l.rol === "admin" ? "Admin" : "Lead Auditor";
+            return (
+              <option key={l.id} value={l.id}>
+                {l.nama_penuh} ({labelRol}){adalahAnda ? " — Anda" : ""}
+              </option>
+            );
+          })}
         </Select>
         {errors.lead_auditor_id && (
           <p className="text-xs text-destructive">
@@ -196,7 +200,13 @@ export function BorangAuditBaru({
                   <span className="flex-1">
                     {a.nama_penuh}{" "}
                     <span className="text-xs text-muted-foreground">
-                      ({a.rol === "lead_auditor" ? "Lead Auditor" : "Auditor"})
+                      (
+                      {a.rol === "admin"
+                        ? "Admin"
+                        : a.rol === "lead_auditor"
+                          ? "Lead Auditor"
+                          : "Auditor"}
+                      {a.id === penggunaSemasa.id ? " — Anda" : ""})
                     </span>
                     {adalahLead && (
                       <span className="ml-2 rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-blue-800">
