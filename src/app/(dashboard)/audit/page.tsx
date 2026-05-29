@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatTarikh } from "@/lib/utils";
 import { ButangPadamAudit } from "@/components/audit/butang-padam-audit";
 import { ButangSeedSesi } from "@/components/audit/butang-seed-sesi";
+import { ButangStressTest } from "@/components/audit/butang-stress-test";
 
 const LABEL_STATUS: Record<string, string> = {
   draf: "Draf",
@@ -54,6 +55,7 @@ export default async function HalamanSenaraiAudit() {
         </div>
         <div className="flex items-center gap-2">
           <ButangSeedSesi />
+          <ButangStressTest />
           <Link href="/audit/baru">
             <Butang>+ Audit Baru</Butang>
           </Link>

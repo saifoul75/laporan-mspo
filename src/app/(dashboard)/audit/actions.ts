@@ -560,6 +560,146 @@ export async function seedSesiAudit() {
 }
 
 // ============================================================
+// Stress Test — cipta audit Selatan 2 + isi checklist (2 NC + 3 OFI)
+// ============================================================
+
+export async function stressTestSelatan2() {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, ralat: "Tidak log masuk." };
+
+  const { data: profil } = await supabase
+    .from("pengguna")
+    .select("rol")
+    .eq("id", user.id)
+    .single();
+  if (!profil || !["admin", "lead_auditor"].includes(profil.rol)) {
+    return { ok: false, ralat: "Hanya Admin/Lead Auditor boleh jalankan stress test." };
+  }
+
+  // 1. Cari PO Selatan (first match)
+  const { data: po } = await supabase
+    .from("pusat_operasi")
+    .select("id, kod, nama, wilayah")
+    .ilike("wilayah", "%Selatan%")
+    .limit(1)
+    .single();
+  if (!po) return { ok: false, ralat: "Tiada PO Selatan dijumpai." };
+
+  // 2. Cari sesi Selatan 2
+  const { data: sesi } = await supabase
+    .from("sesi_audit")
+    .select("id")
+    .eq("nama_sesi", "Selatan 2")
+    .single();
+  if (!sesi) return { ok: false, ralat: "Sesi Selatan 2 tidak dijumpai. Seed sesi dahulu." };
+
+  // 3. Cipta audit
+  const noRujukan = `MSPO-STRESS-${Date.now().toString(36).toUpperCase()}`;
+  const { data: audit, error: ralatAudit } = await supabase
+    .from("audit")
+    .insert({
+      no_rujukan: noRujukan,
+      pusat_operasi_id: po.id,
+      lead_auditor_id: user.id,
+      sesi_id: sesi.id,
+      tarikh_audit: "2026-10-12",
+      tarikh_tamat: "2026-10-15",
+      planned_start_date: "2026-10-12",
+      planned_end_date: "2026-10-15",
+      jenis_audit: "audit_dalaman",
+      status: "sedang_dijalankan",
+      catatan: "STRESS TEST - Audit Selatan 2 (auto-generated)",
+    })
+    .select("id")
+    .single();
+
+  if (ralatAudit || !audit) {
+    return { ok: false, ralat: ralatAudit?.message ?? "Gagal cipta audit." };
+  }
+
+  // 4. Cari item_semakan by kod
+  const kodStress = ["4.2.2.2", "4.4.3.2", "4.1.3.5", "4.5.4.1", "4.5.6.1"];
+  const { data: items } = await supabase
+    .from("item_semakan")
+    .select("id, kod, tajuk")
+    .in("kod", kodStress);
+
+  if (!items || items.length < kodStress.length) {
+    return { ok: false, ralat: `Hanya ${items?.length ?? 0}/${kodStress.length} item dijumpai.` };
+  }
+
+  const byKod = Object.fromEntries(items.map((i) => [i.kod, i]));
+
+  // 5. Insert dapatan — 2 NC + 3 OFI
+  const dapatan = [
+    {
+      audit_id: audit.id,
+      item_semakan_id: byKod["4.2.2.2"].id,
+      status: "NC" as const,
+      gred_nc: "major" as const,
+      catatan: "Nota Hantaran tidak lengkap. Chit Jualan BTS hilang untuk bulan Jun-Ogos 2026.",
+      bukti_audit: "Fail 3: Nota Hantaran hanya ada 2 bulan. Baki tiada rekod.",
+      punca_akar: "Pekerja stor tidak faham prosedur dokumentasi nota hantaran.",
+      cadangan_tindakan: "Latihan semula pekerja stor. Sediakan checklist harian nota hantaran.",
+      diaudit_oleh: user.id,
+    },
+    {
+      audit_id: audit.id,
+      item_semakan_id: byKod["4.4.3.2"].id,
+      status: "NC" as const,
+      gred_nc: "minor" as const,
+      catatan: "Rekod pekerja TKA tidak lengkap. Passport 3 pekerja asing tamat tempoh tanpa pembaharuan.",
+      bukti_audit: "Fail 10: Hanya 2 permit sah. 3 permit tamat sejak April 2026.",
+      punca_akar: "Tiada sistem pemantauan tarikh tamat permit pekerja asing.",
+      cadangan_tindakan: "Bina tracker permit pekerja asing. Lantik PIC pemantau bulanan.",
+      diaudit_oleh: user.id,
+    },
+    {
+      audit_id: audit.id,
+      item_semakan_id: byKod["4.1.3.5"].id,
+      status: "OFI" as const,
+      catatan: "Pelaksanaan IPM dan rekod pemantauan tanaman bermanfaat tidak konsisten. Beneficial plants seperti Turnera subulata ada ditanam tetapi tiada rekod pemantauan.",
+      bukti_audit: "Fail 4: Pelan IPM ada tetapi rekod pelaksanaan tidak dikemaskini.",
+      cadangan_tindakan: "Sediakan jadual pemantauan IPM bulanan. Rekod populasi serangga bermanfaat.",
+      diaudit_oleh: user.id,
+    },
+    {
+      audit_id: audit.id,
+      item_semakan_id: byKod["4.5.4.1"].id,
+      status: "OFI" as const,
+      catatan: "Laporan analisa GHG belum lengkap. Menunggu pengesahan auditor luar.",
+      bukti_audit: "Fail 8: Draf laporan GHG ada tetapi belum disahkan.",
+      cadangan_tindakan: "Hantar laporan GHG kepada auditor bertauliah untuk pengesahan.",
+      diaudit_oleh: user.id,
+    },
+    {
+      audit_id: audit.id,
+      item_semakan_id: byKod["4.5.6.1"].id,
+      status: "OFI" as const,
+      catatan: "Laporan biodiversiti & penilaian HCV belum mantap. Kawasan riparian belum disurvei sepenuhnya.",
+      bukti_audit: "Fail 8: Laporan HCV separa lengkap. Data flora/fauna tidak komprehensif.",
+      cadangan_tindakan: "Lantik konsultan HCV untuk penilaian penuh. Sediakan pelan pengurusan biodiversiti.",
+      diaudit_oleh: user.id,
+    },
+  ];
+
+  const { error: ralatDapatan } = await supabase.from("dapatan").insert(dapatan);
+  if (ralatDapatan) return { ok: false, ralat: ralatDapatan.message };
+
+  revalidatePath("/audit");
+  revalidatePath(`/audit/${audit.id}`);
+  return {
+    ok: true,
+    auditId: audit.id,
+    noRujukan,
+    po: `${po.kod} - ${po.nama}`,
+    bilNc: 2,
+    bilOfi: 3,
+  };
+}
+
+// ============================================================
 // Bank Jawapan Klausa — auto-fill checklist
 // ============================================================
 
