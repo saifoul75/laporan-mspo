@@ -105,11 +105,16 @@ export interface Audit {
   pusat_operasi_id: string;
   lead_auditor_id: string;
   auditor_ids: string[];
+  sesi_id?: string | null;
   tarikh_audit: string;
   tarikh_tamat?: string | null;
+  planned_start_date?: string | null;
+  planned_end_date?: string | null;
   jenis_audit: JenisAudit;
   status: StatusAudit;
   catatan?: string | null;
+  tarikh_muktamad?: string | null;
+  cap_due_date?: string | null;
   dicipta_pada: string;
   dikemaskini_pada: string;
 }
@@ -170,6 +175,17 @@ export interface OFI {
   cadangan?: string | null;
   pic?: string | null;
   status: "kiv_kuning" | "open" | "tutup";
+  dicipta_pada: string;
+  dikemaskini_pada: string;
+}
+
+export interface SesiAudit {
+  id: string;
+  nama_sesi: string;
+  wilayah: string;
+  tarikh_mula: string;
+  tarikh_tamat: string;
+  catatan?: string | null;
   dicipta_pada: string;
   dikemaskini_pada: string;
 }

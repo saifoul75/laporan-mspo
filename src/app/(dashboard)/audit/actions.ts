@@ -516,6 +516,50 @@ export async function padamAuditDraf(auditId: string) {
 }
 
 // ============================================================
+// Seed Sesi Audit 2026 — one-click insert 6 sesi rasmi
+// ============================================================
+
+const SESI_2026 = [
+  { nama_sesi: "Timur 1",   wilayah: "Timur",   tarikh_mula: "2026-06-22", tarikh_tamat: "2026-06-25" },
+  { nama_sesi: "Timur 2",   wilayah: "Timur",   tarikh_mula: "2026-07-13", tarikh_tamat: "2026-07-16" },
+  { nama_sesi: "Tengah 1",  wilayah: "Tengah",  tarikh_mula: "2026-08-10", tarikh_tamat: "2026-08-13" },
+  { nama_sesi: "Tengah 2",  wilayah: "Tengah",  tarikh_mula: "2026-08-17", tarikh_tamat: "2026-08-20" },
+  { nama_sesi: "Selatan 1", wilayah: "Selatan", tarikh_mula: "2026-09-21", tarikh_tamat: "2026-09-24" },
+  { nama_sesi: "Selatan 2", wilayah: "Selatan", tarikh_mula: "2026-10-12", tarikh_tamat: "2026-10-15" },
+];
+
+export async function seedSesiAudit() {
+  const supabase = createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, ralat: "Tidak log masuk." };
+
+  const { data: profil } = await supabase
+    .from("pengguna")
+    .select("rol")
+    .eq("id", user.id)
+    .single();
+
+  if (!profil || !["admin", "lead_auditor"].includes(profil.rol)) {
+    return { ok: false, ralat: "Hanya Admin atau Lead Auditor boleh isi jadual sesi." };
+  }
+
+  const { data: dimasukkan, error } = await supabase
+    .from("sesi_audit")
+    .upsert(SESI_2026, {
+      onConflict: "nama_sesi, tarikh_mula",
+      ignoreDuplicates: false,
+    })
+    .select("id");
+
+  if (error) return { ok: false, ralat: error.message };
+
+  revalidatePath("/audit/baru");
+  revalidatePath("/audit");
+  return { ok: true, count: (dimasukkan ?? []).length };
+}
+
+// ============================================================
 // Bank Jawapan Klausa — auto-fill checklist
 // ============================================================
 

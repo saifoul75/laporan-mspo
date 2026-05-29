@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 const skema = z.object({
   pusat_operasi_id: z.string().uuid("Pilih Pusat Operasi"),
   lead_auditor_id: z.string().uuid("Pilih Lead Auditor"),
+  sesi_id: z.string().uuid("Pilih Sesi Audit").optional().or(z.literal("")),
   tarikh_audit: z.string().min(1, "Pilih tarikh audit"),
   tarikh_tamat: z.string().optional(),
   jenis_audit: z.enum([
@@ -28,9 +29,18 @@ const skema = z.object({
 
 type DataAudit = z.infer<typeof skema>;
 
+type SesiItem = {
+  id: string;
+  nama_sesi: string;
+  wilayah: string;
+  tarikh_mula: string;
+  tarikh_tamat: string;
+};
+
 interface Props {
   senaraiPO: { id: string; kod: string; nama: string; wilayah: string }[];
   senaraiAuditor: { id: string; nama_penuh: string; rol: string }[];
+  senaraiSesi: SesiItem[];
   penggunaSemasa: { id: string };
 }
 
@@ -45,6 +55,7 @@ function janaNoRujukan() {
 export function BorangAuditBaru({
   senaraiPO,
   senaraiAuditor,
+  senaraiSesi,
   penggunaSemasa,
 }: Props) {
   const router = useRouter();
@@ -52,17 +63,16 @@ export function BorangAuditBaru({
   const [ralat, setRalat] = useState<string | null>(null);
   const [auditorIds, setAuditorIds] = useState<string[]>([]);
 
-  // Lead boleh dipilih dari rol lead_auditor atau admin
   const senaraiLead = senaraiAuditor.filter(
     (a) => a.rol === "lead_auditor" || a.rol === "admin"
   );
-  // Auditor (pembantu) — semua (termasuk admin boleh jadi pembantu)
   const senaraiPembantu = senaraiAuditor;
 
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<DataAudit>({
     resolver: zodResolver(skema),
@@ -73,6 +83,65 @@ export function BorangAuditBaru({
   });
 
   const leadDipilih = watch("lead_auditor_id");
+  const poDipilih = watch("pusat_operasi_id");
+  const sesiDipilih = watch("sesi_id");
+
+  const poTerseleksi = senaraiPO.find((p) => p.id === poDipilih);
+  const wilayahPO = poTerseleksi?.wilayah ?? "";
+
+  const sesiTepat = senaraiSesi.find(
+    (s) => s.nama_sesi.toLowerCase() === wilayahPO.toLowerCase()
+  );
+
+  const sesiMengikutWilayah = !sesiTepat && wilayahPO
+    ? senaraiSesi.filter(
+        (s) =>
+          s.wilayah.toLowerCase() === wilayahPO.toLowerCase() ||
+          wilayahPO.toLowerCase().includes(s.wilayah.toLowerCase())
+      )
+    : [];
+
+  useEffect(() => {
+    if (!wilayahPO) {
+      setValue("sesi_id", "");
+      setValue("tarikh_audit", "");
+      setValue("tarikh_tamat", "");
+      return;
+    }
+    const tepat = senaraiSesi.find(
+      (s) => s.nama_sesi.toLowerCase() === wilayahPO.toLowerCase()
+    );
+    if (tepat) {
+      setValue("sesi_id", tepat.id);
+      setValue("tarikh_audit", tepat.tarikh_mula);
+      setValue("tarikh_tamat", tepat.tarikh_tamat);
+      return;
+    }
+    const matchWilayah = senaraiSesi.filter(
+      (s) =>
+        s.wilayah.toLowerCase() === wilayahPO.toLowerCase() ||
+        wilayahPO.toLowerCase().includes(s.wilayah.toLowerCase())
+    );
+    if (matchWilayah.length === 1) {
+      const s = matchWilayah[0];
+      setValue("sesi_id", s.id);
+      setValue("tarikh_audit", s.tarikh_mula);
+      setValue("tarikh_tamat", s.tarikh_tamat);
+    } else {
+      setValue("sesi_id", "");
+      setValue("tarikh_audit", "");
+      setValue("tarikh_tamat", "");
+    }
+  }, [poDipilih, wilayahPO, senaraiSesi, setValue]);
+
+  useEffect(() => {
+    if (!sesiDipilih) return;
+    const s = senaraiSesi.find((sesi) => sesi.id === sesiDipilih);
+    if (s) {
+      setValue("tarikh_audit", s.tarikh_mula);
+      setValue("tarikh_tamat", s.tarikh_tamat);
+    }
+  }, [sesiDipilih, senaraiSesi, setValue]);
 
   function toggleAuditor(id: string) {
     setAuditorIds((prev) =>
@@ -98,8 +167,11 @@ export function BorangAuditBaru({
         pusat_operasi_id: data.pusat_operasi_id,
         lead_auditor_id: data.lead_auditor_id,
         auditor_ids: auditorIdsBersih,
+        sesi_id: data.sesi_id || null,
         tarikh_audit: data.tarikh_audit,
         tarikh_tamat: data.tarikh_tamat || null,
+        planned_start_date: data.tarikh_audit,
+        planned_end_date: data.tarikh_tamat || null,
         jenis_audit: data.jenis_audit,
         status: "draf",
         catatan: data.catatan || null,
@@ -141,6 +213,49 @@ export function BorangAuditBaru({
           </p>
         )}
       </div>
+
+      {poTerseleksi && sesiTepat && (
+        <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
+          Sesi: <strong>{sesiTepat.nama_sesi}</strong> — tarikh automatik
+          diisi ({sesiTepat.tarikh_mula} hingga {sesiTepat.tarikh_tamat}).
+        </p>
+      )}
+
+      {poTerseleksi && !sesiTepat && sesiMengikutWilayah.length === 0 && (
+        <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          Tiada sesi audit dijumpai untuk wilayah "{poTerseleksi.wilayah}".
+          Sila jalankan "Seed Sesi 2026" di halaman Audit dahulu
+          (jumlah sesi dalam sistem: {senaraiSesi.length}).
+        </p>
+      )}
+
+      {poTerseleksi && !sesiTepat && sesiMengikutWilayah.length > 0 && (
+        <div className="space-y-2 rounded-md border border-blue-200 bg-blue-50/50 p-3">
+          <Label htmlFor="sesi_id">
+            Sesi Audit ({poTerseleksi.wilayah})
+          </Label>
+          <Select id="sesi_id" {...register("sesi_id")}>
+            <option value="">
+              -- Pilih Sesi ({poTerseleksi.wilayah}) --
+            </option>
+            {sesiMengikutWilayah.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.nama_sesi} — {new Intl.DateTimeFormat("ms-MY", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                }).format(new Date(s.tarikh_mula))}{" "}
+                hingga{" "}
+                {new Intl.DateTimeFormat("ms-MY", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                }).format(new Date(s.tarikh_tamat))}
+              </option>
+            ))}
+          </Select>
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="lead_auditor_id">

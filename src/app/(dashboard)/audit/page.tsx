@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatTarikh } from "@/lib/utils";
 import { ButangPadamAudit } from "@/components/audit/butang-padam-audit";
+import { ButangSeedSesi } from "@/components/audit/butang-seed-sesi";
 
 const LABEL_STATUS: Record<string, string> = {
   draf: "Draf",
@@ -51,9 +52,12 @@ export default async function HalamanSenaraiAudit() {
             Semua sesi audit MSPO mengikut Pusat Operasi.
           </p>
         </div>
-        <Link href="/audit/baru">
-          <Butang>+ Audit Baru</Butang>
-        </Link>
+        <div className="flex items-center gap-2">
+          <ButangSeedSesi />
+          <Link href="/audit/baru">
+            <Butang>+ Audit Baru</Butang>
+          </Link>
+        </div>
       </div>
 
       <Card>

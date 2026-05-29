@@ -10,13 +10,18 @@ export default async function HalamanAuditBaru() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/masuk");
 
-  const [{ data: senaraiPOMentah }, { data: senaraiAuditor }] = await Promise.all([
+  const [
+    { data: senaraiPOMentah },
+    { data: senaraiAuditor },
+    { data: senaraiSesi },
+  ] = await Promise.all([
     supabase.from("pusat_operasi").select("id, kod, nama, wilayah"),
     supabase
       .from("pengguna")
       .select("id, nama_penuh, rol")
       .in("rol", ["admin", "lead_auditor", "auditor"])
       .order("nama_penuh"),
+    supabase.from("sesi_audit").select("id, nama_sesi, wilayah, tarikh_mula, tarikh_tamat").order("tarikh_mula"),
   ]);
 
   // Sort PO numerik (PO1, PO2, ..., PO12) bukan lexicographic (PO1, PO10, PO11, ..., PO2)
@@ -43,6 +48,7 @@ export default async function HalamanAuditBaru() {
           <BorangAuditBaru
             senaraiPO={senaraiPO}
             senaraiAuditor={senaraiAuditor ?? []}
+            senaraiSesi={senaraiSesi ?? []}
             penggunaSemasa={{ id: user.id }}
           />
         </CardContent>
