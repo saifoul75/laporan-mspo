@@ -1,7 +1,9 @@
 # PROGRESS — MSPO Audit System
 
 > Log progress untuk kerja Fasa 3 (Modul 3.1 - 3.4) sistem audit MSPO.
-> Tarikh kemaskini terakhir: 28 Mei 2026
+> Tarikh kemaskini terakhir: 29 Mei 2026
+>
+> **Update 29/5:** Crosscheck Guidance MS2530-2-2:2022 → jumpa 12 indicator missing (4.4.3 +9, 4.4.1 +2, 4.2.3 +1). Migration `0015` ditambah — 74 → 86 item_semakan. PPTX route.ts refactor guna slide-queue pattern.
 >
 > **Cara guna:** Bila buka sesi Kilo baru, taip _"Baca PROGRESS.md dan sambung kerja dari task yang belum siap"_.
 
