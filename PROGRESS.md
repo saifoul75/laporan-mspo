@@ -73,7 +73,38 @@ update public.audit
 
 ## ✅ KERJA SIAP
 
-### Sesi 28 Mei 2026
+### Sesi 28 Mei 2026 (Sesi Petang — Kilo)
+
+#### 5. Modul 3.5 — CAP Submission UI
+- `src/app/(dashboard)/audit/[id]/cap/page.tsx` — page CAP untuk auditee submit tindakan pembetulan
+- `src/components/audit/borang-cap.tsx` — component form CAP (tindakan pembetulan + upload bukti)
+- `src/components/audit/butang-verify-cap.tsx` — component butang Verify CAP untuk Lead Auditor
+- `src/app/(dashboard)/audit/actions.ts` — server actions:
+  - `hantarCap()` — auditee hantar CAP (open → in_progress)
+  - `sahCap()` — Lead sahkan CAP (in_progress → closed)
+  - `verifyCap()` — Lead verify CAP final (closed → verified)
+  - Auto-tutup audit (status → selesai) bila semua NC verified
+- Link CAP di `[id]/page.tsx` — tunjuk bila dah muktamadkan + ada NC
+
+#### 6. Modul 3.1 — Opening Meeting Attendance
+- `supabase/migrations/0012_kehadiran_opening_meeting.sql` — table `kehadiran_opening_meeting`
+  - Columns: `audit_id`, `nama`, `jawatan`, `ditandatangan_pada` (server timestamp)
+  - RLS: auth-users boleh baca + tulis
+  - Applied ke remote DB ✅
+- `src/components/audit/borang-kehadiran-opening.tsx` — component sign-in auditee
+  - Daftar hadir (nama + jawatan, server time for timestamp)
+  - Jadual senarai hadir
+  - Butang "Mula Audit" untuk Lead Auditor (shift `dijadual` → `sedang_dijalankan`)
+- Server actions: `sahkanKehadiran()` + `mulakanAuditDaripadaOpening()`
+- Integrated ke `[id]/page.tsx` — paparan bawah ringkasan dapatan
+
+#### 7. Code Cleanup — PPTX Route Corruption Fix
+- `src/app/api/laporan/[id]/pptx/route.ts` — remove ~140 lines orphan/duplicate code (Claude corruption)
+  - Original was 1243 lines, now 944 lines (clean)
+  - Duplicate closing + extra CAP/PENUTUP slide removed
+- **Verified:** TypeScript ✅, Next.js build ✅
+
+### Sesi 28 Mei 2026 (Sesi Pagi — Claude)
 
 #### 1. PDF Laporan — Format Word (4 halaman)
 - `src/app/api/laporan/[id]/pdf/route.tsx` — fetch nama lead auditor dari `pengguna`
@@ -176,20 +207,8 @@ update public.audit
 - Update server action `ciptaAudit` untuk handle field baru
 - Validasi: minimum 1 lead via zod schema
 
-### Modul 3.1 — Opening Meeting Attendance
-**Skop:** Sahkan kehadiran auditee semasa audit start.
-
-- [ ] Table baru `kehadiran_opening_meeting` (audit_id, nama, jawatan, ditandatangan_pada server timestamp)
-- [ ] Component sign-in (no manual date entry — server time only)
-- [ ] Auto-shift status `dijadual` → `sedang_dijalankan` bila Opening confirmed
-
-### CAP Submission UI (Modul 3.5 — selepas Closing)
-**Skop:** Auditee submit CAP dalam tempoh due date.
-
-- [ ] Page baru `/audit/[id]/cap` untuk auditee submit tindakan pembetulan
-- [ ] Form per dapatan NC: tindakan_pembetulan, bukti_pembetulan upload
-- [ ] Status NC: `open` → `in_progress` → `closed` → `verified`
-- [ ] Lead Auditor verify CAP dan tukar status audit ke `selesai`
+### Modul 3.1 — Opening Meeting Attendance ✅ SIAP (28 Mei 2026)
+### CAP Submission UI (Modul 3.5 — selepas Closing) ✅ SIAP (28 Mei 2026)
 
 ---
 

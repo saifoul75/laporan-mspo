@@ -8,6 +8,7 @@ import { BadgeStatus } from "@/components/ui/badge-status";
 import { TimelineAktivitiAudit } from "@/components/audit/timeline-aktiviti";
 import { BorangMuktamadkanAudit } from "@/components/audit/borang-muktamadkan-audit";
 import { BadgeCapCountdown } from "@/components/audit/badge-cap-countdown";
+import { BorangKehadiranOpening } from "@/components/audit/borang-kehadiran-opening";
 import { formatTarikh, formatTarikhMasa } from "@/lib/utils";
 
 export default async function HalamanAudit({
@@ -57,7 +58,7 @@ export default async function HalamanAudit({
       }
     | null;
 
-  const [{ data: dapatanList }, { count: ncCount }, { count: ofiCount }] =
+  const [{ data: dapatanList }, { count: ncCount }, { count: ofiCount }, { data: kehadiranList }] =
     await Promise.all([
       supabase
         .from("dapatan")
@@ -71,6 +72,11 @@ export default async function HalamanAudit({
         .from("ofi")
         .select("*", { count: "exact", head: true })
         .eq("audit_id", params.id),
+      supabase
+        .from("kehadiran_opening_meeting")
+        .select("id, nama, jawatan, ditandatangan_pada")
+        .eq("audit_id", params.id)
+        .order("ditandatangan_pada"),
     ]);
 
   const stats = {
@@ -229,6 +235,16 @@ export default async function HalamanAudit({
         />
       )}
 
+      {/* Modul 3.1: Opening Meeting Attendance */}
+      {!sudahMuktamad && audit.status !== "selesai" && audit.status !== "dibatalkan" && (
+        <BorangKehadiranOpening
+          auditId={audit.id}
+          status={audit.status}
+          adalahLead={rolBoleh ?? false}
+          senaraiKehadiran={(kehadiranList ?? []).map((k: { id: string; nama: string; jawatan: string; ditandatangan_pada: string }) => k)}
+        />
+      )}
+
       <div className="flex flex-wrap gap-2">
         <Link href={`/audit/${audit.id}/checklist`}>
           <Butang>Buka Checklist</Butang>
@@ -236,6 +252,13 @@ export default async function HalamanAudit({
         <Link href={`/audit/${audit.id}/laporan`}>
           <Butang variant="outline">Lihat Laporan</Butang>
         </Link>
+        {sudahMuktamad && (ncCount ?? 0) > 0 && (
+          <Link href={`/audit/${audit.id}/cap`}>
+            <Butang variant="outline">
+              CAP Submission ({ncCount ?? 0} NC)
+            </Butang>
+          </Link>
+        )}
       </div>
 
       <Card>

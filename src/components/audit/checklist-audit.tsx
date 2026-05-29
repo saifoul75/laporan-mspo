@@ -13,6 +13,7 @@ import { useGPS } from "@/lib/hooks/useGPS";
 import { useOnline } from "@/lib/hooks/useOnline";
 import { MuatNaikBukti } from "@/components/audit/muat-naik-bukti";
 import { simpanDapatanOffline, keDapatan } from "@/lib/db/simpan-dapatan";
+import { dapatkanBankJawapan } from "@/app/(dashboard)/audit/actions";
 import type {
   Prinsip,
   Kriteria,
@@ -276,6 +277,24 @@ function BorangDapatan({
   const gps = useGPS();
   const online = useOnline();
 
+  function handleStatusChange(statusBaru: StatusDapatan) {
+    setStatus(statusBaru);
+    if (!item.kod) return;
+    // Map status checklist → status bank_jawapan
+    const statusBank: Record<string, string> = {
+      Y: "C", N: "NC", NC: "NC", OFI: "OFI", NA: "N/A", Pending: "Pending",
+    };
+    const carian = statusBank[statusBaru] ?? statusBaru;
+    startTransition(async () => {
+      const bank = await dapatkanBankJawapan(item.kod, carian);
+      if (!bank) return;
+      if (bank.catatan_bukti) setCatatan(bank.catatan_bukti);
+      if (bank.semakan_tapak) setBuktiAudit(bank.semakan_tapak);
+      if (bank.tindakan_pembetulan) setCadangan(bank.tindakan_pembetulan);
+      if (bank.punca_akar) setPuncaAkar(bank.punca_akar);
+    });
+  }
+
   const perluBesar = status === "NC" || status === "N";
   const perluCadangan = status === "NC" || status === "OFI";
 
@@ -331,7 +350,7 @@ function BorangDapatan({
           <Select
             id={`status-${item.id}`}
             value={status}
-            onChange={(e) => setStatus(e.target.value as StatusDapatan)}
+            onChange={(e) => handleStatusChange(e.target.value as StatusDapatan)}
           >
             {SEMUA_STATUS.map((s) => (
               <option key={s} value={s}>
