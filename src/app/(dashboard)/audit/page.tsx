@@ -93,7 +93,7 @@ export default async function HalamanSenaraiAudit() {
                   </Link>
                   <div className="flex items-center gap-2">
                     <Badge>{LABEL_STATUS[a.status] ?? a.status}</Badge>
-                    {a.status === "draf" && (
+                    {["draf", "dijadual", "sedang_dijalankan"].includes(a.status) && (
                       <ButangPadamAudit auditId={a.id} noRujukan={a.no_rujukan} />
                     )}
                   </div>

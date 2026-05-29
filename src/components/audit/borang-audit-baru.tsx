@@ -223,8 +223,8 @@ export function BorangAuditBaru({
 
       {poTerseleksi && !sesiTepat && sesiMengikutWilayah.length === 0 && (
         <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-          Tiada sesi audit dijumpai untuk wilayah "{poTerseleksi.wilayah}".
-          Sila jalankan "Seed Sesi 2026" di halaman Audit dahulu
+          Tiada sesi audit dijumpai untuk wilayah &quot;{poTerseleksi.wilayah}&quot;.
+          Sila jalankan &quot;Seed Sesi 2026&quot; di halaman Audit dahulu
           (jumlah sesi dalam sistem: {senaraiSesi.length}).
         </p>
       )}

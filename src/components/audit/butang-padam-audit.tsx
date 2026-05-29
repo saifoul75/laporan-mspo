@@ -66,7 +66,7 @@ export function ButangPadamAudit({ auditId, noRujukan }: { auditId: string; noRu
       }}
       className="text-destructive hover:border-destructive hover:text-destructive"
     >
-      Padam Draf
+      Padam
     </Butang>
   );
 }

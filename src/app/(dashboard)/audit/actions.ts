@@ -492,7 +492,7 @@ export async function padamAuditDraf(auditId: string) {
     return { ok: false, ralat: "Hanya Admin atau Lead Auditor boleh padam audit." };
   }
 
-  // Semak status — wajib "draf"
+  // Semak status — benarkan draf / dijadual / sedang_dijalankan sahaja
   const { data: audit } = await supabase
     .from("audit")
     .select("status")
@@ -500,11 +500,15 @@ export async function padamAuditDraf(auditId: string) {
     .single();
 
   if (!audit) return { ok: false, ralat: "Audit tidak dijumpai." };
-  if (audit.status !== "draf") {
-    return { ok: false, ralat: `Audit berstatus "${audit.status}" tidak boleh dipadam. Hanya draf dibenarkan.` };
+  const statusBolehPadam = ["draf", "dijadual", "sedang_dijalankan"];
+  if (!statusBolehPadam.includes(audit.status)) {
+    return { ok: false, ralat: `Audit berstatus "${audit.status}" tidak boleh dipadam.` };
   }
 
-  // Padam dapatan berkaitan dulu (foreign key)
+  // Padam rekod berkaitan dulu (foreign key)
+  await supabase.from("kehadiran_opening_meeting").delete().eq("audit_id", auditId);
+  await supabase.from("nc").delete().eq("audit_id", auditId);
+  await supabase.from("ofi").delete().eq("audit_id", auditId);
   await supabase.from("dapatan").delete().eq("audit_id", auditId);
 
   // Padam audit
@@ -684,7 +688,9 @@ export async function stressTestSelatan2() {
     },
   ];
 
-  const { error: ralatDapatan } = await supabase.from("dapatan").insert(dapatan);
+  const { error: ralatDapatan } = await supabase
+    .from("dapatan")
+    .upsert(dapatan, { onConflict: "audit_id, item_semakan_id" });
   if (ralatDapatan) return { ok: false, ralat: ralatDapatan.message };
 
   revalidatePath("/audit");
