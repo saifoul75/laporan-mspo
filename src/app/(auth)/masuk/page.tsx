@@ -17,6 +17,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Eye, EyeOff } from "lucide-react";
 
 const skemaMasuk = z.object({
   email: z.string().email("Email tidak sah"),
@@ -29,6 +30,7 @@ export default function HalamanMasuk() {
   const router = useRouter();
   const [ralat, setRalat] = useState<string | null>(null);
   const [memuat, setMemuat] = useState(false);
+  const [tunjukKataLaluan, setTunjukKataLaluan] = useState(false);
 
   const {
     register,
@@ -79,12 +81,21 @@ export default function HalamanMasuk() {
 
           <div className="space-y-2">
             <Label htmlFor="kata_laluan">Kata Laluan</Label>
-            <Input
-              id="kata_laluan"
-              type="password"
-              autoComplete="current-password"
-              {...register("kata_laluan")}
-            />
+            <div className="relative">
+              <Input
+                id="kata_laluan"
+                type={tunjukKataLaluan ? "text" : "password"}
+                autoComplete="current-password"
+                {...register("kata_laluan")}
+              />
+              <button
+                type="button"
+                onClick={() => setTunjukKataLaluan(!tunjukKataLaluan)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                {tunjukKataLaluan ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
             {errors.kata_laluan && (
               <p className="text-xs text-destructive">
                 {errors.kata_laluan.message}

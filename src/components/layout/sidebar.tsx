@@ -23,6 +23,13 @@ const ITEM_NAV: ItemNav[] = [
   { label: "Tetapan", href: "/tetapan" },
 ];
 
+const ITEM_HASIL: ItemNav[] = [
+  { label: "Ringkasan Hasil", href: "/hasil" },
+  { label: "Sawit", href: "/hasil/sawit" },
+  { label: "Getah", href: "/hasil/getah" },
+  { label: "Carta", href: "/hasil/carta" },
+];
+
 export function Sidebar({ rol }: { rol: RolPengguna }) {
   const pathname = usePathname();
 
@@ -38,28 +45,60 @@ export function Sidebar({ rol }: { rol: RolPengguna }) {
         </div>
       </div>
 
-      <nav className="flex-1 space-y-1 p-3">
-        {ITEM_NAV.filter((i) => !i.rol || i.rol.includes(rol)).map((item) => {
-          const aktif =
-            item.href === "/dashboard"
-              ? pathname === item.href
-              : pathname.startsWith(item.href);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                aktif
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-              )}
-            >
-              {item.label}
-            </Link>
-          );
-        })}
-      </nav>
+      <div className="flex-1 overflow-y-auto">
+        {/* Hasil Projek — atas */}
+        <div className="p-3 border-b">
+          <div className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+            Hasil Projek
+          </div>
+          <nav className="space-y-1">
+            {ITEM_HASIL.map((item) => {
+              const aktif =
+                item.href === "/hasil"
+                  ? pathname === item.href
+                  : pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                    aktif
+                      ? "bg-[#C0182A] text-white"
+                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                  )}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* MSPO Audit nav — bawah */}
+        <nav className="space-y-1 p-3">
+          {ITEM_NAV.filter((i) => !i.rol || i.rol.includes(rol)).map((item) => {
+            const aktif =
+              item.href === "/dashboard"
+                ? pathname === item.href
+                : pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                  aktif
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                )}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
     </aside>
   );
 }

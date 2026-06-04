@@ -28,7 +28,7 @@ const HIJAU_SUB    = "A8D5BA";
 const NAVY         = "0D1B2A";
 const NAVY_GELAP   = "050D14";
 const BIRU_MUDA    = "90CAF9";
-const KELABU_LATAR = "F3F4F6";
+const _KELABU_LATAR = "F3F4F6";
 
 type Dapatan = {
   id: string;
@@ -69,18 +69,18 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     return NextResponse.json({ error: "Audit tidak dijumpai", butiran: ralatAudit?.message }, { status: 404 });
   }
 
-  let namaLead = "-";
+  let _namaLead = "-";
   if (audit.lead_auditor_id) {
     const { data: leadProfil } = await supabase
       .from("pengguna").select("nama_penuh").eq("id", audit.lead_auditor_id).single();
-    namaLead = leadProfil?.nama_penuh ?? "-";
+    _namaLead = leadProfil?.nama_penuh ?? "-";
   }
 
-  let namaAuditorLain: string[] = [];
+  let _namaAuditorLain: string[] = [];
   if (audit.auditor_ids && Array.isArray(audit.auditor_ids) && audit.auditor_ids.length > 0) {
     const { data: auditorProfil } = await supabase
       .from("pengguna").select("nama_penuh").in("id", audit.auditor_ids);
-    namaAuditorLain = (auditorProfil ?? []).map((p) => p.nama_penuh);
+    _namaAuditorLain = (auditorProfil ?? []).map((p) => p.nama_penuh);
   }
 
   const { data: dapatanRaw } = await supabase
@@ -165,8 +165,6 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
   const slideFns: BuildSlide[] = [];
   const daftar = (fn: BuildSlide) => { slideFns.push(fn); };
 
-  const adaNC  = ncMajor.length + ncMinor.length > 0;
-  const adaOfi = ofiList.length > 0;
   const ITEMS_PER_SLIDE = 6;
   const semuaBincang = [
     ...ncMajor.map(d => ({ ...d, jenis: "Major NC", warna: MERAH,  latar: MERAH_LATAR })),
@@ -602,7 +600,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
   for (let sIdx = 0; sIdx < bincSlides; sIdx++) {
     daftar((sPerbinc, no, total) => {
     sPerbinc.background = { color: PUTIH };
-    const bincLabel = bincSlides > 1 ? `Sesi ${sIdx + 1} / ${bincSlides}` : undefined;
+    const _bincLabel = bincSlides > 1 ? `Sesi ${sIdx + 1} / ${bincSlides}` : undefined;
     tambahHeaderContent(sPerbinc, "Perbincangan Dapatan Audit", `Sesi ${sIdx + 1}/${bincSlides} — hujah bersama auditee untuk setiap penemuan`);
 
     const rowH = 0.65;
@@ -659,7 +657,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
   // ===========================================================
   // YANG BAIK, KAMI CATAT JUGA — penghargaan
   // ===========================================================
-  daftar((sBaik, no, total) => {
+  daftar((sBaik) => {
     sBaik.background = { color: HIJAU_FOREST };
     sBaik.addShape(pptx.ShapeType.rect, {
       x: 0, y: 0, w: 0.08, h: H,
@@ -726,7 +724,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
   // ===========================================================
   // PENUTUP - merah full bleed
   // ===========================================================
-  daftar((sEnd, no, total) => {
+  daftar((sEnd) => {
   sEnd.addShape(pptx.ShapeType.rect, {
     x: 0, y: 0, w: W, h: H,
     fill: { color: MERAH }, line: { color: MERAH },

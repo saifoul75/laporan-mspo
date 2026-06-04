@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Butang } from "@/components/ui/butang";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,12 @@ const LABEL_ROL: Record<RolPengguna, string> = {
 
 export function TopBar({ nama, rol }: { nama: string; rol: RolPengguna }) {
   const router = useRouter();
+  const pathname = usePathname();
+
+  function getTajuk() {
+    if (pathname.startsWith("/hasil")) return "Dashboard Hasil Projek — RISDA Plantation Sdn Bhd"
+    return "Sistem Audit MSPO"
+  }
 
   async function logKeluar() {
     const supabase = createClient();
@@ -32,7 +38,7 @@ export function TopBar({ nama, rol }: { nama: string; rol: RolPengguna }) {
             M
           </div>
         </div>
-        <h1 className="text-base font-semibold">Sistem Audit MSPO</h1>
+        <h1 className="text-base font-semibold">{getTajuk()}</h1>
       </div>
 
       <div className="flex items-center gap-3">

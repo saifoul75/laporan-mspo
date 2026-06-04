@@ -61,18 +61,14 @@ export function AmaranSyncLaporan({ auditId }: { auditId: string }) {
   }, [auditId]);
 
   async function paksaSync() {
-    console.log("[AmaranSync] paksaSync clicked", { online, sedangSync });
     if (!online || sedangSync) {
-      console.log("[AmaranSync] Skipped - online:", online, "sedangSync:", sedangSync);
       return;
     }
     setSedangSync(true);
     setHasilTerakhir(null);
     setMesejPulih(null);
     try {
-      console.log("[AmaranSync] Calling jalankanSync()...");
       const hasil = await jalankanSync();
-      console.log("[AmaranSync] Hasil:", hasil);
       setHasilTerakhir(hasil);
       // Kalau queue kosong tapi Dexie masih ada rekod belum_sync,
       // beri petunjuk eksplisit kepada pengguna
