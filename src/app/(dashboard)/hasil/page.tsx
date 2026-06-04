@@ -1,10 +1,14 @@
-import data from "@/data/april2026.json"
+import rawData from "@/data/hasil-bulanan.json"
 
-type PS = { pol_pn: string; nama: string; hasil_mt: number; pct_setakat: number; pct_setahun: number; pendapatan: number; kos: number; untung_rugi: number }
-type PG = { pol_pn: string; nama: string; hasil_kg: number; pct_setakat: number; pct_setahun: number; pendapatan: number; kos: number; untung_rugi: number }
+type PS = { pol_pn: string; nama: string; hasil_mt: number; pct_setahun: number; pendapatan: number; kos: number; untung_rugi: number }
+type PG = { pol_pn: string; nama: string; hasil_kg: number; pct_setahun: number; pendapatan: number; kos: number; untung_rugi: number }
+type BulanData = { kod: string; nama: string; sawit: PS[]; getah: PG[] }
 
-const sawit = data.sawit as PS[]
-const getah  = data.getah as PG[]
+const dataBulanan = rawData.bulan as BulanData[]
+const bulanTerkini = dataBulanan[dataBulanan.length - 1] // April 2026
+
+const sawitTerkini = bulanTerkini.sawit
+const getahTerkini = bulanTerkini.getah
 
 function fmt(n: number | undefined | null, d = 0): string {
   if (n == null || isNaN(n)) return "—"
@@ -12,35 +16,45 @@ function fmt(n: number | undefined | null, d = 0): string {
 }
 
 function pctClass(v: number) {
-  return v >= 100 ? "text-blue-600" : v >= 80 ? "text-green-600" : "text-red-600"
+  return v >= 25 ? "text-blue-600" : v >= 20 ? "text-green-600" : "text-red-600"
 }
 
 export default function HasilPage() {
-  const ts_hasil  = sawit.reduce((a, p) => a + (p.hasil_mt ?? 0), 0)
-  const ts_pend   = sawit.reduce((a, p) => a + (p.pendapatan ?? 0), 0)
-  const ts_ur     = sawit.reduce((a, p) => a + (p.untung_rugi ?? 0), 0)
-  const valid     = sawit.filter(p => (p.pct_setakat ?? 0) > 0)
-  const avg_pct   = valid.length ? valid.reduce((a, p) => a + p.pct_setakat, 0) / valid.length : 0
-  const tg_hasil  = getah.reduce((a, p) => a + (p.hasil_kg ?? 0), 0)
-  const tg_ur     = getah.reduce((a, p) => a + (p.untung_rugi ?? 0), 0)
-  const top5      = [...sawit].sort((a, b) => b.hasil_mt - a.hasil_mt).slice(0, 5)
-  const top5rugi  = [...sawit].sort((a, b) => a.untung_rugi - b.untung_rugi).slice(0, 5)
+  const ts_hasil  = sawitTerkini.reduce((a, p) => a + (p.hasil_mt ?? 0), 0)
+  const ts_pend   = sawitTerkini.reduce((a, p) => a + (p.pendapatan ?? 0), 0)
+  const ts_ur     = sawitTerkini.reduce((a, p) => a + (p.untung_rugi ?? 0), 0)
+  const valid     = sawitTerkini.filter(p => (p.pct_setahun ?? 0) > 0)
+  const avg_pct   = valid.length ? valid.reduce((a, p) => a + p.pct_setahun, 0) / valid.length : 0
+  const tg_hasil  = getahTerkini.reduce((a, p) => a + (p.hasil_kg ?? 0), 0)
+  const tg_ur     = getahTerkini.reduce((a, p) => a + (p.untung_rugi ?? 0), 0)
+  const top5      = [...sawitTerkini].sort((a, b) => b.hasil_mt - a.hasil_mt).slice(0, 5)
+  const top5rugi  = [...sawitTerkini].sort((a, b) => a.untung_rugi - b.untung_rugi).slice(0, 5)
+
+  // Trend Data for Mini Chart / Summary
+  const trendSawit = dataBulanan.map(b => ({
+    nama: b.nama.substring(0, 3), // Jan, Feb
+    hasil: b.sawit.reduce((a, p) => a + (p.hasil_mt ?? 0), 0)
+  }))
+  const trendGetah = dataBulanan.map(b => ({
+    nama: b.nama.substring(0, 3),
+    hasil: b.getah.reduce((a, p) => a + (p.hasil_kg ?? 0), 0)
+  }))
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Ringkasan Prestasi Hasil</h1>
-          <p className="text-muted-foreground text-sm mt-1">Semua projek sawit &amp; getah — setakat April 2026</p>
+          <p className="text-muted-foreground text-sm mt-1">Semua projek sawit & getah — setakat {bulanTerkini.nama.toUpperCase()}</p>
         </div>
-        <span className="bg-[#D4A017] text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full">APRIL 2026</span>
+        <span className="bg-[#D4A017] text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full">{bulanTerkini.nama.toUpperCase()}</span>
       </div>
 
       {/* Cards */}
       <div className="grid grid-cols-4 gap-4">
         {[
-          { label: "Hasil Sawit BTB",     val: fmt(ts_hasil,1)+" MT",   sub: sawit.length+" projek sawit",          border: "border-[#C0182A]",  vc: "" },
-          { label: "% Capai Setakat",     val: fmt(avg_pct,1)+"%",       sub: "Purata semua projek",                border: "border-blue-500",   vc: pctClass(avg_pct) },
+          { label: "Hasil Sawit BTB",     val: fmt(ts_hasil,1)+" MT",   sub: sawitTerkini.length+" projek sawit",          border: "border-[#C0182A]",  vc: "" },
+          { label: "% Capai Setahun",     val: fmt(avg_pct,1)+"%",       sub: "Purata semua projek",                border: "border-blue-500",   vc: pctClass(avg_pct) },
           { label: "U/R Sawit",           val: "RM "+fmt(ts_ur),         sub: "Pendapatan RM "+fmt(ts_pend),         border: "border-green-600",  vc: ts_ur >= 0 ? "text-green-600" : "text-red-600" },
           { label: "Hasil Getah",         val: fmt(tg_hasil)+" KG",      sub: "U/R: RM "+fmt(tg_ur),                border: "border-[#D4A017]",  vc: tg_ur >= 0 ? "text-green-600" : "text-red-600" },
         ].map((c, i) => (
@@ -52,6 +66,42 @@ export default function HasilPage() {
         ))}
       </div>
 
+      {/* Trend Bulanan */}
+      <div className="grid grid-cols-2 gap-6">
+        <div className="bg-card rounded-xl shadow-sm border p-5">
+           <h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground mb-3">Trend Bulanan Hasil Sawit (MT)</h2>
+           <div className="flex justify-between items-end h-24 mt-4 gap-2">
+             {trendSawit.map((t, i) => {
+               const max = Math.max(...trendSawit.map(x => x.hasil))
+               const h = Math.max(10, (t.hasil / max) * 100)
+               return (
+                 <div key={i} className="flex flex-col items-center flex-1">
+                   <div className="text-[10px] font-semibold mb-1">{fmt(t.hasil, 0)}</div>
+                   <div className="w-full max-w-[40px] bg-[#C0182A]/80 rounded-t-sm" style={{ height: `${h}%` }}></div>
+                   <div className="text-xs text-muted-foreground mt-2 font-medium">{t.nama}</div>
+                 </div>
+               )
+             })}
+           </div>
+        </div>
+        <div className="bg-card rounded-xl shadow-sm border p-5">
+           <h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground mb-3">Trend Bulanan Hasil Getah (KG)</h2>
+           <div className="flex justify-between items-end h-24 mt-4 gap-2">
+             {trendGetah.map((t, i) => {
+               const max = Math.max(...trendGetah.map(x => x.hasil))
+               const h = Math.max(10, (t.hasil / max) * 100)
+               return (
+                 <div key={i} className="flex flex-col items-center flex-1">
+                   <div className="text-[10px] font-semibold mb-1">{fmt(t.hasil, 0)}</div>
+                   <div className="w-full max-w-[40px] bg-[#D4A017]/80 rounded-t-sm" style={{ height: `${h}%` }}></div>
+                   <div className="text-xs text-muted-foreground mt-2 font-medium">{t.nama}</div>
+                 </div>
+               )
+             })}
+           </div>
+        </div>
+      </div>
+
       {/* Tables */}
       <div className="grid grid-cols-2 gap-6">
         <div className="bg-card rounded-xl shadow-sm border p-5">
@@ -60,7 +110,7 @@ export default function HasilPage() {
             <thead><tr className="text-xs text-muted-foreground border-b">
               <th className="text-left pb-2">Projek</th>
               <th className="text-right pb-2">MT</th>
-              <th className="text-right pb-2">% Setakat</th>
+              <th className="text-right pb-2">% Setahun</th>
             </tr></thead>
             <tbody>
               {top5.map((p, i) => (
@@ -68,8 +118,8 @@ export default function HasilPage() {
                   <td className="py-2 text-sm truncate max-w-[160px]">{p.nama}</td>
                   <td className="py-2 text-right font-semibold">{fmt(p.hasil_mt,1)}</td>
                   <td className="py-2 text-right">
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${p.pct_setakat>=100?"bg-blue-100 text-blue-800":p.pct_setakat>=80?"bg-green-100 text-green-800":"bg-yellow-100 text-yellow-800"}`}>
-                      {fmt(p.pct_setakat,1)}%
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${p.pct_setahun>=25?"bg-blue-100 text-blue-800":p.pct_setahun>=20?"bg-green-100 text-green-800":"bg-yellow-100 text-yellow-800"}`}>
+                      {fmt(p.pct_setahun,1)}%
                     </span>
                   </td>
                 </tr>
@@ -79,7 +129,7 @@ export default function HasilPage() {
         </div>
 
         <div className="bg-card rounded-xl shadow-sm border p-5">
-          <h2 className="text-sm font-bold uppercase tracking-wide text-red-600 mb-3">⚠ Projek Rugi Tertinggi</h2>
+          <h2 className="text-sm font-bold uppercase tracking-wide text-red-600 mb-3">⚠ Projek Rugi Tertinggi ({bulanTerkini.nama})</h2>
           <table className="w-full text-sm">
             <thead><tr className="text-xs text-muted-foreground border-b">
               <th className="text-left pb-2">Projek</th>
