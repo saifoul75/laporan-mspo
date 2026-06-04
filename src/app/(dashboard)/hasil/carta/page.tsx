@@ -2,8 +2,8 @@
 import rawData from "@/data/april2026.json"
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, Legend } from "recharts"
 
-type PS = { pol_pn: string; hasil_mt: number; pct_bulan: number; untung_rugi: number }
-type PG = { pol_pn: string; nama: string; hasil_kg: number; pct_bulan: number; pct_tahun: number }
+type PS = { pol_pn: string; nama: string; hasil_mt: number; pct_setakat: number; untung_rugi: number }
+type PG = { pol_pn: string; nama: string; hasil_kg: number; pct_setakat: number; pct_setahun: number }
 const sawit = rawData.sawit as PS[]
 const getah = rawData.getah as PG[]
 
@@ -13,10 +13,10 @@ function byPol(data: PS[], fn: (arr: PS[]) => number) {
   return Object.entries(m).sort((a,b)=>a[0].localeCompare(b[0])).map(([pol, arr]) => ({ pol, value: fn(arr) }))
 }
 
-const pctData = byPol(sawit, arr => { const v = arr.filter(p=>p.pct_bulan>0); return v.length ? v.reduce((a,p)=>a+p.pct_bulan,0)/v.length : 0 })
+const pctData = byPol(sawit, arr => { const v = arr.filter(p=>p.pct_setakat>0); return v.length ? v.reduce((a,p)=>a+p.pct_setakat,0)/v.length : 0 })
 const urData  = byPol(sawit, arr => arr.reduce((a,p)=>a+p.untung_rugi,0))
-const top15   = [...sawit].sort((a,b)=>b.hasil_mt-a.hasil_mt).slice(0,15).map(p=>({ nama: (p as any).nama?.slice(0,20)||"", hasil: p.hasil_mt }))
-const getahPct = getah.map(p => ({ nama: p.nama.slice(0,22), bulan: p.pct_bulan, tahun: p.pct_tahun }))
+const top15   = [...sawit].sort((a,b)=>b.hasil_mt-a.hasil_mt).slice(0,15).map(p=>({ nama: p.nama.slice(0,20), hasil: p.hasil_mt }))
+const getahPct = getah.map(p => ({ nama: p.nama.slice(0,22), setakat: p.pct_setakat, setahun: p.pct_setahun }))
 
 export default function CartaPage() {
   return (
@@ -29,7 +29,7 @@ export default function CartaPage() {
               <BarChart data={pctData} margin={{bottom:30}}>
                 <XAxis dataKey="pol" tick={{fontSize:10}} angle={-35} textAnchor="end" interval={0}/>
                 <YAxis tickFormatter={v=>v+"%"} tick={{fontSize:10}}/>
-                <Tooltip formatter={(v:number)=>v.toFixed(1)+"%"}/>
+                <Tooltip formatter={(v)=>Number(v ?? 0).toFixed(1)+"%"}/>
                 <Bar dataKey="value" radius={[4,4,0,0]}>
                   {pctData.map((d,i)=><Cell key={i} fill={d.value>=100?"#1d4ed8":d.value>=80?"#16a34a":d.value>=50?"#ca8a04":"#dc2626"}/>)}
                 </Bar>
@@ -51,22 +51,22 @@ export default function CartaPage() {
               <BarChart data={urData} margin={{bottom:30}}>
                 <XAxis dataKey="pol" tick={{fontSize:10}} angle={-35} textAnchor="end" interval={0}/>
                 <YAxis tickFormatter={v=>"RM "+(v/1000).toFixed(0)+"k"} tick={{fontSize:10}}/>
-                <Tooltip formatter={(v:number)=>"RM "+v.toLocaleString("ms-MY",{maximumFractionDigits:0})}/>
+                <Tooltip formatter={(v)=>"RM "+Number(v ?? 0).toLocaleString("ms-MY",{maximumFractionDigits:0})}/>
                 <Bar dataKey="value" radius={[4,4,0,0]}>
                   {urData.map((d,i)=><Cell key={i} fill={d.value>=0?"#16a34a":"#dc2626"}/>)}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
           )},
-          { title: "% Capai Getah — Bulan & Tahun", content: (
+          { title: "% Capai Getah — Setakat & Setahun", content: (
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={getahPct} layout="vertical">
                 <XAxis type="number" tickFormatter={v=>v+"%"} tick={{fontSize:10}}/>
                 <YAxis dataKey="nama" type="category" tick={{fontSize:9}} width={140}/>
-                <Tooltip formatter={(v:number)=>v.toFixed(1)+"%"}/>
+                <Tooltip formatter={(v)=>Number(v ?? 0).toFixed(1)+"%"}/>
                 <Legend/>
-                <Bar dataKey="bulan" name="% Bulan" fill="#D4A017" radius={[0,4,4,0]}/>
-                <Bar dataKey="tahun" name="% Tahun" fill="#92400e" radius={[0,4,4,0]}/>
+                <Bar dataKey="setakat" name="% Setakat" fill="#D4A017" radius={[0,4,4,0]}/>
+                <Bar dataKey="setahun" name="% Setahun" fill="#92400e" radius={[0,4,4,0]}/>
               </BarChart>
             </ResponsiveContainer>
           )},
