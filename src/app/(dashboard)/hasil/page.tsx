@@ -173,7 +173,7 @@ export default function HasilPage() {
                 <table className="w-full text-sm">
                   <thead className="bg-slate-800 text-white">
                     <tr>
-                      {["Bulan","POL/PN","Luas (Hek)","Luas Dituai","Peserta","Hasil BTB (MT)","mtan/hek","Matlamat Setahun","% Capai","Pendapatan (RM)","Kos (RM)","U/R (RM)"].map((h,i) => (
+                      {["Bulan","POL/PN","Luas (Hek)","Luas Dituai","Peserta","Hasil BTB (MT)","MT/HeK Dituai","Matlamat Setahun","% Capai","Pendapatan (RM)","Kos (RM)","U/R (RM)"].map((h,i) => (
                         <th key={i} className={`py-2.5 px-3 text-[11px] font-semibold uppercase whitespace-nowrap ${i > 1 ? "text-right" : "text-left"}`}>{h}</th>
                       ))}
                     </tr>
@@ -189,7 +189,7 @@ export default function HasilPage() {
                           <td className="px-3 py-2 text-right">{p.luas_dituai != null ? fmt(p.luas_dituai,2) : "—"}</td>
                           <td className="px-3 py-2 text-right">{p.peserta ?? "—"}</td>
                           <td className="px-3 py-2 text-right font-bold text-[#C0182A]">{p.hasil_mt != null ? fmt(p.hasil_mt,2) : "—"}</td>
-                          <td className="px-3 py-2 text-right font-semibold text-blue-700">{p.mtan_hek != null ? fmt(p.mtan_hek,2) : "—"}</td>
+                          <td className="px-3 py-2 text-right font-semibold text-blue-700">{(p.hasil_mt != null && p.luas_dituai) ? fmt(p.hasil_mt / p.luas_dituai,2) : "—"}</td>
                           <td className="px-3 py-2 text-right">{p.matlamat_setahun != null ? fmt(p.matlamat_setahun,1) : "—"}</td>
                           <td className="px-3 py-2 text-right">
                             {p.pct_setahun != null ? (
@@ -215,7 +215,7 @@ export default function HasilPage() {
                         <td className="px-3 py-2 text-right">{sawitSetakatTerkini?.luas_dituai != null ? fmt(sawitSetakatTerkini.luas_dituai,2) : "—"}</td>
                         <td className="px-3 py-2 text-right">{sawitSetakatTerkini?.peserta ?? "—"}</td>
                         <td className="px-3 py-2 text-right text-[#C0182A]">{sawitSetakatTerkini?.hasil_mt != null ? fmt(sawitSetakatTerkini.hasil_mt,2) : "—"}</td>
-                        <td className="px-3 py-2 text-right font-semibold text-blue-700">{sawitSetakatTerkini?.mtan_hek != null ? fmt(sawitSetakatTerkini.mtan_hek,2) : "—"}</td>
+                        <td className="px-3 py-2 text-right font-semibold text-blue-700">{(sawitSetakatTerkini?.hasil_mt != null && sawitSetakatTerkini?.luas_dituai) ? fmt(sawitSetakatTerkini.hasil_mt / sawitSetakatTerkini.luas_dituai,2) : "—"}</td>
                         <td className="px-3 py-2 text-right">{sawitSetakatTerkini?.matlamat_setahun != null ? fmt(sawitSetakatTerkini.matlamat_setahun,1) : "—"}</td>
                         <td className="px-3 py-2 text-right">
                           {sawitSetakatTerkini?.pct_setahun != null ? (
@@ -272,7 +272,7 @@ export default function HasilPage() {
                 <table className="w-full text-sm">
                   <thead className="bg-slate-800 text-white">
                     <tr>
-                      {["Bulan","POL/PN","Luas (Hek)","Luas Ditoreh","Peserta","Hasil (KG)","kg/hek","Matlamat Setahun","% Capai","Pendapatan (RM)","Kos (RM)","U/R (RM)"].map((h,i) => (
+                      {["Bulan","POL/PN","Luas (Hek)","Luas Ditoreh","Peserta","Hasil (KG)","KG/HeK Ditoreh","Matlamat Setahun","% Capai","Pendapatan (RM)","Kos (RM)","U/R (RM)"].map((h,i) => (
                         <th key={i} className={`py-2.5 px-3 text-[11px] font-semibold uppercase whitespace-nowrap ${i > 1 ? "text-right" : "text-left"}`}>{h}</th>
                       ))}
                     </tr>
@@ -288,7 +288,7 @@ export default function HasilPage() {
                           <td className="px-3 py-2 text-right">{p.luas_ditoreh != null ? fmt(p.luas_ditoreh,2) : "—"}</td>
                           <td className="px-3 py-2 text-right">{p.peserta ?? "—"}</td>
                           <td className="px-3 py-2 text-right font-bold text-[#D4A017]">{p.hasil_kg != null ? fmt(p.hasil_kg) : "—"}</td>
-                          <td className="px-3 py-2 text-right font-semibold text-blue-700">{p.kg_hek != null ? fmt(p.kg_hek,2) : "—"}</td>
+                          <td className="px-3 py-2 text-right font-semibold text-blue-700">{(p.hasil_kg != null && p.luas_ditoreh) ? fmt(p.hasil_kg / p.luas_ditoreh,2) : "—"}</td>
                           <td className="px-3 py-2 text-right">{p.matlamat_setahun != null ? fmt(p.matlamat_setahun) : "—"}</td>
                           <td className="px-3 py-2 text-right">
                             {p.pct_setahun != null ? (
@@ -313,7 +313,7 @@ export default function HasilPage() {
                         <td className="px-3 py-2 text-right">{getahSetakatTerkini?.luas_ditoreh != null ? fmt(getahSetakatTerkini.luas_ditoreh,2) : "—"}</td>
                         <td className="px-3 py-2 text-right">{getahSetakatTerkini?.peserta ?? "—"}</td>
                         <td className="px-3 py-2 text-right text-[#D4A017]">{getahSetakatTerkini?.hasil_kg != null ? fmt(getahSetakatTerkini.hasil_kg) : "—"}</td>
-                        <td className="px-3 py-2 text-right font-semibold text-blue-700">{getahSetakatTerkini?.kg_hek != null ? fmt(getahSetakatTerkini.kg_hek,2) : "—"}</td>
+                        <td className="px-3 py-2 text-right font-semibold text-blue-700">{(getahSetakatTerkini?.hasil_kg != null && getahSetakatTerkini?.luas_ditoreh) ? fmt(getahSetakatTerkini.hasil_kg / getahSetakatTerkini.luas_ditoreh,2) : "—"}</td>
                         <td className="px-3 py-2 text-right">{getahSetakatTerkini?.matlamat_setahun != null ? fmt(getahSetakatTerkini.matlamat_setahun) : "—"}</td>
                         <td className="px-3 py-2 text-right">
                           {getahSetakatTerkini?.pct_setahun != null ? (
