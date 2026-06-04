@@ -41,6 +41,8 @@ function findGetahByNama(nama: string) {
 export default function HasilPage() {
   const [pilihProjek, setPilihProjek] = useState("")
   const [jenisProjek, setJenisProjek] = useState<"sawit" | "getah">("sawit")
+  const [cariProjek, setCariProjek] = useState("")
+  const [tunjukDropdown, setTunjukDropdown] = useState(false)
   const projekList = useMemo(() => getProjekList(jenisProjek), [jenisProjek])
 
   // Ringkasan bulan terkini
@@ -90,27 +92,58 @@ export default function HasilPage() {
         ))}
       </div>
 
-      {/* Dropdown Pilih Projek */}
-      <div className="bg-card rounded-xl border p-5">
+      {/* Dropdown Pilih Projek — searchable */}
+      <div className="bg-card rounded-xl border p-5 relative">
         <h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground mb-3">📋 Pilih Projek — Lihat Hasil Mengikut Bulan</h2>
         <div className="flex gap-3 items-center flex-wrap">
-          <select
-            value={pilihProjek}
-            onChange={e => setPilihProjek(e.target.value)}
-            className="border rounded-lg px-3 py-2 text-sm bg-background min-w-[300px]"
-          >
-            <option value="">— Pilih Nama Projek —</option>
-            {projekList.map(n => <option key={n} value={n}>{n}</option>)}
-          </select>
-          <div className="flex gap-2">
+          <div className="relative min-w-[300px]">
+            <input
+              type="text"
+              value={pilihProjek || cariProjek}
+              onChange={e => {
+                setCariProjek(e.target.value)
+                setPilihProjek("")
+                setTunjukDropdown(true)
+              }}
+              onFocus={() => setTunjukDropdown(true)}
+              onBlur={() => setTimeout(() => setTunjukDropdown(false), 200)}
+              placeholder="Taip nama projek untuk cari..."
+              className="border rounded-lg px-3 py-2 text-sm bg-background w-full"
+            />
+            {tunjukDropdown && cariProjek.length > 0 && !pilihProjek && (
+              <div className="absolute z-50 top-full left-0 right-0 mt-1 max-h-60 overflow-y-auto bg-white border rounded-lg shadow-lg">
+                {projekList.filter(n => n.toLowerCase().includes(cariProjek.toLowerCase())).slice(0, 20).map(n => (
+                  <button
+                    key={n}
+                    onMouseDown={() => { setPilihProjek(n); setCariProjek(n); setTunjukDropdown(false) }}
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-muted/50 border-b border-border/30 last:border-0"
+                  >
+                    {n}
+                  </button>
+                ))}
+                {projekList.filter(n => n.toLowerCase().includes(cariProjek.toLowerCase())).length === 0 && (
+                  <div className="px-3 py-2 text-sm text-muted-foreground">Tiada projek ditemui</div>
+                )}
+              </div>
+            )}
+            {pilihProjek && (
+              <button
+                onClick={() => { setPilihProjek(""); setCariProjek("") }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-lg"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+          <div className="flex gap-2 flex-shrink-0">
             <button
-              onClick={() => { setJenisProjek("sawit"); setPilihProjek("") }}
+              onClick={() => { setJenisProjek("sawit"); setPilihProjek(""); setCariProjek("") }}
               className={`px-4 py-2 text-sm font-semibold rounded-lg border transition-colors ${jenisProjek === "sawit" ? "bg-[#C0182A] text-white border-[#C0182A]" : "bg-background text-muted-foreground border-border hover:text-foreground"}`}
             >
               Sawit
             </button>
             <button
-              onClick={() => { setJenisProjek("getah"); setPilihProjek("") }}
+              onClick={() => { setJenisProjek("getah"); setPilihProjek(""); setCariProjek("") }}
               className={`px-4 py-2 text-sm font-semibold rounded-lg border transition-colors ${jenisProjek === "getah" ? "bg-[#D4A017] text-slate-900 border-[#D4A017]" : "bg-background text-muted-foreground border-border hover:text-foreground"}`}
             >
               Getah
