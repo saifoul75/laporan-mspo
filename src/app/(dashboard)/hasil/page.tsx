@@ -61,6 +61,10 @@ export default function HasilPage() {
   // Data projek dipilih
   const projekSawit = pilihProjek ? findSawitByNama(pilihProjek) : []
   const projekGetah = pilihProjek ? findGetahByNama(pilihProjek) : []
+  const projekSawitValid = projekSawit.filter(p => p.hasil_mt != null)
+  const projekGetahValid = projekGetah.filter(p => p.hasil_kg != null)
+  const sawitSetakatTerkini = projekSawitValid[projekSawitValid.length - 1]
+  const getahSetakatTerkini = projekGetahValid[projekGetahValid.length - 1]
   // Trend bar chart for selected project
   const chartData = jenisProjek === "sawit"
     ? projekSawit.filter(p => p.hasil_mt != null).map(p => ({ bulan: p.bulan, hasil: p.hasil_mt, untung: p.untung_rugi }))
@@ -203,7 +207,7 @@ export default function HasilPage() {
                       )
                     })}
                     {/* Baris Jumlah */}
-                    {projekSawit.filter(p => p.hasil_mt != null).length > 1 && (
+                    {projekSawitValid.length > 1 && (
                       <tr className="bg-muted/80 font-bold">
                         <td className="px-3 py-2">JUMLAH</td>
                         <td className="px-3 py-2"></td>
@@ -211,9 +215,15 @@ export default function HasilPage() {
                         <td className="px-3 py-2 text-right">{fmt(projekSawit.reduce((a,p) => a + (p.luas_dituai ?? 0), 0),2)}</td>
                         <td className="px-3 py-2 text-right"></td>
                         <td className="px-3 py-2 text-right text-[#C0182A]">{fmt(projekSawit.reduce((a,p) => a + (p.hasil_mt ?? 0), 0),2)}</td>
-                        <td className="px-3 py-2 text-right"></td>
+                        <td className="px-3 py-2 text-right font-semibold text-blue-700">{sawitSetakatTerkini?.mtan_hek != null ? fmt(sawitSetakatTerkini.mtan_hek,2) : "—"}</td>
                         <td className="px-3 py-2 text-right">{fmt(projekSawit.reduce((a,p) => a + (p.matlamat_setahun ?? 0), 0),1)}</td>
-                        <td className="px-3 py-2 text-right"></td>
+                        <td className="px-3 py-2 text-right">
+                          {sawitSetakatTerkini?.pct_setahun != null ? (
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${sawitSetakatTerkini.pct_setahun >= 25 ? "bg-blue-100 text-blue-800" : sawitSetakatTerkini.pct_setahun >= 20 ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}`}>
+                              {fmt(sawitSetakatTerkini.pct_setahun,1)}%
+                            </span>
+                          ) : "—"}
+                        </td>
                         <td className="px-3 py-2 text-right">{fmt(projekSawit.reduce((a,p) => a + (p.pendapatan ?? 0), 0))}</td>
                         <td className="px-3 py-2 text-right">{fmt(projekSawit.reduce((a,p) => a + (p.kos ?? 0), 0))}</td>
                         <td className="px-3 py-2 text-right text-green-600">RM {fmt(projekSawit.reduce((a,p) => a + (p.untung_rugi ?? 0), 0))}</td>
@@ -293,7 +303,7 @@ export default function HasilPage() {
                         </tr>
                       )
                     })}
-                    {projekGetah.filter(p => p.hasil_kg != null).length > 1 && (
+                    {projekGetahValid.length > 1 && (
                       <tr className="bg-muted/80 font-bold">
                         <td className="px-3 py-2">JUMLAH</td>
                         <td className="px-3 py-2"></td>
@@ -301,9 +311,15 @@ export default function HasilPage() {
                         <td className="px-3 py-2 text-right">{fmt(projekGetah.reduce((a,p) => a + (p.luas_ditoreh ?? 0), 0),2)}</td>
                         <td className="px-3 py-2 text-right"></td>
                         <td className="px-3 py-2 text-right text-[#D4A017]">{fmt(projekGetah.reduce((a,p) => a + (p.hasil_kg ?? 0), 0))}</td>
-                        <td className="px-3 py-2 text-right"></td>
+                        <td className="px-3 py-2 text-right font-semibold text-blue-700">{getahSetakatTerkini?.kg_hek != null ? fmt(getahSetakatTerkini.kg_hek,2) : "—"}</td>
                         <td className="px-3 py-2 text-right">{fmt(projekGetah.reduce((a,p) => a + (p.matlamat_setahun ?? 0), 0))}</td>
-                        <td className="px-3 py-2 text-right"></td>
+                        <td className="px-3 py-2 text-right">
+                          {getahSetakatTerkini?.pct_setahun != null ? (
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${getahSetakatTerkini.pct_setahun >= 25 ? "bg-blue-100 text-blue-800" : getahSetakatTerkini.pct_setahun >= 20 ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}`}>
+                              {fmt(getahSetakatTerkini.pct_setahun,1)}%
+                            </span>
+                          ) : "—"}
+                        </td>
                         <td className="px-3 py-2 text-right">{fmt(projekGetah.reduce((a,p) => a + (p.pendapatan ?? 0), 0))}</td>
                         <td className="px-3 py-2 text-right">{fmt(projekGetah.reduce((a,p) => a + (p.kos ?? 0), 0))}</td>
                         <td className="px-3 py-2 text-right text-green-600">RM {fmt(projekGetah.reduce((a,p) => a + (p.untung_rugi ?? 0), 0))}</td>
