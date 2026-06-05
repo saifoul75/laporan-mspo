@@ -10,7 +10,9 @@ type P = {
 }
 
 const dataBulanan = rawData.bulan
-const bulanTerkini = dataBulanan[dataBulanan.length - 1]
+const bulanTerkini = [...dataBulanan].reverse().find(b =>
+  b.getah.some(p => (p.hasil_kg ?? 0) > 0)
+) ?? dataBulanan[dataBulanan.length - 1]
 const getah = bulanTerkini.getah as P[]
 
 function fmt(n: number, d = 0) { return n.toLocaleString("ms-MY", { minimumFractionDigits: d, maximumFractionDigits: d }) }

@@ -11,7 +11,9 @@ type P = {
 }
 
 const dataBulanan = rawData.bulan
-const bulanTerkini = dataBulanan[dataBulanan.length - 1]
+const bulanTerkini = [...dataBulanan].reverse().find(b =>
+  b.sawit.some(p => (p.hasil_mt ?? 0) > 0)
+) ?? dataBulanan[dataBulanan.length - 1]
 const sawit = bulanTerkini.sawit as P[]
 const polList = ["", ...Array.from(new Set(sawit.map(p => p.pol_pn))).sort()]
 

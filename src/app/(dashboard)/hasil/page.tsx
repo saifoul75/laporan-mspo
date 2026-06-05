@@ -46,8 +46,11 @@ export default function HasilPage() {
 
   const projekList = useMemo(() => getProjekList(jenisProjek), [jenisProjek])
 
-  // Ringkasan bulan terkini
-  const latest = dataBulanan[dataBulanan.length - 1]
+  // Ringkasan bulan terkini (ambil bulan terakhir yang ada data sebenar)
+  const latest = [...dataBulanan].reverse().find(b =>
+    b.sawit.some(p => (p.hasil_mt ?? 0) > 0) ||
+    b.getah.some(p => (p.hasil_kg ?? 0) > 0)
+  ) ?? dataBulanan[dataBulanan.length - 1]
   const sawit = latest.sawit
   const getah = latest.getah
 

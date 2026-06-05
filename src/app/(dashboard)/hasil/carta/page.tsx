@@ -22,8 +22,11 @@ const trendGetah = dataBulanan.map((b, i) => ({
   untung: b.getah.reduce((a, p) => a + (p.untung_rugi ?? 0), 0),
 }))
 
-// Per POL/PN data (latest month)
-const latestBulan = dataBulanan[dataBulanan.length - 1]
+// Per POL/PN data (latest month with actual data)
+const latestBulan = [...dataBulanan].reverse().find(b =>
+  b.sawit.some(p => (p.hasil_mt ?? 0) > 0) ||
+  b.getah.some(p => (p.hasil_kg ?? 0) > 0)
+) ?? dataBulanan[dataBulanan.length - 1]
 
 function byPol(data: PS[], fn: (arr: PS[]) => number) {
   const m: Record<string, PS[]> = {}
