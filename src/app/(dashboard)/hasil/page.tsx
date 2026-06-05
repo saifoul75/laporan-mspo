@@ -42,7 +42,8 @@ export default function HasilPage() {
   const [pilihProjek, setPilihProjek] = useState("")
   const [jenisProjek, setJenisProjek] = useState<"sawit" | "getah">("sawit")
   const [cariProjek, setCariProjek] = useState("")
-  const [tunjukDropdown, setTunjukDropdown] = useState(false)
+
+
   const projekList = useMemo(() => getProjekList(jenisProjek), [jenisProjek])
 
   // Ringkasan bulan terkini
@@ -149,62 +150,65 @@ export default function HasilPage() {
         </div>
       </div>
 
-      {/* Dropdown Pilih Projek — searchable */}
-      <div className="bg-card rounded-xl border p-5 relative">
+      {/* Pilih Projek — Dropdown + Search */}
+      <div className="bg-card rounded-xl border p-5">
         <h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground mb-3">📋 Pilih Projek — Lihat Hasil Mengikut Bulan</h2>
-        <div className="flex gap-3 items-center flex-wrap">
-          <div className="relative min-w-[300px]">
+        <div className="flex flex-col gap-3">
+          {/* 1. Text Input untuk Search */}
+          <div className="relative">
             <input
               type="text"
-              value={pilihProjek || cariProjek}
+              value={cariProjek}
               onChange={e => {
                 setCariProjek(e.target.value)
-                setPilihProjek("")
-                setTunjukDropdown(true)
+                if (!e.target.value) setPilihProjek("")
               }}
-              onFocus={() => setTunjukDropdown(true)}
-              onBlur={() => setTimeout(() => setTunjukDropdown(false), 200)}
-              placeholder="Taip nama projek untuk cari..."
-              className="border rounded-lg px-3 py-2 text-sm bg-background w-full"
+              placeholder="🔍 Taip nama projek untuk cari..."
+              className="border rounded-lg px-3 py-2 text-sm bg-background w-full focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
             />
-            {tunjukDropdown && cariProjek.length > 0 && !pilihProjek && (
-              <div className="absolute z-50 top-full left-0 right-0 mt-1 max-h-60 overflow-y-auto bg-white border rounded-lg shadow-lg">
-                {projekList.filter(n => n.toLowerCase().includes(cariProjek.toLowerCase())).slice(0, 20).map(n => (
-                  <button
-                    key={n}
-                    onMouseDown={() => { setPilihProjek(n); setCariProjek(n); setTunjukDropdown(false) }}
-                    className="w-full text-left px-3 py-2 text-sm hover:bg-muted/50 border-b border-border/30 last:border-0"
-                  >
-                    {n}
-                  </button>
-                ))}
-                {projekList.filter(n => n.toLowerCase().includes(cariProjek.toLowerCase())).length === 0 && (
-                  <div className="px-3 py-2 text-sm text-muted-foreground">Tiada projek ditemui</div>
-                )}
-              </div>
-            )}
-            {pilihProjek && (
+            {cariProjek && (
               <button
-                onClick={() => { setPilihProjek(""); setCariProjek("") }}
+                onClick={() => { setCariProjek(""); setPilihProjek("") }}
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-lg"
               >
                 ✕
               </button>
             )}
           </div>
-          <div className="flex gap-2 flex-shrink-0">
-            <button
-              onClick={() => { setJenisProjek("sawit"); setPilihProjek(""); setCariProjek("") }}
-              className={`px-4 py-2 text-sm font-semibold rounded-lg border transition-colors ${jenisProjek === "sawit" ? "bg-[#C0182A] text-white border-[#C0182A]" : "bg-background text-muted-foreground border-border hover:text-foreground"}`}
+
+          {/* 2. Dropdown Select */}
+          <div className="flex gap-3 items-center flex-wrap">
+            <select
+              value={pilihProjek}
+              onChange={e => {
+                setPilihProjek(e.target.value)
+                setCariProjek(e.target.value)
+              }}
+              className="border rounded-lg px-3 py-2 text-sm bg-background flex-1 min-w-[250px] focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
             >
-              Sawit
-            </button>
-            <button
-              onClick={() => { setJenisProjek("getah"); setPilihProjek(""); setCariProjek("") }}
-              className={`px-4 py-2 text-sm font-semibold rounded-lg border transition-colors ${jenisProjek === "getah" ? "bg-[#D4A017] text-slate-900 border-[#D4A017]" : "bg-background text-muted-foreground border-border hover:text-foreground"}`}
-            >
-              Getah
-            </button>
+              <option value="">-- Pilih projek --</option>
+              {projekList
+                .filter(n => n.toLowerCase().includes(cariProjek.toLowerCase()))
+                .map(n => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+            </select>
+
+            {/* Toggle Jenis */}
+            <div className="flex gap-1 bg-muted p-1 rounded-lg">
+              <button
+                onClick={() => { setJenisProjek("sawit"); setPilihProjek(""); setCariProjek("") }}
+                className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors ${jenisProjek === "sawit" ? "bg-[#C0182A] text-white shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                Sawit
+              </button>
+              <button
+                onClick={() => { setJenisProjek("getah"); setPilihProjek(""); setCariProjek("") }}
+                className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors ${jenisProjek === "getah" ? "bg-[#D4A017] text-slate-900 shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                Getah
+              </button>
+            </div>
           </div>
         </div>
       </div>
