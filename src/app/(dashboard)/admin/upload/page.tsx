@@ -369,12 +369,6 @@ function mapHeaders(obj: any): Record<string, any> {
   }
   return result
 }
-  }
-  return result
-}
-  }
-  return result
-}
 
 function normalizeRow(jenis: "sawit" | "getah", raw: any): any {
   const mapped = mapHeaders(raw)
