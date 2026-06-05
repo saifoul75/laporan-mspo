@@ -1,7 +1,6 @@
-// Service Worker asas untuk PWA & offline shell
-// Cache strategy: network-first untuk data, cache-first untuk assets statik
+importScripts("/sw-version.js");
 
-const VERSI_CACHE = "mspo-audit-v1";
+const VERSI_CACHE = self.__SW_VERSION || "mspo-audit-fallback";
 const ASET_CACHE = [
   "/",
   "/dashboard",
@@ -33,13 +32,30 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const req = event.request;
 
-  // Skip non-GET dan API calls (Supabase REST/Storage)
   if (req.method !== "GET") return;
   const url = new URL(req.url);
   if (url.pathname.startsWith("/api/")) return;
   if (url.hostname.includes("supabase")) return;
 
-  // Network-first dengan cache fallback
+  // Network-first untuk navigasi (HTML pages) — pastikan shell baru sentiasa dipakai
+  if (req.mode === "navigate") {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          const salinan = res.clone();
+          caches.open(VERSI_CACHE).then((cache) => cache.put(req, salinan));
+          return res;
+        })
+        .catch(() =>
+          caches
+            .match(req)
+            .then((cached) => cached ?? new Response("Offline", { status: 503 }))
+        )
+    );
+    return;
+  }
+
+  // Network-first untuk aset lain
   event.respondWith(
     fetch(req)
       .then((res) => {
@@ -47,6 +63,10 @@ self.addEventListener("fetch", (event) => {
         caches.open(VERSI_CACHE).then((cache) => cache.put(req, salinan));
         return res;
       })
-      .catch(() => caches.match(req).then((res) => res ?? new Response("Offline", { status: 503 })))
+      .catch(() =>
+        caches
+          .match(req)
+          .then((cached) => cached ?? new Response("Offline", { status: 503 }))
+      )
   );
 });

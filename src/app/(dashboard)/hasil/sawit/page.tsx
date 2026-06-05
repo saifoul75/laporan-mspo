@@ -82,11 +82,11 @@ export default function SawitPage() {
         <table className="w-full text-sm">
           <thead className="bg-slate-800 text-white">
             {tab === "fizikal" ? (
-              <tr>{["POL/PN","Bil","Nama Projek","Luas Kaw (Hek)","Luas Dituai (Hek)","Peserta","Hasil BTB (MT)","mtan/hek","Matlamat Setahun (MT)","% Capai Setahun"].map((h,i)=>(
+              <tr>{["POL/PN","Bil","Nama Projek","Luas Kaw (Hek)","Luas Dituai (Hek)","Peserta","Hasil BTS (MT)","mtan/hek","Matlamat Setahun (MT)","% Capai Setahun"].map((h,i)=>(
                 <th key={i} className={`py-2.5 px-3 text-[11px] font-semibold uppercase whitespace-nowrap ${i>2?"text-right":"text-left"}`}>{h}</th>
               ))}</tr>
             ) : (
-              <tr>{["POL/PN","Bil","Nama Projek","Hasil BTB (MT)","Pendapatan (RM)","Kos Pengeluaran (RM)","Untung/Rugi (RM)","Margin (%)"].map((h,i)=>(
+              <tr>{["POL/PN","Bil","Nama Projek","Hasil BTS (MT)","Pendapatan (RM)","Kos Pengeluaran (RM)","Untung/Rugi (RM)","Margin (%)"].map((h,i)=>(
                 <th key={i} className={`py-2.5 px-3 text-[11px] font-semibold uppercase whitespace-nowrap ${i>2?"text-right":"text-left"}`}>{h}</th>
               ))}</tr>
             )}
@@ -104,7 +104,7 @@ export default function SawitPage() {
                   {showGroup && (
                     <tr key={`g${i}`} className="bg-muted/50">
                       <td colSpan={colSpan} className="px-3 py-1.5 text-xs font-bold text-muted-foreground">
-                        📍 {p.pol_pn} — {grp.length} projek | Hasil BTB: {fmt(grpHasil,1)} MT
+                        📍 {p.pol_pn} — {grp.length} projek | Hasil BTS: {fmt(grpHasil,1)} MT
                       </td>
                     </tr>
                   )}

@@ -83,7 +83,7 @@ export default function HasilPage() {
       {/* Cards Ringkasan */}
       <div className="grid grid-cols-4 gap-4">
         {[
-          { label: "Hasil Sawit BTB", val: fmt(ts_hasil,1)+" MT", sub: sawit.length+" projek sawit", border: "border-[#C0182A]", vc: "" },
+          { label: "Hasil Sawit BTS", val: fmt(ts_hasil,1)+" MT", sub: sawit.length+" projek sawit", border: "border-[#C0182A]", vc: "" },
           { label: "% Capai Setahun", val: fmt(avg_pct,1)+"%", sub: "Purata semua projek", border: "border-blue-500", vc: avg_pct >= 25 ? "text-blue-600" : avg_pct >= 20 ? "text-green-600" : "text-red-600" },
           { label: "U/R Sawit", val: "RM "+fmt(ts_ur), sub: "Pendapatan RM "+fmt(ts_pend), border: "border-green-600", vc: ts_ur >= 0 ? "text-green-600" : "text-red-600" },
           { label: "Hasil Getah", val: fmt(tg_hasil)+" KG", sub: "U/R: RM "+fmt(tg_ur), border: "border-[#D4A017]", vc: tg_ur >= 0 ? "text-green-600" : "text-red-600" },
@@ -94,6 +94,59 @@ export default function HasilPage() {
             <div className="text-[11px] text-muted-foreground">{c.sub}</div>
           </div>
         ))}
+      </div>
+
+      {/* Jadual Pecahan Bulanan */}
+      <div className="bg-card rounded-xl border p-5">
+        <h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground mb-3">Pecahan Hasil Mengikut Bulan</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-800 text-white">
+              <tr>
+                {["Bulan","Bil Projek Sawit","Hasil BTS (MT)","U/R Sawit (RM)","Bil Projek Getah","Hasil Getah (KG)","U/R Getah (RM)"].map((h,i) => (
+                  <th key={i} className={`py-2.5 px-3 text-[11px] font-semibold uppercase whitespace-nowrap ${i > 1 ? "text-right" : "text-left"}`}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {dataBulanan.map((b, i) => {
+                const sHasil = b.sawit.reduce((a,p) => a + (p.hasil_mt ?? 0), 0)
+                const sUr = b.sawit.reduce((a,p) => a + (p.untung_rugi ?? 0), 0)
+                const gHasil = b.getah.reduce((a,p) => a + (p.hasil_kg ?? 0), 0)
+                const gUr = b.getah.reduce((a,p) => a + (p.untung_rugi ?? 0), 0)
+                return (
+                  <tr key={i} className="border-b border-border/50 hover:bg-muted/30">
+                    <td className="px-3 py-2 font-semibold">{b.nama}</td>
+                    <td className="px-3 py-2 text-right">{b.sawit.length}</td>
+                    <td className="px-3 py-2 text-right font-bold text-[#C0182A]">{fmt(sHasil, 1)}</td>
+                    <td className={`px-3 py-2 text-right font-bold ${sUr >= 0 ? "text-green-600" : "text-red-600"}`}>{sUr !== 0 ? "RM " + fmt(sUr) : "—"}</td>
+                    <td className="px-3 py-2 text-right">{b.getah.length}</td>
+                    <td className="px-3 py-2 text-right font-bold text-[#D4A017]">{fmt(gHasil)}</td>
+                    <td className={`px-3 py-2 text-right font-bold ${gUr >= 0 ? "text-green-600" : "text-red-600"}`}>{gUr !== 0 ? "RM " + fmt(gUr) : "—"}</td>
+                  </tr>
+                )
+              })}
+              {/* Baris Jumlah Kumulatif */}
+              {dataBulanan.length > 1 && (() => {
+                const totSawitHasil = dataBulanan.reduce((a,b) => a + b.sawit.reduce((s,p) => s + (p.hasil_mt ?? 0), 0), 0)
+                const totSawitUr = dataBulanan.reduce((a,b) => a + b.sawit.reduce((s,p) => s + (p.untung_rugi ?? 0), 0), 0)
+                const totGetahHasil = dataBulanan.reduce((a,b) => a + b.getah.reduce((s,p) => s + (p.hasil_kg ?? 0), 0), 0)
+                const totGetahUr = dataBulanan.reduce((a,b) => a + b.getah.reduce((s,p) => s + (p.untung_rugi ?? 0), 0), 0)
+                return (
+                  <tr className="bg-muted/80 font-bold">
+                    <td className="px-3 py-2">JUMLAH</td>
+                    <td className="px-3 py-2 text-right">—</td>
+                    <td className="px-3 py-2 text-right text-[#C0182A]">{fmt(totSawitHasil, 1)}</td>
+                    <td className={`px-3 py-2 text-right ${totSawitUr >= 0 ? "text-green-600" : "text-red-600"}`}>{"RM " + fmt(totSawitUr)}</td>
+                    <td className="px-3 py-2 text-right">—</td>
+                    <td className="px-3 py-2 text-right text-[#D4A017]">{fmt(totGetahHasil)}</td>
+                    <td className={`px-3 py-2 text-right ${totGetahUr >= 0 ? "text-green-600" : "text-red-600"}`}>{"RM " + fmt(totGetahUr)}</td>
+                  </tr>
+                )
+              })()}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Dropdown Pilih Projek — searchable */}
@@ -162,7 +215,7 @@ export default function HasilPage() {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-bold text-lg">{pilihProjek}</h3>
-              <p className="text-sm text-muted-foreground">Prestasi mengikut bulan — {jenisProjek === "sawit" ? "Hasil BTB (MT)" : "Hasil (KG)"}</p>
+              <p className="text-sm text-muted-foreground">Prestasi mengikut bulan — {jenisProjek === "sawit" ? "Hasil BTS (MT)" : "Hasil (KG)"}</p>
             </div>
           </div>
 
@@ -173,7 +226,7 @@ export default function HasilPage() {
                 <table className="w-full text-sm">
                   <thead className="bg-slate-800 text-white">
                     <tr>
-                      {["Bulan","POL/PN","Luas (Hek)","Luas Dituai","Peserta","Hasil BTB (MT)","MT/HeK Dituai","Matlamat Setahun","% Capai","Pendapatan (RM)","Kos (RM)","U/R (RM)"].map((h,i) => (
+                      {["Bulan","POL/PN","Luas (Hek)","Luas Dituai","Peserta","Hasil BTS (MT)","MT/HeK Dituai","Matlamat Setahun","% Capai","Pendapatan (RM)","Kos (RM)","U/R (RM)"].map((h,i) => (
                         <th key={i} className={`py-2.5 px-3 text-[11px] font-semibold uppercase whitespace-nowrap ${i > 1 ? "text-right" : "text-left"}`}>{h}</th>
                       ))}
                     </tr>
@@ -206,10 +259,10 @@ export default function HasilPage() {
                         </tr>
                       )
                     })}
-                    {/* Baris Jumlah — nilai setakat bulan terkini (kumulatif) */}
+                    {/* Baris Jumlah — nilai terkini (kumulatif) */}
                     {projekSawitValid.length > 1 && (
                       <tr className="bg-muted/80 font-bold">
-                        <td className="px-3 py-2">SETEKAT APR</td>
+                        <td className="px-3 py-2">SETAKAT {sawitSetakatTerkini?.bulan?.toUpperCase()}</td>
                         <td className="px-3 py-2 text-xs">{sawitSetakatTerkini?.pol_pn ?? "—"}</td>
                         <td className="px-3 py-2 text-right">{sawitSetakatTerkini?.luas_hek != null ? fmt(sawitSetakatTerkini.luas_hek,2) : "—"}</td>
                         <td className="px-3 py-2 text-right">{sawitSetakatTerkini?.luas_dituai != null ? fmt(sawitSetakatTerkini.luas_dituai,2) : "—"}</td>
@@ -239,7 +292,7 @@ export default function HasilPage() {
               {chartData.length > 0 && (
                 <div className="grid grid-cols-2 gap-5 mt-4">
                   <div className="bg-muted/30 rounded-lg p-4">
-                    <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-3">Trend Hasil BTB (MT)</h4>
+                    <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-3">Trend Hasil BTS (MT)</h4>
                     <ResponsiveContainer width="100%" height={200}>
                       <BarChart data={chartData}>
                         <XAxis dataKey="bulan" tick={{fontSize:12}}/>
@@ -307,7 +360,7 @@ export default function HasilPage() {
                     })}
 {projekGetahValid.length > 1 && (
                       <tr className="bg-muted/80 font-bold">
-                        <td className="px-3 py-2">SETEKAT APR</td>
+                        <td className="px-3 py-2">SETAKAT {getahSetakatTerkini?.bulan?.toUpperCase()}</td>
                         <td className="px-3 py-2 text-xs">{getahSetakatTerkini?.pol_pn ?? "—"}</td>
                         <td className="px-3 py-2 text-right">{getahSetakatTerkini?.luas_hek != null ? fmt(getahSetakatTerkini.luas_hek,2) : "—"}</td>
                         <td className="px-3 py-2 text-right">{getahSetakatTerkini?.luas_ditoreh != null ? fmt(getahSetakatTerkini.luas_ditoreh,2) : "—"}</td>

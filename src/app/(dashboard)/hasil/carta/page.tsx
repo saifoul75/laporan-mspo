@@ -43,13 +43,13 @@ export default function CartaPage() {
       {/* Trend Charts */}
       <div className="grid grid-cols-2 gap-5">
         <div className="bg-card rounded-xl border p-5">
-          <h3 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-4">Trend Hasil Sawit BTB (MT)</h3>
+          <h3 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-4">Trend Hasil Sawit BTS (MT)</h3>
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={trendSawit}>
               <XAxis dataKey="bulan" tick={{fontSize:12}}/>
               <YAxis tick={{fontSize:10}}/>
               <Tooltip formatter={(v)=>Number(v ?? 0).toLocaleString("ms-MY",{maximumFractionDigits:0})+" MT"}/>
-              <Line type="monotone" dataKey="hasil" stroke="#C0182A" strokeWidth={3} dot={{r:6}} name="Hasil BTB"/>
+              <Line type="monotone" dataKey="hasil" stroke="#C0182A" strokeWidth={3} dot={{r:6}} name="Hasil BTS"/>
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -96,7 +96,7 @@ export default function CartaPage() {
       {/* Top 15 + Getah */}
       <div className="grid grid-cols-2 gap-5">
         <div className="bg-card rounded-xl border p-5">
-          <h3 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-4">Top 15 Hasil BTB (MT) — {latestBulan.nama}</h3>
+          <h3 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-4">Top 15 Hasil BTS (MT) — {latestBulan.nama}</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={top15} layout="vertical">
               <XAxis type="number" tick={{fontSize:10}}/>
