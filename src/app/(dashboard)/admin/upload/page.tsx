@@ -190,20 +190,76 @@ function cleanNum(v: any): number {
   return 0
 }
 
-function normalizeRow(jenis: "sawit" | "getah", raw: any): any {
-  const row: any = {}
-  const numFields = jenis === "sawit"
-    ? ["luas_hek", "luas_dituai", "peserta", "hasil_mt", "mtan_hek", "matlamat_setahun", "pct_setahun", "pendapatan", "kos", "untung_rugi"]
-    : ["luas_hek", "luas_ditoreh", "peserta", "hasil_kg", "kg_hek", "matlamat_setahun", "pct_setahun", "pendapatan", "kos", "untung_rugi"]
-  const fields = ["pol_pn", "bil", "nama", ...numFields]
-
-  const headers = Object.keys(raw)
-  for (let i = 0; i < fields.length; i++) {
-    const field = fields[i]
-    const header = headers[i]
-    let v = raw[header]
-    if (typeof v === "string") v = v.trim()
-    row[field] = numFields.includes(field) ? cleanNum(v) : (v ?? "")
+function mapHeaders(obj: any): Record<string, any> {
+  const result: Record<string, any> = {}
+  for (const key of Object.keys(obj)) {
+    const lk = key.toLowerCase().replace(/\s+/g, "_")
+    if (lk.includes("pol") || lk.includes("pn")) {
+      result.pol_pn = obj[key]
+    } else if (lk === "bil" || lk.match(/^no\.?\s*$/)) {
+      result.bil = obj[key]
+    } else if (lk.includes("nama") && !lk.includes("nama_bulan")) {
+      result.nama = obj[key]
+    } else if (lk.includes("luas") && (lk.includes("hek") || lk.includes("kaw") || lk === "luas")) {
+      result.luas_hek = obj[key]
+    } else if (lk.includes("luas") && (lk.includes("dituai") || lk.includes("tuai"))) {
+      result.luas_dituai = obj[key]
+    } else if (lk.includes("luas") && (lk.includes("ditoreh") || lk.includes("toreh"))) {
+      result.luas_ditoreh = obj[key]
+    } else if (lk.includes("peserta") || lk.includes("member")) {
+      result.peserta = obj[key]
+    } else if (lk.includes("hasil") && (lk.includes("mt") || lk.includes("tan"))) {
+      result.hasil_mt = obj[key]
+    } else if (lk.includes("hasil") && lk.includes("kg")) {
+      result.hasil_kg = obj[key]
+    } else if (lk.includes("hasil")) {
+      if (!result.hasil_mt) result.hasil_mt = obj[key]
+      else if (!result.hasil_kg) result.hasil_kg = obj[key]
+    } else if (lk.includes("mtan") || lk.includes("mt/hek")) {
+      result.mtan_hek = obj[key]
+    } else if (lk.includes("kg_hek") || lk.includes("kg/hek")) {
+      result.kg_hek = obj[key]
+    } else if (lk.includes("matlamat") || lk.includes("target")) {
+      result.matlamat_setahun = obj[key]
+    } else if (lk.includes("pct") || lk.includes("%") || lk.includes("capai")) {
+      result.pct_setahun = obj[key]
+    } else if (lk.includes("pendapatan") || lk.includes("revenue") || lk.includes("income")) {
+      result.pendapatan = obj[key]
+    } else if (lk.includes("kos") || lk.includes("cost") || lk.includes("belanja")) {
+      result.kos = obj[key]
+    } else if (lk.includes("untung") || lk.includes("rugi") || lk.includes("profit") || lk.includes("p&l") || lk.includes("p/l")) {
+      result.untung_rugi = obj[key]
+    }
   }
-  return row
+  return result
+}
+
+function normalizeRow(jenis: "sawit" | "getah", raw: any): any {
+  const mapped = mapHeaders(raw)
+  const numFields = ["bil", "peserta", "luas_hek", "luas_dituai", "luas_ditoreh", "hasil_mt", "hasil_kg", "mtan_hek", "kg_hek", "matlamat_setahun", "pct_setahun", "pendapatan", "kos", "untung_rugi"]
+
+  for (const field of numFields) {
+    if (mapped[field] !== undefined) {
+      mapped[field] = cleanNum(mapped[field])
+    }
+  }
+
+  return {
+    pol_pn: mapped.pol_pn ?? "",
+    bil: mapped.bil ?? 0,
+    nama: mapped.nama ?? "",
+    luas_hek: mapped.luas_hek ?? 0,
+    luas_dituai: mapped.luas_dituai ?? 0,
+    luas_ditoreh: mapped.luas_ditoreh ?? 0,
+    peserta: mapped.peserta ?? 0,
+    hasil_mt: mapped.hasil_mt ?? 0,
+    hasil_kg: mapped.hasil_kg ?? 0,
+    mtan_hek: mapped.mtan_hek ?? 0,
+    kg_hek: mapped.kg_hek ?? 0,
+    matlamat_setahun: mapped.matlamat_setahun ?? 0,
+    pct_setahun: mapped.pct_setahun ?? 0,
+    pendapatan: mapped.pendapatan ?? 0,
+    kos: mapped.kos ?? 0,
+    untung_rugi: mapped.untung_rugi ?? 0,
+  }
 }
