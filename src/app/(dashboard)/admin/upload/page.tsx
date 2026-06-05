@@ -65,14 +65,25 @@ export default function HasilUploadPage() {
 
       addLog(`📤 Hantar ke Supabase (${namaBulan})...`)
 
+      // Deduplicate by project name (keep last occurrence)
+      const dedupSawit = Array.from(new Map(sawitRows.map(r => [r.nama, r])).values())
+      const dedupGetah = Array.from(new Map(getahRows.map(r => [r.nama, r])).values())
+
+      if (dedupSawit.length < sawitRows.length) {
+        addLog(`  ⚠ Buang ${sawitRows.length - dedupSawit.length} duplikat Sawit`)
+      }
+      if (dedupGetah.length < getahRows.length) {
+        addLog(`  ⚠ Buang ${getahRows.length - dedupGetah.length} duplikat Getah`)
+      }
+
       const res = await fetch("/api/hasil/upload", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           kod_bulan: bulan,
           nama_bulan: namaBulan,
-          sawit: sawitRows,
-          getah: getahRows,
+          sawit: dedupSawit,
+          getah: dedupGetah,
         }),
       })
 
