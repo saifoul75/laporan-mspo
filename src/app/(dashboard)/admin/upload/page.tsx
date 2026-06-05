@@ -15,6 +15,7 @@ export default function HasilUploadPage() {
   const [loading, setLoading] = useState(false)
   const [log, setLog] = useState<string[]>([])
   const [bulan, setBulan] = useState("2026-05")
+  const [skipRows, setSkipRows] = useState(0)
   const [preview, setPreview] = useState<{ sawit: string[]; getah: string[]; mapped: { sawit: Record<string, string>; getah: Record<string, string> } } | null>(null)
 
   const addLog = (msg: string) => setLog((prev) => [...prev, msg])
@@ -36,11 +37,10 @@ export default function HasilUploadPage() {
     for (const [sheetName, key] of [["Sawit", "sawit"], ["Getah", "getah"]] as const) {
       const ws = wb.Sheets[sheetName]
       if (!ws) { addLog(`⚠ Sheet ${sheetName} tidak ditemui`); continue }
-      const json = XLSX.utils.sheet_to_json<Record<string, any>>(ws, { defval: null })
+      const json = XLSX.utils.sheet_to_json<Record<string, any>>(ws, { defval: null, range: skipRows })
       if (json.length > 0) {
         const headers = Object.keys(json[0])
         result[key] = headers
-        const mapped = mapHeaders(json[0])
         result.mapped[key] = Object.fromEntries(
           headers.map(h => {
             const m = mapHeaders({ [h]: json[0][h] })
@@ -72,7 +72,7 @@ export default function HasilUploadPage() {
       const sawitRows: SawitRow[] = []
       const wsSawit = wb.Sheets["Sawit"]
       if (wsSawit) {
-        const json = XLSX.utils.sheet_to_json<SawitRow>(wsSawit, { defval: 0 })
+        const json = XLSX.utils.sheet_to_json<SawitRow>(wsSawit, { defval: 0, range: skipRows })
         sawitRows.push(...json.map((row) => normalizeRow("sawit", row)))
         addLog(`  Sawit: ${sawitRows.length} baris`)
       } else {
@@ -83,7 +83,7 @@ export default function HasilUploadPage() {
       const getahRows: GetahRow[] = []
       const wsGetah = wb.Sheets["Getah"]
       if (wsGetah) {
-        const json = XLSX.utils.sheet_to_json<GetahRow>(wsGetah, { defval: 0 })
+        const json = XLSX.utils.sheet_to_json<GetahRow>(wsGetah, { defval: 0, range: skipRows })
         getahRows.push(...json.map((row) => normalizeRow("getah", row)))
         addLog(`  Getah: ${getahRows.length} baris`)
       } else {
@@ -195,6 +195,19 @@ export default function HasilUploadPage() {
               accept=".xlsx,.xls"
               className="border rounded-lg px-3 py-2 text-sm bg-background w-full mt-1"
             />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Skip Rows</label>
+            <input
+              type="number"
+              min="0"
+              max="20"
+              value={skipRows}
+              onChange={(e) => setSkipRows(Number(e.target.value))}
+              className="border rounded-lg px-3 py-2 text-sm bg-background w-full mt-1"
+              title="Berapa baris title header sebelum row tajuk columns"
+            />
+            <p className="text-[11px] text-muted-foreground mt-1">Baris title header sebelum column headers (contoh: 2 = skip 2 baris pertama)</p>
           </div>
         </div>
 
