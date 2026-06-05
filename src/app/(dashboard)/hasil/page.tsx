@@ -41,7 +41,7 @@ function findGetahByNama(nama: string) {
 export default function HasilPage() {
   const [pilihProjek, setPilihProjek] = useState("")
   const [jenisProjek, setJenisProjek] = useState<"sawit" | "getah">("sawit")
-  const [cariProjek, setCariProjek] = useState("")
+
 
 
   const projekList = useMemo(() => getProjekList(jenisProjek), [jenisProjek])
@@ -150,65 +150,33 @@ export default function HasilPage() {
         </div>
       </div>
 
-      {/* Pilih Projek — Dropdown + Search */}
+      {/* Dropdown Pilih Projek */}
       <div className="bg-card rounded-xl border p-5">
         <h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground mb-3">📋 Pilih Projek — Lihat Hasil Mengikut Bulan</h2>
-        <div className="flex flex-col gap-3">
-          {/* 1. Text Input untuk Search */}
-          <div className="relative">
-            <input
-              type="text"
-              value={cariProjek}
-              onChange={e => {
-                setCariProjek(e.target.value)
-                if (!e.target.value) setPilihProjek("")
-              }}
-              placeholder="🔍 Taip nama projek untuk cari..."
-              className="border rounded-lg px-3 py-2 text-sm bg-background w-full focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
-            />
-            {cariProjek && (
-              <button
-                onClick={() => { setCariProjek(""); setPilihProjek("") }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-lg"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-
-          {/* 2. Dropdown Select */}
-          <div className="flex gap-3 items-center flex-wrap">
-            <select
-              value={pilihProjek}
-              onChange={e => {
-                setPilihProjek(e.target.value)
-                setCariProjek(e.target.value)
-              }}
-              className="border rounded-lg px-3 py-2 text-sm bg-background flex-1 min-w-[250px] focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+        <div className="flex gap-3 items-center flex-wrap">
+          <select
+            value={pilihProjek}
+            onChange={e => setPilihProjek(e.target.value)}
+            className="border rounded-lg px-3 py-2 text-sm bg-background flex-1 min-w-[300px] focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+          >
+            <option value="">-- Pilih projek --</option>
+            {projekList.map(n => (
+              <option key={n} value={n}>{n}</option>
+            ))}
+          </select>
+          <div className="flex gap-1 bg-muted p-1 rounded-lg">
+            <button
+              onClick={() => { setJenisProjek("sawit"); setPilihProjek("") }}
+              className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors ${jenisProjek === "sawit" ? "bg-[#C0182A] text-white shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
             >
-              <option value="">-- Pilih projek --</option>
-              {projekList
-                .filter(n => n.toLowerCase().includes(cariProjek.toLowerCase()))
-                .map(n => (
-                  <option key={n} value={n}>{n}</option>
-                ))}
-            </select>
-
-            {/* Toggle Jenis */}
-            <div className="flex gap-1 bg-muted p-1 rounded-lg">
-              <button
-                onClick={() => { setJenisProjek("sawit"); setPilihProjek(""); setCariProjek("") }}
-                className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors ${jenisProjek === "sawit" ? "bg-[#C0182A] text-white shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-              >
-                Sawit
-              </button>
-              <button
-                onClick={() => { setJenisProjek("getah"); setPilihProjek(""); setCariProjek("") }}
-                className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors ${jenisProjek === "getah" ? "bg-[#D4A017] text-slate-900 shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-              >
-                Getah
-              </button>
-            </div>
+              Sawit
+            </button>
+            <button
+              onClick={() => { setJenisProjek("getah"); setPilihProjek("") }}
+              className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors ${jenisProjek === "getah" ? "bg-[#D4A017] text-slate-900 shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              Getah
+            </button>
           </div>
         </div>
       </div>
