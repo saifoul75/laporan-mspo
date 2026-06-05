@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
+import * as XLSX from "xlsx"
 
 const BULAN_MS = [
   "Januari", "Februari", "Mac", "April", "Mei", "Jun",
@@ -14,8 +15,44 @@ export default function HasilUploadPage() {
   const [loading, setLoading] = useState(false)
   const [log, setLog] = useState<string[]>([])
   const [bulan, setBulan] = useState("2026-05")
+  const [preview, setPreview] = useState<{ sawit: string[]; getah: string[]; mapped: { sawit: Record<string, string>; getah: Record<string, string> } } | null>(null)
 
   const addLog = (msg: string) => setLog((prev) => [...prev, msg])
+
+  const readWorkbook = async () => {
+    const fileInput = document.getElementById("excel-input") as HTMLInputElement
+    const file = fileInput.files?.[0]
+    if (!file) { addLog("❌ Tiada fail dipilih"); return null }
+    const buf = await file.arrayBuffer()
+    return XLSX.read(buf, { type: "array" })
+  }
+
+  const handlePreview = async () => {
+    const wb = await readWorkbook()
+    if (!wb) return
+    setLog([])
+    const result: typeof preview = { sawit: [], getah: [], mapped: { sawit: {}, getah: {} } }
+
+    for (const [sheetName, key] of [["Sawit", "sawit"], ["Getah", "getah"]] as const) {
+      const ws = wb.Sheets[sheetName]
+      if (!ws) { addLog(`⚠ Sheet ${sheetName} tidak ditemui`); continue }
+      const json = XLSX.utils.sheet_to_json<Record<string, any>>(ws, { defval: null })
+      if (json.length > 0) {
+        const headers = Object.keys(json[0])
+        result[key] = headers
+        const mapped = mapHeaders(json[0])
+        result.mapped[key] = Object.fromEntries(
+          headers.map(h => {
+            const m = mapHeaders({ [h]: json[0][h] })
+            const target = Object.keys(m)[0]
+            return [h, target || "(tidak dimap)"]
+          })
+        )
+        addLog(`📋 ${sheetName}: ${headers.length} columns, ${json.length} baris`)
+      }
+    }
+    setPreview(result)
+  }
 
   const handleUpload = async () => {
     const fileInput = document.getElementById("excel-input") as HTMLInputElement
@@ -26,7 +63,6 @@ export default function HasilUploadPage() {
     setLog([])
 
     try {
-      const XLSX = await import("xlsx")
       const buf = await file.arrayBuffer()
       const wb = XLSX.read(buf, { type: "array" })
 
@@ -164,6 +200,13 @@ export default function HasilUploadPage() {
 
         <div className="flex gap-3">
           <button
+            onClick={handlePreview}
+            disabled={loading}
+            className="bg-slate-700 text-white px-6 py-2 rounded-lg text-sm font-semibold disabled:opacity-50 hover:bg-slate-800"
+          >
+            🔍 Preview Header
+          </button>
+          <button
             onClick={handleUpload}
             disabled={loading}
             className="bg-primary text-white px-6 py-2 rounded-lg text-sm font-semibold disabled:opacity-50 hover:bg-primary/90"
@@ -179,6 +222,34 @@ export default function HasilUploadPage() {
           </button>
         </div>
       </div>
+
+      {/* Preview Headers */}
+      {preview && (
+        <div className="grid grid-cols-2 gap-4">
+          {(["sawit", "getah"] as const).map((key) => (
+            <div key={key} className="bg-card rounded-xl border p-4">
+              <h3 className="text-sm font-bold uppercase mb-3 capitalize">{key}</h3>
+              {preview[key].length > 0 ? (
+                <table className="w-full text-sm">
+                  <thead><tr><th className="text-left py-1 px-2 text-muted-foreground">Excel Column</th><th className="text-left py-1 px-2 text-muted-foreground">Maps To</th></tr></thead>
+                  <tbody>
+                    {preview[key].map((h, i) => (
+                      <tr key={i} className="border-b border-border/30">
+                        <td className="py-1 px-2 font-mono text-xs">{h}</td>
+                        <td className={`py-1 px-2 text-xs font-semibold ${preview.mapped[key][h] === "(tidak dimap)" ? "text-red-500" : "text-green-600"}`}>
+                          {preview.mapped[key][h]}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="text-muted-foreground text-sm">Sheet tidak ditemui</p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
 
       {log.length > 0 && (
         <div className="bg-muted rounded-xl border p-4 font-mono text-sm space-y-1">
