@@ -40,8 +40,11 @@ export default function HasilUploadPage() {
   function cleanJson(json: Record<string, any>[]): Record<string, any>[] {
     return json
       .filter((row) => {
-        const values = Object.values(row)
-        return values.some((v) => v !== null && v !== "" && v !== 0 && String(v).trim() !== "")
+        const nonEmpty = Object.entries(row).filter(([k, v]) => !k.startsWith("__EMPTY") && v !== null && v !== "" && String(v).trim() !== "")
+        if (nonEmpty.length < 3) return false
+        // Hanya keep rows yang ada mapping — ada nama projek + data lain (pol_pn/bil/luas/hasil)
+        const mapped = mapHeaders(Object.fromEntries(nonEmpty))
+        return (mapped.nama || mapped.pol_pn) && (mapped.luas_hek || mapped.hasil_mt || mapped.hasil_kg || mapped.bil)
       })
       .map((row) => {
         const cleaned: Record<string, any> = {}
