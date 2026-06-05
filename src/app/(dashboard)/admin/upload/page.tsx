@@ -330,38 +330,41 @@ function cleanNum(v: any): number {
 function mapHeaders(obj: any): Record<string, any> {
   const result: Record<string, any> = {}
   for (const key of Object.keys(obj)) {
-    const lk = key.toLowerCase().trim().replace(/\s+/g, "_").replace(/(_\(\))+$/, "").replace(/^_+|_+$/g, "")
+    const lk = key.toLowerCase().trim().replace(/\s+/g, "_").replace(/^_+|_+$/g, "")
+    const v = obj[key]
     
-    if (lk.includes("pol") || lk.includes("pn")) {
-      result.pol_pn = obj[key]
-    } else if (lk === "bil" || lk === "no.") {
-      result.bil = obj[key]
-    } else if (lk.includes("nama_projek") || (lk.includes("nama") && lk.includes("projek"))) {
-      result.nama = obj[key]
-    } else if (lk.includes("luas") && lk.includes("kawasan")) {
-      result.luas_hek = obj[key]
+    if (lk === "bil" || lk === "no.") {
+      result.bil = v
+    } else if (lk.includes("pol") || lk.includes("pn")) {
+      result.pol_pn = v
+    } else if (lk.includes("nama") && lk.includes("projek")) {
+      result.nama = v
     } else if (lk.includes("luas") && (lk.includes("dituai") || lk.includes("tuai"))) {
-      result.luas_dituai = obj[key]
+      result.luas_dituai = v
     } else if (lk.includes("luas") && (lk.includes("ditoreh") || lk.includes("toreh"))) {
-      result.luas_ditoreh = obj[key]
-    } else if (lk.includes("bilangan_peserta") || lk.includes("peserta")) {
-      result.peserta = obj[key]
-    } else if (lk.includes("jumlah_hasil") && lk.includes("btb")) {
-      result.hasil_mt = obj[key]
-    } else if (lk.includes("jumlah_hasil") && lk.includes("(kg)")) {
-      result.hasil_kg = obj[key]
-    } else if (lk.includes("matlamat_hasil") && lk.includes("setahun")) {
-      result.matlamat_setahun = obj[key]
-    } else if (lk.includes("%capai") && lk.includes("tahun")) {
-      result.pct_setahun = obj[key]
+      result.luas_ditoreh = v
+    } else if (lk.includes("luas") && lk.includes("kawasan")) {
+      result.luas_hek = v
+    } else if (lk.includes("bilangan") && lk.includes("peserta") || lk.includes("peserta")) {
+      result.peserta = v
+    } else if (lk.includes("jumlah") && lk.includes("hasil") && lk.includes("btb")) {
+      result.hasil_mt = v
+    } else if (lk.includes("jumlah") && lk.includes("hasil") && lk.includes("kg")) {
+      result.hasil_kg = v
+    } else if (lk.includes("%") && lk.includes("capai") && lk.includes("tahun")) {
+      result.pct_setahun = v
+    } else if (lk.includes("jangkaan") && lk.includes("tahun")) {
+      result.matlamat_setahun = v
     } else if (lk.includes("matlamat") && lk.includes("tahun")) {
-      result.matlamat_setahun = obj[key]
-    } else if (lk.includes("jumlah_pendapatan") || (lk.includes("pendapatan") && (lk.includes("(rm)") || lk.includes("$")))) {
-      result.pendapatan = obj[key]
-    } else if (lk.includes("kos") && lk.includes("pengeluaran") && !lk.includes("anggaran")) {
-      result.kos = obj[key]
+      result.matlamat_setahun = v
+    } else if (lk.includes("jumlah") && lk.includes("pendapatan")) {
+      result.pendapatan = v
+    } else if (lk.includes("pendapatan")) {
+      result.pendapatan = v
+    } else if (lk.includes("kos") && lk.includes("pengeluaran")) {
+      result.kos = v
     } else if (lk.includes("untung")) {
-      result.untung_rugi = obj[key]
+      result.untung_rugi = v
     }
   }
   return result
