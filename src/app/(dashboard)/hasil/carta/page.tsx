@@ -1,49 +1,65 @@
 "use client"
-import rawData from "@/data/hasil-bulanan.json"
+import { useMemo } from "react"
+import { useHasil, getLatestMonth } from "@/lib/supabase/useHasil"
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, Legend, LineChart, Line } from "recharts"
 
-type PS = { pol_pn: string; nama: string; hasil_mt: number; pct_setahun: number; untung_rugi: number; pendapatan: number }
-type PG = { pol_pn: string; nama: string; hasil_kg: number; pct_setahun: number; untung_rugi: number; pendapatan: number }
-type BulanData = { kod: string; nama: string; sawit: PS[]; getah: PG[] }
-
-const dataBulanan = rawData.bulan as BulanData[]
-const bulanLabels = dataBulanan.map(b => b.nama.split(" ")[0].substring(0, 3)) // Jan, Feb, Mac, Apr
-
-// Trend data
-const trendSawit = dataBulanan.map((b, i) => ({
-  bulan: bulanLabels[i],
-  hasil: b.sawit.reduce((a, p) => a + (p.hasil_mt ?? 0), 0),
-  untung: b.sawit.reduce((a, p) => a + (p.untung_rugi ?? 0), 0),
-}))
-
-const trendGetah = dataBulanan.map((b, i) => ({
-  bulan: bulanLabels[i],
-  hasil: b.getah.reduce((a, p) => a + (p.hasil_kg ?? 0), 0),
-  untung: b.getah.reduce((a, p) => a + (p.untung_rugi ?? 0), 0),
-}))
-
-// Per POL/PN data (latest month with actual data)
-const latestBulan = [...dataBulanan].reverse().find(b =>
-  b.sawit.some(p => (p.hasil_mt ?? 0) > 0) ||
-  b.getah.some(p => (p.hasil_kg ?? 0) > 0)
-) ?? dataBulanan[dataBulanan.length - 1]
-
-function byPol(data: PS[], fn: (arr: PS[]) => number) {
-  const m: Record<string, PS[]> = {}
-  data.forEach(p => { (m[p.pol_pn] = m[p.pol_pn] || []).push(p) })
-  return Object.entries(m).sort((a,b)=>a[0].localeCompare(b[0])).map(([pol, arr]) => ({ pol, value: fn(arr) }))
-}
-
-const urData  = byPol(latestBulan.sawit, arr => arr.reduce((a,p)=>a+p.untung_rugi,0))
-const top15   = [...latestBulan.sawit].sort((a,b)=>b.hasil_mt-a.hasil_mt).slice(0,15).map(p=>({ nama: p.nama.slice(0,20), hasil: p.hasil_mt }))
-const getahByPol = latestBulan.getah.map(p => ({ nama: p.nama.slice(0,22), setahun: p.pct_setahun }))
+function fmt(n: number) { return n.toLocaleString("ms-MY", { maximumFractionDigits: 0 }) }
 
 export default function CartaPage() {
+  const { data: dataBulanan, loading } = useHasil()
+  const latest = useMemo(() => getLatestMonth(dataBulanan), [dataBulanan])
+
+  const bulanLabels = dataBulanan.map(b => b.nama.split(" ")[0].substring(0, 3))
+
+  const trendSawit = dataBulanan.map((b, i) => ({
+    bulan: bulanLabels[i],
+    hasil: b.sawit.reduce((a, p) => a + (p.hasil_mt ?? 0), 0),
+    untung: b.sawit.reduce((a, p) => a + (p.untung_rugi ?? 0), 0),
+  }))
+
+  const trendGetah = dataBulanan.map((b, i) => ({
+    bulan: bulanLabels[i],
+    hasil: b.getah.reduce((a, p) => a + (p.hasil_kg ?? 0), 0),
+    untung: b.getah.reduce((a, p) => a + (p.untung_rugi ?? 0), 0),
+  }))
+
+  const top15 = useMemo(() => {
+    if (!latest) return []
+    return [...latest.sawit].sort((a,b) => b.hasil_mt - a.hasil_mt).slice(0,15).map(p => ({ nama: p.nama.slice(0,20), hasil: p.hasil_mt }))
+  }, [latest])
+
+  const getahByPol = useMemo(() => {
+    if (!latest) return []
+    return latest.getah.map(p => ({ nama: p.nama.slice(0,22), setahun: p.pct_setahun }))
+  }, [latest])
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold">Carta Prestasi</h1>
+        <p className="text-muted-foreground text-sm">Memuat data...</p>
+      </div>
+    )
+  }
+
+  if (!latest || dataBulanan.length === 0) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold">Carta Prestasi</h1>
+        <div className="bg-card rounded-xl border p-8 text-center">
+          <p className="text-muted-foreground">Tiada data hasil.</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
-      <div><h1 className="text-2xl font-bold">Carta Prestasi</h1><p className="text-muted-foreground text-sm">Analisis visual projek sawit &amp; getah — Januari hingga {latestBulan.nama}</p></div>
-      
-      {/* Trend Charts */}
+      <div>
+        <h1 className="text-2xl font-bold">Carta Prestasi</h1>
+        <p className="text-muted-foreground text-sm">Analisis visual projek sawit &amp; getah — Januari hingga {latest.nama}</p>
+      </div>
+
       <div className="grid grid-cols-2 gap-5">
         <div className="bg-card rounded-xl border p-5">
           <h3 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-4">Trend Hasil Sawit BTS (MT)</h3>
@@ -51,7 +67,7 @@ export default function CartaPage() {
             <LineChart data={trendSawit}>
               <XAxis dataKey="bulan" tick={{fontSize:12}}/>
               <YAxis tick={{fontSize:10}}/>
-              <Tooltip formatter={(v)=>Number(v ?? 0).toLocaleString("ms-MY",{maximumFractionDigits:0})+" MT"}/>
+              <Tooltip formatter={(v)=>fmt(Number(v ?? 0))+" MT"}/>
               <Line type="monotone" dataKey="hasil" stroke="#C0182A" strokeWidth={3} dot={{r:6}} name="Hasil BTS"/>
             </LineChart>
           </ResponsiveContainer>
@@ -62,21 +78,20 @@ export default function CartaPage() {
             <LineChart data={trendGetah}>
               <XAxis dataKey="bulan" tick={{fontSize:12}}/>
               <YAxis tick={{fontSize:10}}/>
-              <Tooltip formatter={(v)=>Number(v ?? 0).toLocaleString("ms-MY",{maximumFractionDigits:0})+" KG"}/>
+              <Tooltip formatter={(v)=>fmt(Number(v ?? 0))+" KG"}/>
               <Line type="monotone" dataKey="hasil" stroke="#D4A017" strokeWidth={3} dot={{r:6}} name="Hasil KG"/>
             </LineChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      {/* Per Bulan Bar Charts */}
       <div className="bg-card rounded-xl border p-5">
         <h3 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-4">Perbandingan Hasil Sawit Bulanan</h3>
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={trendSawit} margin={{bottom:10}}>
             <XAxis dataKey="bulan" tick={{fontSize:12}}/>
             <YAxis tick={{fontSize:10}}/>
-            <Tooltip formatter={(v)=>Number(v ?? 0).toLocaleString("ms-MY",{maximumFractionDigits:0})+" MT"}/>
+            <Tooltip formatter={(v)=>fmt(Number(v ?? 0))+" MT"}/>
             <Bar dataKey="hasil" fill="#C0182A" radius={[4,4,0,0]}/>
           </BarChart>
         </ResponsiveContainer>
@@ -88,7 +103,7 @@ export default function CartaPage() {
           <BarChart data={trendSawit} margin={{bottom:10}}>
             <XAxis dataKey="bulan" tick={{fontSize:12}}/>
             <YAxis tickFormatter={v=>"RM "+(v/1000).toFixed(0)+"k"} tick={{fontSize:10}}/>
-            <Tooltip formatter={(v)=>"RM "+Number(v ?? 0).toLocaleString("ms-MY",{maximumFractionDigits:0})}/>
+            <Tooltip formatter={(v)=>"RM "+fmt(Number(v ?? 0))}/>
             <Bar dataKey="untung" radius={[4,4,0,0]}>
               {trendSawit.map((d,i)=><Cell key={i} fill={d.untung>=0?"#16a34a":"#dc2626"}/>)}
             </Bar>
@@ -96,21 +111,20 @@ export default function CartaPage() {
         </ResponsiveContainer>
       </div>
 
-      {/* Top 15 + Getah */}
       <div className="grid grid-cols-2 gap-5">
         <div className="bg-card rounded-xl border p-5">
-          <h3 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-4">Top 15 Hasil BTS (MT) — {latestBulan.nama}</h3>
+          <h3 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-4">Top 15 Hasil BTS (MT) — {latest.nama}</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={top15} layout="vertical">
               <XAxis type="number" tick={{fontSize:10}}/>
               <YAxis dataKey="nama" type="category" tick={{fontSize:9}} width={130}/>
-              <Tooltip formatter={(v)=>Number(v ?? 0).toLocaleString("ms-MY",{maximumFractionDigits:0})+" MT"}/>
+              <Tooltip formatter={(v)=>fmt(Number(v ?? 0))+" MT"}/>
               <Bar dataKey="hasil" fill="#C0182A" radius={[0,4,4,0]}/>
             </BarChart>
           </ResponsiveContainer>
         </div>
         <div className="bg-card rounded-xl border p-5">
-          <h3 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-4">% Capai Setahun Getah — {latestBulan.nama}</h3>
+          <h3 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-4">% Capai Setahun Getah — {latest.nama}</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={getahByPol} layout="vertical">
               <XAxis type="number" tickFormatter={v=>v+"%"} tick={{fontSize:10}}/>

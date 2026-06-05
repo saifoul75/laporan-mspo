@@ -28,6 +28,7 @@ const ITEM_HASIL: ItemNav[] = [
   { label: "Sawit", href: "/hasil/sawit" },
   { label: "Getah", href: "/hasil/getah" },
   { label: "Carta", href: "/hasil/carta" },
+  { label: "Upload Excel", href: "/admin/upload", rol: ["admin"] },
 ];
 
 export function Sidebar({ rol }: { rol: RolPengguna }) {
@@ -52,7 +53,7 @@ export function Sidebar({ rol }: { rol: RolPengguna }) {
             Hasil Projek
           </div>
           <nav className="space-y-1">
-            {ITEM_HASIL.map((item) => {
+            {ITEM_HASIL.filter((item) => !item.rol || item.rol.includes(rol)).map((item) => {
               const aktif =
                 item.href === "/hasil"
                   ? pathname === item.href

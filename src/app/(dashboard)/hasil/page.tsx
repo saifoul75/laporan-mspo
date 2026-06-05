@@ -1,56 +1,75 @@
 "use client"
 import { useState, useMemo } from "react"
-import rawData from "@/data/hasil-bulanan.json"
+import { useHasil, getLatestMonth, type BulanData, type PS, type PG } from "@/lib/supabase/useHasil"
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts"
-
-type PS = { pol_pn: string; bil: number; nama: string; luas_hek: number; luas_dituai: number; peserta: number; hasil_mt: number; mtan_hek: number; matlamat_setahun: number; pct_setahun: number; pendapatan: number; kos: number; untung_rugi: number }
-type PG = { pol_pn: string; bil: number; nama: string; luas_hek: number; luas_ditoreh: number; peserta: number; hasil_kg: number; kg_hek: number; matlamat_setahun: number; pct_setahun: number; pendapatan: number; kos: number; untung_rugi: number }
-type BulanData = { kod: string; nama: string; sawit: PS[]; getah: PG[] }
-
-const dataBulanan = (rawData.bulan as BulanData[])
 
 function fmt(n: number | undefined | null, d = 0): string {
   if (n == null || isNaN(n)) return "—"
   return n.toLocaleString("ms-MY", { minimumFractionDigits: d, maximumFractionDigits: d })
 }
 
-// Dapatkan senarai nama projek unik ikut jenis
-function getProjekList(jenis: "sawit" | "getah"): string[] {
+function getProjekList(data: BulanData[], jenis: "sawit" | "getah"): string[] {
   const names = new Set<string>()
-  dataBulanan.forEach(b => {
+  data.forEach(b => {
     if (jenis === "sawit") b.sawit.forEach(p => names.add(p.nama))
     else b.getah.forEach(p => names.add(p.nama))
   })
   return Array.from(names).sort()
 }
 
-function findSawitByNama(nama: string) {
-  return dataBulanan.map(b => {
-    const proj = b.sawit.find(p => p.nama === nama)
-    return { bulan: b.nama.split(" ")[0].substring(0, 3), ...(proj || {}) }
-  }) as ({ bulan: string } & Partial<PS>)[]
+function findSawitByNama(data: BulanData[], nama: string) {
+  return data.map(b => ({
+    bulan: b.nama.split(" ")[0].substring(0, 3),
+    ...(b.sawit.find(p => p.nama === nama) || {}),
+  })) as ({ bulan: string } & Partial<PS>)[]
 }
 
-function findGetahByNama(nama: string) {
-  return dataBulanan.map(b => {
-    const proj = b.getah.find(p => p.nama === nama)
-    return { bulan: b.nama.split(" ")[0].substring(0, 3), ...(proj || {}) }
-  }) as ({ bulan: string } & Partial<PG>)[]
+function findGetahByNama(data: BulanData[], nama: string) {
+  return data.map(b => ({
+    bulan: b.nama.split(" ")[0].substring(0, 3),
+    ...(b.getah.find(p => p.nama === nama) || {}),
+  })) as ({ bulan: string } & Partial<PG>)[]
 }
 
 export default function HasilPage() {
+  const { data: dataBulanan, loading } = useHasil()
   const [pilihProjek, setPilihProjek] = useState("")
   const [jenisProjek, setJenisProjek] = useState<"sawit" | "getah">("sawit")
 
+  const projekList = useMemo(() => getProjekList(dataBulanan, jenisProjek), [dataBulanan, jenisProjek])
+  const latest = useMemo(() => getLatestMonth(dataBulanan), [dataBulanan])
 
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold">Ringkasan Prestasi Hasil</h1>
+          <p className="text-muted-foreground text-sm mt-1">Memuat data...</p>
+        </div>
+        <div className="grid grid-cols-4 gap-4">
+          {[1,2,3,4].map(i => (
+            <div key={i} className="bg-card border-l-4 border-muted rounded-xl p-4 shadow-sm">
+              <div className="h-3 bg-muted animate-pulse rounded w-3/4 mb-2" />
+              <div className="h-6 bg-muted animate-pulse rounded w-1/2 mb-2" />
+              <div className="h-3 bg-muted animate-pulse rounded w-2/3" />
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
-  const projekList = useMemo(() => getProjekList(jenisProjek), [jenisProjek])
+  if (!latest || dataBulanan.length === 0) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold">Ringkasan Prestasi Hasil</h1>
+        <div className="bg-card rounded-xl border p-8 text-center">
+          <p className="text-muted-foreground">Tiada data hasil. Sila upload di halaman Admin Upload.</p>
+        </div>
+      </div>
+    )
+  }
 
-  // Ringkasan bulan terkini (ambil bulan terakhir yang ada data sebenar)
-  const latest = [...dataBulanan].reverse().find(b =>
-    b.sawit.some(p => (p.hasil_mt ?? 0) > 0) ||
-    b.getah.some(p => (p.hasil_kg ?? 0) > 0)
-  ) ?? dataBulanan[dataBulanan.length - 1]
   const sawit = latest.sawit
   const getah = latest.getah
 
@@ -62,14 +81,12 @@ export default function HasilPage() {
   const tg_hasil  = getah.reduce((a, p) => a + (p.hasil_kg ?? 0), 0)
   const tg_ur     = getah.reduce((a, p) => a + (p.untung_rugi ?? 0), 0)
 
-  // Data projek dipilih
-  const projekSawit = pilihProjek ? findSawitByNama(pilihProjek) : []
-  const projekGetah = pilihProjek ? findGetahByNama(pilihProjek) : []
+  const projekSawit = pilihProjek ? findSawitByNama(dataBulanan, pilihProjek) : []
+  const projekGetah = pilihProjek ? findGetahByNama(dataBulanan, pilihProjek) : []
   const projekSawitValid = projekSawit.filter(p => p.hasil_mt != null)
   const projekGetahValid = projekGetah.filter(p => p.hasil_kg != null)
   const sawitSetakatTerkini = projekSawitValid[projekSawitValid.length - 1]
   const getahSetakatTerkini = projekGetahValid[projekGetahValid.length - 1]
-  // Trend bar chart for selected project
   const chartData = jenisProjek === "sawit"
     ? projekSawit.filter(p => p.hasil_mt != null).map(p => ({ bulan: p.bulan, hasil: p.hasil_mt, untung: p.untung_rugi }))
     : projekGetah.filter(p => p.hasil_kg != null).map(p => ({ bulan: p.bulan, hasil: p.hasil_kg, untung: p.untung_rugi }))
@@ -130,7 +147,6 @@ export default function HasilPage() {
                   </tr>
                 )
               })}
-              {/* Baris Jumlah Kumulatif */}
               {dataBulanan.length > 1 && (() => {
                 const totSawitHasil = dataBulanan.reduce((a,b) => a + b.sawit.reduce((s,p) => s + (p.hasil_mt ?? 0), 0), 0)
                 const totSawitUr = dataBulanan.reduce((a,b) => a + b.sawit.reduce((s,p) => s + (p.untung_rugi ?? 0), 0), 0)
@@ -187,16 +203,13 @@ export default function HasilPage() {
       {/* Jadual Hasil Projek Dipilih */}
       {pilihProjek && (
         <div className="bg-card rounded-xl border p-5 space-y-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-bold text-lg">{pilihProjek}</h3>
-              <p className="text-sm text-muted-foreground">Prestasi mengikut bulan — {jenisProjek === "sawit" ? "Hasil BTS (MT)" : "Hasil (KG)"}</p>
-            </div>
+          <div>
+            <h3 className="font-bold text-lg">{pilihProjek}</h3>
+            <p className="text-sm text-muted-foreground">Prestasi mengikut bulan — {jenisProjek === "sawit" ? "Hasil BTS (MT)" : "Hasil (KG)"}</p>
           </div>
 
           {jenisProjek === "sawit" ? (
             <>
-              {/* Jadual Sawit Bulanan */}
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-slate-800 text-white">
@@ -234,7 +247,6 @@ export default function HasilPage() {
                         </tr>
                       )
                     })}
-                    {/* Baris Jumlah — nilai terkini (kumulatif) */}
                     {projekSawitValid.length > 1 && (
                       <tr className="bg-muted/80 font-bold">
                         <td className="px-3 py-2">SETAKAT {sawitSetakatTerkini?.bulan?.toUpperCase()}</td>
@@ -263,7 +275,6 @@ export default function HasilPage() {
                 </table>
               </div>
 
-              {/* Carta Trend */}
               {chartData.length > 0 && (
                 <div className="grid grid-cols-2 gap-5 mt-4">
                   <div className="bg-muted/30 rounded-lg p-4">
@@ -295,7 +306,6 @@ export default function HasilPage() {
             </>
           ) : (
             <>
-              {/* Jadual Getah Bulanan */}
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-slate-800 text-white">
@@ -333,7 +343,7 @@ export default function HasilPage() {
                         </tr>
                       )
                     })}
-{projekGetahValid.length > 1 && (
+                    {projekGetahValid.length > 1 && (
                       <tr className="bg-muted/80 font-bold">
                         <td className="px-3 py-2">SETAKAT {getahSetakatTerkini?.bulan?.toUpperCase()}</td>
                         <td className="px-3 py-2 text-xs">{getahSetakatTerkini?.pol_pn ?? "—"}</td>

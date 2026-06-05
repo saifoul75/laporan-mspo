@@ -1,21 +1,14 @@
 "use client"
 import { useState, useMemo } from "react"
-import rawData from "@/data/hasil-bulanan.json"
+import { useHasil, getLatestMonth } from "@/lib/supabase/useHasil"
 
 type P = {
   pol_pn: string; bil: number; nama: string
   luas_hek: number; luas_dituai: number; peserta: number
-  hasil_mt: number; mtan_hek: number; mtan_hek_dituai: number
+  hasil_mt: number; mtan_hek: number; mtan_hek_dituai?: number
   matlamat_setahun: number; pct_setahun: number
   pendapatan: number; kos: number; untung_rugi: number
 }
-
-const dataBulanan = rawData.bulan
-const bulanTerkini = [...dataBulanan].reverse().find(b =>
-  b.sawit.some(p => (p.hasil_mt ?? 0) > 0)
-) ?? dataBulanan[dataBulanan.length - 1]
-const sawit = bulanTerkini.sawit as P[]
-const polList = ["", ...Array.from(new Set(sawit.map(p => p.pol_pn))).sort()]
 
 function fmt(n: number, d = 0) { return n.toLocaleString("ms-MY", { minimumFractionDigits: d, maximumFractionDigits: d }) }
 
@@ -28,6 +21,11 @@ type Sort = "pol" | "pct_setahun_desc" | "pct_setahun_asc" | "hasil_desc" | "ur_
 type Tab = "fizikal" | "kewangan"
 
 export default function SawitPage() {
+  const { data: dataBulanan, loading } = useHasil()
+  const bulanTerkini = useMemo(() => getLatestMonth(dataBulanan), [dataBulanan])
+  const sawit = (bulanTerkini?.sawit ?? []) as P[]
+  const polList = useMemo(() => ["", ...Array.from(new Set(sawit.map(p => p.pol_pn))).sort()], [sawit])
+
   const [tab, setTab]   = useState<Tab>("fizikal")
   const [pol, setPol]   = useState("")
   const [q, setQ]       = useState("")
@@ -41,11 +39,30 @@ export default function SawitPage() {
     else if (sort === "ur_desc") r = [...r].sort((a, b) => b.untung_rugi - a.untung_rugi)
     else r = [...r].sort((a, b) => a.pol_pn.localeCompare(b.pol_pn) || a.bil - b.bil)
     return r
-  }, [pol, q, sort])
+  }, [pol, q, sort, sawit])
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <h1 className="text-2xl font-bold">Projek Sawit</h1>
+        <p className="text-muted-foreground text-sm">Memuat data...</p>
+      </div>
+    )
+  }
+
+  if (!bulanTerkini) {
+    return (
+      <div className="space-y-4">
+        <h1 className="text-2xl font-bold">Projek Sawit</h1>
+        <div className="bg-card rounded-xl border p-8 text-center">
+          <p className="text-muted-foreground">Tiada data projek sawit.</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Projek Sawit</h1>
@@ -54,7 +71,6 @@ export default function SawitPage() {
         <span className="bg-[#C0182A] text-white text-xs font-bold px-3 py-1.5 rounded-full">{rows.length} projek</span>
       </div>
 
-      {/* Tabs */}
       <div className="flex gap-1 border-b">
         {(["fizikal","kewangan"] as Tab[]).map(t => (
           <button key={t} onClick={() => setTab(t)}
@@ -64,7 +80,6 @@ export default function SawitPage() {
         ))}
       </div>
 
-      {/* Toolbar */}
       <div className="flex gap-3 flex-wrap items-center">
         <select value={pol} onChange={e => setPol(e.target.value)} className="border rounded-lg px-3 py-2 text-sm bg-background">
           {polList.map(p => <option key={p} value={p}>{p || "Semua POL/PN"}</option>)}
@@ -79,7 +94,6 @@ export default function SawitPage() {
         </select>
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto rounded-xl border bg-card">
         <table className="w-full text-sm">
           <thead className="bg-slate-800 text-white">

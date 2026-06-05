@@ -1,0 +1,781 @@
+﻿Guidance Document v-MS2530-2-2: 2022
+Malaysian Sustainable Palm Oil (MSPO) - Part 2-2:
+General Principles for Organised Smallholders (Less Than 40.46 Hectares)
+ï¿½,ï¿½MPOCC
+ï¿½,ï¿½
+Introduction
+The purpose of the Malaysian Sustainable Palm Oil (MSPO) Guidance Document is to provide explanation on the criteria and indicators of the MSPO Standard (MS2530:2022) and to assist in understanding the requirements. Each part of the MSPO Standard has its own guidance document.
+This guidance document has been reviewed by the Technical Committee on MSPO (TC MSPO) and Working Groups on MSPO (WG MSPO) members. The draft of this guidance document has undergone a series of pilot audits conducted in Sabah, Sarawak and Peninsular Malaysia to ensure its applicability and practicality. Feedback from the auditors who conducted the pilot test were incorporated to enhance this guidance document.
+In this guidance document, reference was made to other related documents mentioned in the MSPO Standards (if applicable). Guidelines are the documents that explain the process for conducting assessments for Social Impact Assessment (SIA) and High Conservation Value Assessment (HCV). Another tool that reference was made is the GHG Calculator. Both the Guidelines and the GHG Calculator are not part of this guidance document.
+Guidance document for MS 2530-2-2: 2022; Malaysian Sustainable Palm Oil (MSPO)
+Requirements
+Guidance
+4.1 Principle 1: Management commitment and responsibility
+4.1.1 Criterion 1: Malaysian Sustainable Palm Oil (MSPO) policy
+The MSPO policy is a commitment in which the organisation outlines its intentions to support and enhance the production of sustainable palm oil.
+In establishing the policy, the management should consider the impacts of its operations on the three pillars of sustainability (including the impact on children) and contributions to enhance current conditions. These commitments could be stated in the policy statement.
+The management should also ensure that the policy is compatible with the organisationâ€™s strategic direction and business processes.
+The policy statement can be used for all sustainable palm oil schemes with a mention of MSPO.
+4.1.1.1 Indicator 1:
+A policy statement approved by the top management (and dated) should be established and publicly available. The policy should explain the nature of the organisation:
+Names and location; and
+Size of the organisation.
+The policy should also address issues that the organisation is focusing on and should also consider the expectations of personnel, business partners and other stakeholders on their operation, product or services.
+Requirements
+Guidance
+This policy should be in line with the policies required in the Standard:
+Ethical conduct;
+Occupational safety and health;
+Human rights and employment conditions; and
+Environment.
+In addition, management of all levels should safeguard child rights i.e., ensure children are not abused, exploited or harmed in the organisationâ€™s premises; sites in the organisationâ€™s premises do not endanger children and ensure that child rights are respected throughout the business value chain.
+The clause â€œcontinual improvementâ€ should be part of the policy statement.
+Communication of the policies could be done in many ways, depending on the target audience or stakeholders.
+4.1.1.2 Indicator 2:
+Continual improvement could be any improvement that is within the organisationâ€™s capabilities to enhance its sustainability.
+Continual improvement may include (but are not limited to):
+Implementation of management plans that require enhancement and not only SOP implementation. For example, reduction in waste generation;
+Enhancement of work environment e.g., eliminating forced labour, and safe work environment;
+Empowering local communities and indigenous peoples to prosper together; and
+Enhancement of conservation areas.
+Requirements
+Guidance
+4.1.2 Criterion 2: New planting
+New planting of oil palm, if not carried out in a proper manner, may cause environmental degradation and negative social consequences. Hence, the intent of this criterion is to ensure that new plantings are done in areas that would not give rise to deforestation, destruction of peatlands, steep or hilly areas; minimise social impacts and in accordance with state policy.
+Prior to any new plantings, the organisation shall ensure that the following are conducted:
+Comprehensive SIA, EIA and HCV assessments to identify the social and environmental elements that are present within or adjacent to the management area;
+Soil survey to examine soil suitability; and
+Obtain FPIC to ensure that all parties agreed to the development.
+4.1.2.1 Indicator 1:
+Planting of oil palm should follow the national and/or state policies and take consideration of items
+to c) in the indicator.
+Information on the types of forest that cannot be converted to oil palm plantations;
+Soil suitability maps or soil surveys should be appropriate to the scale of operation and should include information on soil types, topography, hydrology, rooting depth, moisture availability, stoniness and fertility to ensure the long-term sustainability of the development. This includes the availability of:
+Topographic maps adequate to guide the planning of drainage and irrigation systems, roads and other infrastructure; and
+Maps identifying marginal and fragile soils, including excessive gradients and peat soils. Among the approving bodies that need to be consulted are:
+MPOB;
+DOE/NREB/EPD; and
+State/Local Planning Authority.
+Conformance to these requirements should be in line with the latest announcement from time to time from the scheme owner.
+Requirements
+Guidance
+4.1.2.2 Indicator 2:
+Refer to the EIA guidance in Appendix 1.
+4.1.2.3 Indicator 3:
+SIA is a process used to identify, assess and manage social impacts that have arisen in the surrounding community and affecting other relevant stakeholders as a result of ongoing operations, or which may result from future operations.
+Refer to the SIA Guidelines and Approach for the MSPO Standards.
+4.1.2.4 Indicator 4:
+The HCV approach is a tool for managing conservation values within a landscape. It is widely used internationally and using it enables the Malaysian palm oil industry to maintain its position in the global market.
+Refer to the HCV Assessment Guidelines for the MSPO Standards.
+4.1.2.5 Indicator 5:
+Free, Prior, and Informed Consent (FPIC) is a decision-making process without pressure and intimidation (free), which is performed beforethe activity that affects indigenous peoples and local communities are undertaken (prior), with the possession of full and accurate knowledge about the activity and its impact on indigenous peoples and local communities (informed), so that indigenous peoples and local communities can either provide or withhold its permission over the activity (consent).
+Refer to the FPIC guidance in Appendix 3.
+4.1.3 Criterion 3: Existing site management
+SOPs are a set of instructions compiled by an organisation to implement its processes consistently.
+Requirements
+Guidance
+4.1.3.1 Indicator 1:
+The organisation should determine the SOPs required for its operation. The SOPs should specify the requirement, roles and responsibilities of the person(s)-in-charge. Records related to its implementation should be maintained.
+4.1.3.2 Indicator 2:
+Cultivating oil palms on steep slopes increases soil erosion, surface runoff, sedimentation and occurrences of landslides. A management strategy should exist for plantings on slopes above a certain limit. Techniques that minimise soil erosion should be adopted, wherever appropriate. These may include practices such as ground cover management, biomass recycling, terracing, contour drain, silt pit, natural regeneration or restoration instead of replanting.
+4.1.3.3 Indicator 3:
+The authorityâ€™s guidelines, such as the MPOB guidelines, which illustrate the best management practices for oil palm planting on peat. Action plan for managing existing plantings on peat should include fire and water management.
+4.1.3.4 Indicator 4:
+A visual reference system of the planted area is established for identification purposes which enables any problems to be easily addressed.
+The signages should display the following information (but are not limited to):
+Block number;
+Land area;
+Date of oil palm planting; and
+Clone/variety.
+4.1.3.5 Indicator 5:
+The organisation should apply recognised Integrated Pest Management (IPM) techniques, which incorporate cultural practices, biological, mechanical and physical methods to minimise the use of chemicals. Native species should be used in biological control where possible.
+Requirements
+Guidance
+4.1.4 Criterion 4: Replanting
+The decision on when to conduct replanting depends on many factors such as the price of FFB, the cost to establish and maintain new palms, as well as technology that changes the yield profile.
+4.1.4.1 Indicator 1:
+The replanting programme may start with an analysis of the yield, review of the EIA, SIA and HCV reports as well as the land tenure agreement, if available.
+Other considerations for the programme could be the source of seedlings, the timing of land preparation, sizing of the area for replanting, etc.
+(Refer to the EIA guidance in Appendix 1, as well as SIA Guidelines and Approach for the MSPO Standards, and the HCV Assessment Guidelines for the MSPO Standards).
+4.1.4.2 Indicator 2:
+If the organisation has not conducted SIA, EIA and HCV assessments previously, the organisation shall conduct these assessments for replanting.
+If the organisation has conducted SIA, EIA and HCV assessments previously, the relevant management and monitoring plans from these existing assessments shall be reviewed.
+Refer to the EIA guidance in Appendix 1, as well as SIA Guidelines and Approach for the MSPO Standards, and the HCV Assessment Guidelines for the MSPO Standards.
+4.1.4.3 Indicator 3:
+The authorityâ€™s guidelines, such as the MPOB guidelines, which illustrate the best management practices for oil palm planting on peat. Action plan for managing existing plantings on peat should include fire and water management.
+Requirements
+Guidance
+4.1.5 Criterion 5: Training and competency
+The intent of this criterion is to ensure that employees/group members including contractors are adequately trained and competent to enable them to fulfil their jobs and responsibilities in accordance with documented procedures, legal and MSPO requirements.
+Training needs should be the basis to establish the training plan/programme. Depending on the capabilities of the organisation and competency requirements, training should be carried out and evaluations of its effectiveness are conducted.
+Competency is the capability to apply or use a set of related knowledge, skills, and abilities required to successfully perform tasks and responsibilities in a defined work setting. Competency has 3 levels, which includes:
+Competency requirements by laws.
+Employees must have a valid competency certificate from an authorised organisation. For example, FFB graders, and scheduled waste handlers.
+Competency requirements by job scope.
+Competence in terms of the scope of the task is usually determined by the organisation. For example, harvesters.
+Competency requirements by the standards.
+For example, competency in knowledge and awareness of MSPO among staff and workers.
+Requirements
+Guidance
+4.1.5.1 Indicator 1:
+The organisation should identify relevant trainings based on the job description to ensure all employees, contractors and smallholders (Group Members) are well trained in their job function and responsibility.
+The trainings are to ensure Group Members are able to implement their responsibilities as required under the MSPO standard. The areas of training should cover (but are not limited to):
+Group functions and group members responsibilities;
+MSPO standard requirements; and
+Compliance to operating procedures, best management practices, and Occupational Safety and Health.
+Training needs should also cover the training required for safeguarding children. Refer to the Samples of Training Needs Summary in Appendix 2.
+4.1.5.2 Indicator 2:
+A training programme is usually established on a yearly basis. The programme should include the frequency of trainings, target audience, training modules and language considerations for foreign workers, if applicable.
+Trainings could be done internally or externally through formal or informal sessions depending on the level of competency needed.
+After the completion of the training, evaluations of the effectiveness of the training should be conducted. This can be in the form of on-job training, classroom assessments, interviews or any other method appropriate to the organisation. Records of training and evaluation should be maintained.
+Requirements
+Guidance
+4.1.5.3 Indicator 3:
+The organisation should ensure that contractors and their workers have been trained on MSPO requirements and are competent to conduct the job.
+This requirement could be stipulated in the contract agreement to ensure that the contractors are aware.
+4.1.6 Criterion 6: Economic and financial viability plan
+Profitability is one of the elements of sustainability. A documented business plan will guide the organisation to achieve its business objectives, reduce risks and uncertainties as well as capitalise on opportunities. A financially viable business enables MSPO implementation and improvement.
+4.1.6.1 Indicator 1:
+On top of the operation parameters (Indicator 4.1.6.2), expenditure for addressing social and environmental issues within the organisation, as well as profitability, should be part of the business plan.
+4.1.6.2 Indicator 2:
+No further explanation for this indicator.
+4.1.6.3 Indicator 3:
+The organisation should prepare a long-term replanting program and specify the periodic intervals for the review, which depends on the organisation's management.
+4.1.7 Criterion 7: Commitment to contribute to local sustainable development
+The intent of this criterion is for the organisation to prosper together with the community, particularly at the local level. Consultation is key for understanding the community's needs and contributions that could be made on a short, medium or long-term basis.
+Requirements
+Guidance
+4.1.7.1 Indicator 1:
+In ensuring that the organisation prospers together with the local community, the key action is to understand the needs and wants of the local community.
+When conducting consultation, representatives of the stakeholders need to be accepted by the group that they are representing.
+It is also important to note that contributions to local sustainable development do not include support to employees and their families, which is part of fulfilling employment obligations.
+4.1.8 Criterion 8: Complaints and grievances
+The organisation should establish a mechanism to manage complaints and grievances. The key principle is to be transparent and strive for improvement.
+4.1.8.1 Indicator 1:
+The method/mechanism to manage complaints and grievances system or procedure would depend on the organisation and complainantâ€™s capabilities.
+For example, the organisation could establish a committee to verify the validity of a complaint and review the action taken to address it while a specific person-in-charge could be assigned to investigate a complaint in accordance with the SOPs.
+The organisation should ensure that employees and stakeholdersare aware of the existence of the complaints or grievances mechanism and that complaints can be made at any time.
+The mechanism should ensure impartiality to all parties involved. It should also consider gender and childrenâ€™s sensitivities.
+The organisation should ensure that the procedure is easily accessible and user-friendly, particularly towards indigenous communities, as well as provides protection for whistleblowers and ensure anonymity when required.
+Requirements
+Guidance
+4.1.8.2 Indicator 2:
+The system should record actions to be taken by the organisation with status updates (i.e., ongoing or resolved). The organisation should be able to show evidence of any ongoing complaints or grievances.
+The resolution should be mutually agreed and accepted by both complainant and organisation. Any grievances should be resolved at an early stage.
+4.1.8.3 Indicator 3:
+All records of complaints and resolutions that do not involve legal procedures should be maintained for at least 24 months. Complaints that are yet to be resolved should be updated and followed up.
+4.1.9 Criterion 9: Internal audit
+The intent of this criterion is to provide assurance to the management on the status of MSPO implementation. It could also assist in determining areas for improvement. The organisation should determine the competency of the auditors as well as the audit process to ensure reliable results.
+4.1.9.1 Indicator 1:
+The organisation should implement the internal audit programme as a systematic, independent and documented process for obtaining audit evidence. The evidence should be evaluated objectively to determine the extent to which the audit criteria are fulfilled.
+Among the items that could be included in the planning of the audit would be the frequency of the audit, audit coverage/scope, and auditor(s) competency (including knowledge of forced labour and childrenâ€™s rights). Follow up actions should include a timeframe for addressing/closure of findings.
+Requirements
+Guidance
+4.1.9.2 Indicator 2:
+Root cause analysis should be conducted to determine the corrections and corrective actions to be taken by the organisation.
+There is no specific format for the root cause analysis in the MSPO requirement. Among the commonly used methods are the 5 whys, cause effect analysis, and fishbone diagram.
+All non-conformities should be corrected before external audits and reviewed.
+4.1.10 Criterion 10: Management review
+The intent of this criterion is for the management to provide direction on the implementation of MSPO. This could be achieved when top management decides whether the implementation was satisfactory or whether other actions need to be taken including the provision of resources.
+4.1.10.1 Indicator 1:
+For b), examples of changes are:
+In discussing the review, changes in external issues could refer to emerging issues highlighted by media, and experts in the industry that may affect the organisation (e.g., new legal requirement in the buyer country).
+Internal issues could be on the management of a different group of employeesâ€™ needs.
+Needs and expectations of stakeholders related to sustainability (e.g., multiple sustainable palm oil scheme requirements) specific to stakeholders (e.g., community and buyer).
+For c), this includes the progress of social, environmental, safety and health, water and other management plans required by the MSPO Standard.
+For e), examples of resources could be manpower, financial or material.
+Requirements
+Guidance
+4.2 Principle 2: Transparency
+4.2.1 Criterion 1: Communication and consultation
+The intent of this criterion is to have meaningful communication and consultation with stakeholders, particularly those who may be affected by the organisationâ€™s activities.
+Communication and consultation should be in the appropriate languages and forms that are acceptable to the stakeholders.
+Lean organisational structure may not have a specific person in charge to deal with communication. However, when responding to stakeholders, the information must reflect the managementâ€™s decision/input. The consultation process should be an ongoing process to ensure that any grievances can be resolved at an early stage. Stakeholders may include children in the living quarters or from nearby communities.
+Requirements
+Guidance
+4.2.1.1 Indicator 1:
+The organisation should establish a simple and accessible procedure for communication and consultation to ensure effective communication.
+When establishing its communication system, the organisation should:
+Consider its capabilities to establish a system that comprises of SOP(s) to receive, respond and take action (if necessary) and maintain relevant documentation;
+Determine the types of information to be shared with different stakeholders and its consistencies with the information generated by MSPO implementation;
+Communicate the procedures by informing the stakeholders of the availability and content, and would not require the organisation to share the SOP; and
+Ensure the system is able to support:
+Voluntary communication (e.g., relaying information on the organisationâ€™s initiatives on sustainability including conduction of stakeholdersâ€™ consultation),
+Mandatory communication (e.g., reporting of monitoring activities to the authorities as required in the licensing condition)
+Two ways communication (e.g., when receiving complaints or requests for information, taking necessary actions and responding to stakeholders),
+Various mode of communication â€“ verbal, electronic messages (e.g., SMS, and WhatsApp), formal write-in (e.g., letters and email), etc., and
+A timeframe for responding to complaints/requests for information.
+Requirements
+Guidance
+4.2.1.2 Indicator 2:
+Identification of stakeholders should be on the basis of whether the operation of the organisation would have an impact on them or whether their operation would have an impact on the organisation.
+Potential stakeholders may include (but are not limited to):Employees;
+Shareholders;
+Authorities;
+Nearby community(ies) and indigenous peoples;
+Contractors/suppliers;
+Civil Society Organisations (CSO) related to childrenâ€™s rights; and
+NGOs.
+The organisation should define clearly what are the necessary information to be included in the list of stakeholders to ensure a consistent approach in managing the data (e.g., name, address, person-in-charge, etc.)
+Records of all communication, including confirmation of receival are maintained. Efforts should be made to ensure stakeholders understand the intent and content of any communication.
+4.2.1.3 Indicator 3:
+A designated person-in-charge would enable effective communication.
+4.2.1.4 Indicator 4:
+Management should determine the information/documents that can be shared:
+Publicly, such as the organisationâ€™s MSPO policy, annual/sustainability report, complaint and grievance mechanism.
+Upon requests, such as complaint and its resolution, negotiated agreement with indigenous peoples and local community, land ownership, etc.
+In sharing the information/documents, consideration should be given to the capability of audiences in terms of language and mode of communication. For example, publicly available information/documents on the organisationâ€™s website could be in the National language and/or English. The procedure for complaint and grievance could also be available in both languages but
+explained to foreign workers and local communities in their own languages.
+Requirements
+Guidance
+4.2.2 Criterion 2: Traceability
+The intent of this criteria is to ensure all oil palm products are traceable. For example, crude palm oil and palm kernel are traceable to the mill and FFBs are traceable to plantations/smallholdings/collection centers. The overall traceability data is managed by MPOCC through its IT platform.
+The organisation should track traceability on the basis of one level up and one level down of its supply chain. Traceability starts at the plantation while traceability models start at the mill/collection center.
+4.2.2.1 Indicator 1:
+The SOP on traceability and its content should depend on the needs of the organisation.
+4.2.2.2 Indicator 2:
+All traceability information does not necessarily have to be recorded in a single document.
+4.2.2.3 Indicator 3:
+The Group Manager should take the duty to maintain traceability.
+4.2.3 Criterion 3: Transparent and fair price dealing
+The intent of this criterion is to ensure all parties along the supply chain are not at a disadvantage or put into vulnerable situations. The criteria used for determining prices should be transparent to all parties and any party that considers prices to be unfair should have access to the grievance mechanism.
+4.2.3.1 Indicator 1:
+For fair, legal and transparent pricing of FFB, the Group Manager should explain the pricing mechanism to Group Members.
+Documentation on the criteria for pricing could be on quality, delivery, long-term relationship, and overall performance together with other information, if available.
+Requirements
+Guidance
+4.2.3.2 Indicator 2:
+The clause on â€œA physical on-site inspection may be conducted, if required.â€ refers to the provision that auditors may conduct on-site inspection at contractorsâ€™ premise for verification, if required.
+4.2.4 Criterion 4: Ethical conduct
+Ethical behaviour is characterised by honesty, fairness and equity in interpersonal relationships and mutual respect in dealings. This should cover zero tolerance for violence, exploitation and abuses as well as safeguarding the integrity of all entities and preventing conflicts of interest.
+Hence, the best means of demonstrating the values of ethical conduct/behaviour is by having a policy statement that is communicated and applicable to all levels of the workforce including contractors.
+Refer to Garispanduan Tatacara Mencukupi by SPRM.
+4.2.4.1 Indicator 1:
+The policy should be approved by the top management (and dated), and in line with the anti- corruption legislation.
+4.2.4.2 Indicator 2:
+The system should cover both leading indicators such as the frequency of briefings conducted on the policy and SOPs (e.g., code of conduct, procurement) as well as lagging indicators such as the number of non-conformances against the organisationâ€™s policy for ethical conduct.
+Principle 3: Compliance to legal and other requirements
+4.3.1 Criterion 1: Regulatory requirements
+The intent of this criterion is to highlight that all operations must comply with legal requirements and any new requirements shall be updated. Going beyond legal requirements is encouraged.
+4.3.1.1 Indicator 1:
+A general list of the applicable legal requirements is in Appendix 4. The organisation should enhance and update the list of applicable legal requirements as per their needs.
+Requirements
+Guidance
+4.3.1.2 Indicator 2:
+Methods to monitor compliance could be carried out through internal audits, specific compliance verification exercises, declaration by the person-in-charge based on their scope of work, management walkabout, etc.
+The frequency of monitoring could be stated in the SOPs and conducted more than once a year. The SOPs could also state the person-in-charge is responsible for monitoring the compliance, including updating the list of applicable legal (and other) requirements and maintaining the records of implementation.
+4.3.2 Criterion 2: Rights to use land
+The intent of this criterion is to highlight that all organisations must respect the rights of any person, local community or indigenous people that they have over land; that is occupied as oil palm plantations. Rights particularly for accessibility or as part of roaming areas.
+4.3.2.1 Indicator 1:
+Rights described in this indicator may include right of way (access road), access to water or other natural resources, drainage/flood, extraction of water that has led to the drying up of water resources in neighbouring plots, etc.
+4.3.2.2 Indicator 2:
+Where customary or legally owned lands have been taken-over, there should be documentary proof of the transfer of rights (sale) and payment or provision of agreed compensation.
+4.3.2.3 Indicator 3:
+FPIC have to be obtained prior to any acquisition of land for conversion to an oil palm plantation and fair compensation have been agreed upon. Hence, these documents should be used as a reference for any disputes.
+Where there is a dispute or land ownership is contested, grievance and complaint mechanisms should be used or dealt through the legal channel.
+Requirements
+Guidance
+4.3.2.4 Indicator 4:
+All operations in any organisation should be within the legally determined area. There should also be a map showing the legal area and location of the boundary maker.
+4.3.3 Criterion 3: Native customary rights
+The intent of this criterion is to highlight that land that belongs to the indigenous communities and when converted into oil palm smallholdings, the natives must be consulted for their consent. For lands that are having overlapping claims, a grievance mechanism should be used.
+Refer to the FPIC guidance in Appendix 3.
+4.3.3.1 Indicator 1:
+Native customary rights (NCR) to land consists of rights to cultivate the land, rights to the production of the jungle, hunting and fishing rights, rights to use the land for burial and ceremonial purposes, and rights of inheritance and transfer.
+4.3.3.2 Indicator 2:
+No further explanation for this indicator.
+4.3.3.3 Indicator 3:
+No further explanation for this indicator.
+4.4 Principle 4: Responsibility to social, health, safety and employment conditions
+4.4.1 Criterion 1: Social Impact Assessment (SIA)
+The intent of this criterion is to ensure that the organisation prevents or minimises the social impacts resulting from its operation.
+Refer to the SIA Guidelines and Approach for the MSPO Standards.
+4.4.1.1 Indicator 1:
+Refer to the SIA Guidelines and Approach for the MSPO Standards.
+Requirements
+Guidance
+4.4.1.2 Indicator 2:
+Refer to the SIA Guidelines and Approach for the MSPO Standards.
+4.4.1.3 Indicator 3:
+Refer to the SIA Guidelines and Approach for the MSPO Standards.
+4.4.2 Criterion 2: Employeeâ€™s safety and health
+The intent of this criterion is to prevent any injury and ill health to employees as well as enhance the work environment.
+Group Managers and Group Members should ensure that the workplace, machinery, equipment, transport and processes under their control are safe and without undue risk to health. Group Members should ensure that chemical, physical and biological substances and agents under their control are without undue risk to health when appropriate measures are taken.
+Group Managers should:
+Identify risks and hazards associated with oil palm smallholdings for Group members;
+Conduct awareness training to mitigate risks;
+Ensure personal protective equipment is used as identified in the risk assessment;
+Prepare emergency procedures for major risks; and
+Ensure members implement health and safety procedures.
+4.4.2.1 Indicator 1:
+The occupational safety and health policy is a set of commitments in which top management outlines the long-term direction of the organisation to support and continually improve its occupational safety and health performance.
+The policy should state the commitment to prevent injury and ill health.
+In developing its occupational safety and health policy, an organisation should consider its consistency and coordination with other policies.
+Requirements
+Guidance
+4.4.2.2 Indicator 2:
+OSH Hierarchy of Control:
+4.4.2.3 Indicator 3:
+The Group Manager has to ensure occupational safety and health records are maintained.
+4.4.3 Criterion 3: Employment conditions
+Respecting human rights is paramount in ensuring a good relationship between employer and employee.
+Specific attention to young persons at work will enable them to develop their full potential.
+4.4.3.1 Indicator 1:
+A policy is a set of commitments that outline the organisationâ€™s direction in respecting human rights. The policy statement should be approved by the top management (and dated). All levels of operations including contractors, should be briefed on the policy.
+Requirements
+Guidance
+4.4.3.2 Indicator 2:
+Workers should enter into employment voluntarily and freely, without the threat of a penalty, and should have the freedom to terminate employment without penalty given reasonable notice or as per agreement. This is in accordance with ILO conventions: Forced Labour Convention, 1930 (No. 29); Protocol of 2014 to the Forced Labour Convention, 1930 (P029); Abolition of Forced Labour Convention, 1957 (No. 105); Forced Labour Recommendation, 2014 (No. 203).
+The employment agreement for citizens should meet legal requirements. The employment agreement for migrant workers should meet the immigration requirements and ratified international standards. If applicable, the organisation should disclose information regarding progress in ongoing efforts to legalise undocumented workers.
+Any deductions made should not jeopardise take-home wages required for day-to-day necessities.
+Statutory recruitment fees paid by employers as determined by the authorities such as work permits, and levies.
+Refer to the ILO Indicators of Forced Labour by the International Labour Office.
+4.4.3.3 Indicator 3:
+No further explanation for this indicator.
+4.4.3.4 Indicator 4:
+No further explanation for this indicator.
+Requirements
+Guidance
+4.4.3.5 Indicator 5:
+Payslips should contain, at a minimum, the following information:
+Number of working days;
+Working days on rest days/public holidays;
+Rate of pay â€“ normal/rest day/public holiday;
+Overtime rate and hours; and
+Deductions.
+Copies of payslips should be provided to employees.
+4.4.3.6 Indicator 6:
+No further explanation for this indicator.
+4.4.3.7 Indicator 7:
+No further explanation for this indicator.
+4.4.3.8 Indicator 8:
+No further explanation for this indicator.
+4.4.3.9 Indicator 9:
+No further explanation for this indicator.
+4.4.3.10 Indicator 10:
+It is acceptable for children to assist (not employed) their family business as long as it complies with the definition of â€œChildâ€, â€œChild at workâ€, â€œYoung personâ€, and â€œChild Labourâ€ in the MSPO Part 1 Standard.
+4.4.3.11 Indicator 11:
+No further explanation for this indicator.
+Requirements
+Guidance
+4.4.3.12 Indicator 12:
+(A)
+Principal employer
+(Controlling third party)Work of permanent
+nature (e.g.,
+Contract for serviceharvesting, upkeep
+(fulfill all legaland maintenance,
+requirement)etc.)
+(B)Employees working on
+Direct employerprincipal employers' (A) (Agency)plantation/farm
+Contract of service (fulfill all legal requirement)
+Contract for service is a formal, legally binding agreement before a business and a self- employment individual. It is more of a â€œbusiness to businessâ€ type of contract.
+Contract of service, also known as contract of employment or employment contract, refers to a written agreement between an employer and an employee that taken together with the rights of each under statute and common law, determines the employment relations between them.
+Work of permanent nature refers to a situation where a worker who works on a permanent employment contract, for permanent positions and should be eligible for full employment
+benefits offered by the employer.
+Requirements
+Guidance
+4.4.4 Criterion 4: Living conditions
+This criterion emphasises on the responsibility of the organisationto provide decent living conditions if accommodation is offered to employees as part of the employment.
+4.4.4.1 Indicator 1:
+The relevant legal requirement would be The Employeesâ€™ Minimum Standards of Housing, Accommodations and Amenities Act for Peninsular Malaysia and the Department of Labourâ€™s agreement/approval for Sabah and Sarawak.
+The accommodation provided should be suitable to the needs of the employees (single,group or family). It should also be suitable for the local climate and enable respect for privacy. For employees who opt to not stay at the provided facilities, there is no obligation for the management to provide housing or travelling allowance as well as privileges (on working hours).
+4.5 Principle 5: Environment, natural resources, biodiversity and ecosystem services
+4.5.1 Criterion 1: Environmental management
+Protection of the environment is an important aspect of sustainability. The intent of this criterion is to manage the environmental impacts of the organisationâ€™s activities and products. Managing the impacts should follow the highest level of commitment through the prevention of pollution, optimising resources, conserving/enhancing biodiversity and minimising climate change.
+Requirements
+Guidance
+4.5.1.1 Indicator 1:
+A policy is a set of commitments that outline the organisationâ€™s direction on the environment. A policy statement approved by the top management (and dated) should be established.
+In establishing the policy, the management should consider the environmental issues derived from the environmental assessment and decide how these issues will be managed. These could be stated in the policy statement. The policy should be communicated to relevant stakeholders in ways most appropriate to them.
+The management should also ensure that the policy is compatible with the organisation's strategic direction and business processes as well as its legal compliance commitment.
+4.5.1.2 Indicator 2:
+There is no specific assessment format for MSPO. However, if the organisation is subjected to an EIA, in accordance to the legal requirement, the report could be used as an initial assessment. Improvements to the environmental management plan could be done to include the operational stage.
+For organisations where EIAs are not a requirement, assessment formats such as the Environmental Aspects and Impacts Assessment (EAIA) of the ISO 14001 could be used.
+The assessment should be updated whenever there is a change in process, equipment/technology or environmental receptor.
+Requirements
+Guidance
+4.5.1.3 Indicator 3:
+The results of the assessment (refer to Indicator 4.5.1.2) should be used as the basis for the environmental management plan, taking into consideration legal compliance as one of the criteria.
+The plan should be reviewed to know its achievement and revised, if necessary. The review should be done at least twice a year, or when there is a change in the process, equipment/technology or environmental receptor that warrants changes to be incorporated into the plan.
+4.5.1.4 Indicator 4:
+The organisation should identify the types of training related to environmental management for all levels of employees. Refer to Criterion 5 of Principle 1.
+4.5.2 Criterion 2: Efficiency of energy use and use of renewable energy
+The intent of this criterion is to create awareness on the impacts of using non-renewable energy in relation to climate change and resource optimisation. The organisation should initially collect data on energy consumption (both renewable and non-renewable).
+Whenever possible, an appropriate management plan should be established to reduce non- renewable energy and increase renewable energy consumption.
+4.5.2.1 Indicator 1:
+The organisation should estimate the energy consumption of their operations and monitor the amount of non-renewable energy consumption with the aim of reducing or achieving optimum efficiency.
+Fuel usage should be monitored for all activities including the usage by contractors.
+4.5.2.2 Indicator 2:
+Examples of renewable energy include solar, wind, biogas, geothermal, biomass, low-impact hydroelectricity and emerging technologies (wave and tidal power).
+Requirements
+Guidance
+4.5.3 Criterion 3: Waste management and disposal
+The intent of this criterion is to prevent pollution from waste disposal and encourage resource optimisation.
+4.5.3.1 Indicator 1:
+In establishing the management plan, the organisation should consider the waste management hierarchy of control:
+The organisation should undertake the most preferred waste management control before deciding on the next line of control. An analysis of control should be periodically reviewed to promote a more sustainable approach towards waste management.
+The organisation should also recycle potential wastes as nutrients and/or convert them into value- added by-products (e.g., EFB mulching for moisture retention, and prune fronds stacking to prevent soil erosion).
+Requirements
+Guidance
+4.5.3.2 Indicator 2:
+For issues on implementation related to the legal requirement, (e.g., reusing of chemical container for other purposes), the organisation should have an agreement with the Department of Environment (DOE).
+4.5.3.3 Indicator 3:
+The organisation should ensure domestic wastes are disposed of appropriately to minimise the risk of environmental contamination including no dumping of waste in sensitive areas (e.g., fragile soils, marginal soils, peat soils) and water courses (e.g., rivers, streams, lakes, reservoirs).
+If there are no clear guidelines by local authorities on the siting of the waste disposal areas within the organisationâ€™s premises, the general principles for minimising the risk of contaminating the environment and watercourses as well as minimizing public health issues should be considered.
+4.5.4 Criterion 4: GHG emissions
+The agriculture sector is known as one of the sources of GHG emissions. The intent of this criterion is to support the national commitment by using a stepwise approach as listed in the indicator. Currently, reporting is only to the scheme owner. The reporting is not for the carbon value of the product.
+4.5.4.1 Indicator 1:
+This is the first step in familiarising the industry with greenhouse gases.
+For e), crop sequestration refers to the process of capturing or storing of carbon dioxide by oil palms and other plants.
+The conformance of this indicator should be referred to the MSPO GHG Calculator and/or any relevant guidelines produced by the scheme owner.
+Requirements
+Guidance
+4.5.5 Criterion 5: Water Resources
+The intent of this criterion is for the organisation to be aware that water, despite being a renewable resource, if not properly managed, could still result in shortages as well as deterioration in the quality of supply. The water management plan should include information on water sources, its usages, and treatment involved; to optimise water management and minimise water pollution.
+4.5.5.1 Indicator 1:
+The water management plan should be able to address the effects of water usage and the organisationâ€™s activities on water resources, as well as ensure there is no contamination of water resources. This can be part of a social impact assessment.
+The Group Manager should communicate the water management plan to organised smallholders.
+4.5.5.2 Indicator 2:
+No further explanation for this indicator.
+4.5.6 Criterion 6: Environmental conservation and protection
+The HCV approach is a tool for managing conservation values within a landscape. It is widely used internationally and using it enables the Malaysian palm oil industry to maintain its position in the global market.
+Refer to the HCV Assessment Guidelines for the MSPO Standards.
+4.5.6.1 Indicator 1:
+Refer to the HCV Assessment Guidelines for the MSPO Standards.
+4.5.6.2 Indicator 2:
+Refer to the HCV Assessment Guidelines for the MSPO Standards.
+4.5.6.3 Indicator 3:
+Refer to the HCV Assessment Guidelines for the MSPO Standards.
+Requirements
+Guidance
+4.5.6.4 Indicator 4:
+The organisation should conduct training to familiarise the smallholders on the concept of HCV.
+Refer to the HCV Assessment Guidelines for the MSPO Standards.
+4.5.7 Criterion 7: Zero burning practices
+The intent of this criterion is to ensure no fire is used for the disposal of waste throughout all stages of oil palm cultivation and operation. However, a response and mitigation plan should be established in case of any fire occurrences.
+4.5.7.1 Indicator 1:
+No further explanation for this indicator.
+4.5.7.2 Indicator 2:
+No further explanation for this indicator.
+4.5.7.3 Indicator 3:
+The organisation should have a procedure for fire prevention as well as mitigation and response plan.
+Environmental Impact Assessment (EIA) Requirement Guidance
+Peninsular Malaysia:
+EIA requirements related to agriculture as in The Environmental Quality (Prescribed Activities) (EIA) Order 2015:
+First schedule:
+Land development schemes covering an area of 20 hectares or more but less than 500 hectares to bring forest into agricultural production.
+Development of agricultural estates covering an area of 500 hectares or more involving changes in the type of agricultural use.
+Conversion of an area of:
+Mangrove forest
+Peat swamp forest or
+Fresh water swamp forest
+for industrial, housing or agricultural use covering an area of 20 hectares or more but less than 50 hectares.
+Development in slope area â€“ Development or land clearing less than 50 per cent of an area with slope greater than or equal to 25â° but less than 35â°
+Second Schedule:
+Land development scheme covering an area of 500 hectares or more to bring forest into agricultural production.
+Any drainage of wetland, wild-life habitat or dry inland forest covering an area of 20 hectares or more.
+Conversion of forest at 300 meters or more above mean sea level to other land use covering an area of 100 hectares or more
+Logging or conversion of forest to other land use within:
+A catchment area or reservoirs used for municipal water supply, irrigation or hydro- power
+An area adjacent or near to any state park, national park or national marine park
+Any state park, national park or national marine park
+An area gazetted as water catchment forest under the National Forestry Act 1984 [Act 313]
+Conversion of an area of:
+Mangrove forest
+Peat swamp forest or
+Fresh water swamp forest for industrial, housing or agricultural use covering an area of 50 hectares or more.
+Development in slope area â€“ Development or land clearing of 50 per cent or more of an area with slope greater than or equal to 25â° but lesser than 35â°.
+Sarawak:
+Section 11A (1) - Natural Resources and Environment (Amendment) Ordinance 1994, stipulates the statutory requirement for EIA for development activities in Sarawak. Details are
+further stipulated in The Natural Resources and Environment (Prescribed Activities) Order, 1994.
+The first schedule of the prescribed activities related to agricultural development:
+Development of agricultural estates or plantations of an area exceeding 500 ha:
+From land under secondary or primary forests; or
+Which would involve the resettlement of more than 100 families; or
+Which would involve modification in the use of the land.
+Conversion of mangrove swamps into agricultural estates having area exceeding 50 ha.
+Any other activities which may damage or have an adverse impact on quality of environment or natural resources of the state including the following:
+The clearing of vegetation on any land or the breaking up of any land for any purpose of an area exceeding 50 hectares;
+In the opinion of the Board may pollute;
+In any way affect the sources of water for human consumption;
+Activities which may cause pollution of inland waters of the state or endanger marine or aquatic life, organism or plants in inland water;
+Pollution of the air or erosion of the banks of any rivers, watercourses or the foreshores and fisheries.
+Sabah:
+The specific EIA requirement for Sabah is stipulated in the Environmental Protection Enactment 2002, and further detailed in Environmental Protection (Prescribed Activities) Order 2005.
+Prescribes activities related to agriculture are categorized into two as stipulated in Schedule 1 and Schedule 2 of the Order. Schedule 1 listed activities requiring proposal for mitigation measures (PMM):
+Development of agricultural estates or plantations covering an area of 100 hectares or more but less than 500 hectares
+Development of agricultural estates or plantations involving change in type of crops covering an area of 100 hectares or more but less than 500 hectares
+Conversion of wetland forests into agricultural estates or plantations covering an area of 20 hectares or more but less than 50 hectares
+Schedule 2 listed activities requiring EIA:
+Development of agricultural estates or plantations covering an area of 500 hectares or more
+Development of agricultural estates or plantations involving change in type of crops covering an area of 500 hectares or more
+Conversion of wetland forests into agricultural estates or plantations covering an area of 50 hectares or more
+Agricultural programmes involving the settlement of 100 families or more.
+Appendix 2
+Sample of Training Needs Summary
+Work Function/Types of Training Needed
+Top
+Management
+Internal Auditors
+Person-in-
+charge
+All employees
+MSPO Standards and Sustainability
+/
+/
+Management Roles in Implementing MSPO
+/
+/
+MSPO related legal requirements (Acts & Regulation)
+/
+/
+/
+MSPO Awareness and Organization MSPO Related
+Policies
+/
+/
+MSPO General SOP
+/
+/
+Chemical Handling
+/
+/
+Scheduled Waste Management
+/
+/
+Emergency response plan
+/
+/
+Internal Audit
+/
+HCV/SIA/GHG reporting
+/
+/
+Note:
+Training Needs should be specific to an organisation and the sample above has least information
+The summary could also identify the level of competency needed e.g.: For scheduled wastes management person-in-charge;
+A manager would need certification in accordance to legal requirement
+A scheduled wastes handler needs to be trained on Scheduled Wastes Regulation and organization SOP on scheduled waste management.
+FPIC Guidance for MSPO Standard
+What is FPIC?
+Free, Prior and Informed Consent (FPIC) is the right of Indigenous Peoples and local communities to give or withhold their consent to any independent smallholder or organisationâ€™s plantings affecting their rights, land, livelihoods, resources, territories, food security or environment. This right is exercised through representatives of their own choosing and in a manner consistent with their own customs, values, and norms. FPIC is a specific right to Indigenous Peoples that was established by the International Labour Organization (ILO) Convention 169 on Indigenous and Tribal Peoples and United Nations Declaration on the Rights of Indigenous Peoples (UNDRIP). Countries that have adopted the ILO Convention and/or signed on to the UN Declaration may establish additional rights of Indigenous Peoples under national laws. While some countries have embedded the principles of FPIC into their national laws, this right is still absent in many countries. As the right to self-determination is a fundamental human right, MSPO requires that the principles of FPIC are applied.
+Free: Consent is given by the affected Indigenous Peoples and local communities voluntarily without coercion, duress, or intimidation.
+Prior: The consent is given before the specified activity is authorised or commenced.
+Informed: The consent is given after the Indigenous Peoples and local communities have received the relevant, timely, and culturally appropriate information necessary to make a fully informed decision.
+Consent: The Indigenous Peoples and local communities take a collective decision to grant or withhold approval of the specified activity.
+FPIC is both a process and an outcome. As a process, FPIC is a series of information exchanges, consultation, internal deliberation, and negotiation steps conducted to seek consent from the affected Indigenous Peoples/local communities prior to implementing a given set of activities. This process may result in unqualified consent or consent with conditions for the proposed activities (or for a modified proposal), or it may result in the absence of consent. At the end of this process, the FPIC outcome is a written document that specifies what was or was not agreed to.
+When the Indigenous Peoples and local communities provide consent, the written document further elaborates the terms of this consent, including the nature of the agreed activities, conditions placed on its implementation, monitoring plans, grievance mechanisms, and other terms or processes to ensure that agreed plans are duly enacted.
+Not all FPIC processes lead to consent, and it is the right of the affected Indigenous Peoples and local communities to withhold consent. If this is the outcome, then the organisation needs to accept that the specified activity cannot proceed as planned. However, if appropriateâ€”and only if the Indigenous Peoples and local communities invites continued dialogueâ€”then a modified proposal could then be developed and subject to further community engagement through the FPIC process.
+Why FPIC?
+It is a requirement of the MSPO standards,
+It is a right of Indigenous Peoples enshrined in international law,
+It is widely accepted in global best practice standards,
+It facilitates the organisation achieving a â€˜social license to operate,â€™
+It ensures the organisation respects communitiesâ€™ wider rights to lands and resources and to choose their own representatives,
+It means the organisation cannot be accused of â€˜land grabbing,â€™
+It secures good relationships with local communities, important for smallholder partnerships and trouble-free employment,
+It results in a negotiated agreement binding to both the organisation and the communities,
+It helps the organisation avoid being embroiled in land conflicts, and
+It helps the organisation avoid costly litigation, work stoppages or lost access to plantings resulting from land disputes.
+How to carry out FPIC?
+An FPIC process will vary according to the specific local context in which a project is to be developed, or in some cases, is already in the development stage. In the latter case, the organisation should cease operations in areas where disputes exist to avoid exacerbating ongoing conflicts. It may also be the case that the Indigenous Peoples/local communities affected already have their own FPIC guidelines. That said, in any given FPIC process, it is equally important to assess the qualitative aspects as well as the time devoted to it, with the following six key steps that any project manager must consider within different phases of the project cycle:
+Project Identification
+Identify the Indigenous Peoplesâ€™/ local communities concerns and their representatives
+Document geographic and demographic information through participatory mapping
+Project Formulation
+Design a participatory communication plan and carry out iterative discussions through which project information will be disclosed in a transparent way
+Reach consent, document Indigenous Peoplesâ€™ needs that are to be included into the project, and agree on a feedback and complaints mechanism
+Project Implementation
+Conduct participatory monitoring and evaluation of the agreement
+Project Closure
+Document lessons learned and disclose information about project achievements
+The above process will need human and financial resources, and time, though it should not entail higher additional costs than the ones associated with the process of stakeholder
+engagement that any project or programme should undertake in proportion to the project scale.
+Who is involved in FPIC and why is consultation important?
+FPIC processes may involve various stakeholders, including the organisation, Indigenous Peoples, local communities, indigenous organisations, government agencies, religious institutions, and third parties. Each stakeholder plays a different role during the FPIC process.
+Consultation with stakeholders is an ongoing process that organisations should engage in throughout the life of the organisationâ€™s operations and across supply chains to exchange information, identify and resolve challenges and problems, and thereby improve relations and outcomes for both the organisation and its stakeholders. Consultations with Indigenous Peoples and local communities are always required to ensure the right of meaningful and effective participation in the matters that may affect these groups. Consultation processes carried out in good faith should aim to reach agreement between the organisation and its stakeholders on the subject topics.
+Acceptable forms of stakeholder communications and engagement include:
+Sending a formal letter or visiting the village and consulting with community members and/or representatives to decide on whether a meeting is wanted, and if so, who must be present.
+Best practice for any full community meetings includes giving communities adequate notice and preparation
+Active monitoring and support from third parties or other stakeholders may be helpful for the proper functioning of the process and ultimately it is for the community to decide whether they invite, request or allow such monitoring and support and under what terms and conditions.
+How to identify customary land and prepare participatory maps?
+A crucial first step for organisations seeking to acquire lands for plantations is to ascertain which areas are subject to legal and customary rights. Given that land titling systems usually do not register areas subject to the collective land rights of customary law communities, known as â€˜native customary rightsâ€™ in Sarawak and Sabah, it falls on the organisation to find out which lands belong to the local communities by direct and open communication with the people themselves.
+One of the best ways of clarifying the extent of customary rights is through participatory mapping. Using geomatic technologies, like GPS, it is now relatively cheap, quick and simple to work with community members and map the boundaries of indigenous lands and the forms of customary land use within these areas.
+Consent for the processes of participatory mapping must be received from the communities prior to beginning. This includes agreeing on the process, participation, a timeline of
+implementation, terms of ownership and distribution of the documents, identification of key contact persons and details, and any in-kind compensation offered to those participating.
+A first step may be to select a joint team of community representatives who will oversee community involvement in the mapping and who may be accompanied by organisation observers. The team can then use the GPS devices to survey the boundaries of community lands and establish where there is overlap between these lands and the areas where the organisation is interested in establishing its operations. More detailed mapping can then be undertaken of the areas of overlap to establish exactly who are the rights-holders in these areas and what are the current and historical land uses and cultural values of the areas. These maps can also be drawn out on paper referencing key natural resources, boundaries and religious sites among other areas of interest.
+To map the focus area, all parties involved can make reference to maps depicting the location of important areas to the communities. In case there is no previous formal mapping of the area, Indigenous Peoples and local communities can draw out the map based on cultural geographic knowledge.
+Verification and validation of the maps must be carried out upon finalisation through consultations. Copies or summaries of each must be provided to communities in appropriate forms and languages and in a timely manner.
+These maps are themselves important indicators of conformance with relevant MSPO criteria and indicators, and this information can then be used further in impact assessments and negotiated agreements.
+Throughout the initial stages of FPIC, the organisation should aim to build consensus with its stakeholders. Most communities are made up of different types of people with different priorities and interests, so decisions may take time. Communities often place high value on maintaining harmony and good relationships among their members. Consequently, community representatives may not want to rush other community members or force an agreement. As a best practice, holding broad consultations with the wider community, rather than on a one-to-one basis with selected representatives, can be more effective as the social pressure of a collective setting often tends to limit individual decision-making based on self- interest rather than the collective will.
+How to engage with representative organisations?
+Free, Prior and Informed Consent means that communities or peoples should be represented by institutions of their own choosing. These institutions may be:
+the peopleâ€™s own customary institutions,
+institutions that have been imposed by the State but later accepted by the people, or
+novel institutions set up by the people themselves to deal with outsiders.
+There is no rule to say which is the best â€“ circumstances vary too much. The important thing is that the people should themselves choose how they want to be represented â€“ they do not
+have to accept the institutions chosen or imposed by others. They can also choose to be represented through several institutions, not just one.
+Conformance with the MSPO standards explicitly requires that organisations allow communities to choose for themselves how they represent themselves in negotiations.
+Identifying community representatives is often a complex matter, as customary systems of decision-making have been only partially incorporated into local systems of administration. Communities may thus be presented by a multiplicity of institutions. The organisation must respect the choice of the communities to decide who represents them and should not assume that the Government recognised village spokesperson are the only legitimate representatives for negotiations.
+Establishing with whom to have dealings in negotiations about land is thus a challenge for organisations. To avoid misunderstandings and/or entering into agreements that do not secure the consensus of the communities and thus result in conflict, organisations should first work with the communities in an open way to identify who the communities choose to represent them in negotiations. Where there are doubts or mixed messages the best advice is to include more parties rather than unilaterally select fewer. The more time that is invested in establishing good communications at the beginning of a negotiation process, the more likely it is that negotiations can proceed in an agreed way thereafter.
+How to provide information to allow fair participation and informed consent
+The provision of adequate information to interested parties is a core aspect of Free, Prior and Informed Consent. Before communities can make fairly based and informed decisions about proposed developments on their lands, they need to understand the long- and short-term implications of developments including their:
+Potential impacts and costs
+Potential benefits and gains
+Legal implications
+Transparency, information sharing, and communications are core considerations of the MSPO standards. In cases where development has already commenced and conflicts persist, transparent communications become even more vital.
+How to ensure consent is freely given
+A critical aspect of a proper Free, Prior and Informed Consent process is that the decision- making by the communities â€“ about whether or not to accept a development on their lands (or in some cases, a proposed conflict resolution) and if so on what terms â€“ should be non- coercive and free from other forms of manipulation, intimidation or duress. Adequate time must also be given to communities to consider proposals on their own in their own ways.
+How to ensure consent is prior?
+A critical aspect of FPIC is that communities are asked to make decisions well prior to investments, land acquisition or development plans being put in place. Communities must be informed and consulted about proposed plantations long before developments are decided on by organisations.
+Processes of Free, Prior and Informed Consent should thus be iterative, that is say they imply an ongoing relationship between the organisation and the community. Typically, an organisation would first scope out an area of potential land for development, then identify the communities there and scope out their representative institutions and then negotiate with the communities to carry out a participatory impact assessment. During the assessment, the exact extent of community lands, their systems of land use and systems of representation could then be determined. If the first phase of the impact assessment suggests that the area is viable from an organisation point of view for planting, the community can be asked if it wants the organisation to develop the area or not: a decision it can make based on its own inclinations and the information from the assessment.
+If the community is not interested in a plantation the organisation should respect their decision. If the community agrees to open negotiations, the organisation should still not assume that planting can go ahead. What is then required is that the communities and the organisation enter into a dialogue to explore in more detail the conditions under which the investment can be accepted both by the organisation and by the community. It is noted that in general, the FPIC process is still applicable for resolving any conflict or land disputes that occur during all stages of development and operations.
+How to ensure there is consent?
+If all the above conditions have been satisfied, then there is a good chance that a decision based on Free, Prior and Informed Consent can now be reached. The potential overlap between community lands and proposed (or ongoing) developments should have been clarified, for example by participatory mapping. The community will have chosen and explained which institutions will directly represent the community in negotiations with the organisation and the organisation will have accepted these arrangements. If the communities had agreed to such a step, then in order to generate adequate information for informed decision-making, participatory impact assessments will have been carried out which will make clear to the communities what they stand to lose and gain and what the legal implications of the plantations are for their lands. Community members will have been free to get counsel and discuss their options with advisers of their choosing and time will have been afforded to the community to give consideration to their options prior to any final decisions being made.
+A key aspect of the negotiation and decision-making that will ensure is that the communitiesâ€™ representative institutions are given space, time and opportunity to freely consult and discuss their options among themselves and with other interested parties. Customary decision-making often requires lengthy debates in the longhouse or other community forums between community representatives and the wider society. Such meetings are often interspersed with periods when decision-making is paused while further consultations and informal discussions are carried out at home and in council with other parties. Moreover, community representatives
+may enter negotiations with companies with mandates which require them not to make precipitous decisions but to bring interim offers and options back for wider discussion to allow communities to consider their options based on more detailed information. It is vital that companies respect these processes if they want to ensure that amicable and consensus- based decisions are reached among the community.
+Assuming that the community has been reassured by the information provided that the plantation can bring them benefits, the stage is thus set for negotiations.
+The details of these negotiations then need to be written down and agreed by the organisation and the communities involved in a formal agreement that is notarised as a legal agreement binding on both parties. Preferably such agreements should also be endorsed by the local government or relevant authority.
+LIST OF MALAYSIAN OIL PALM INDUSTRY SUSTAINABILITY RELATED LAWS
+Oil Palm Estates / Plantations
+No.
+Legislation
+1.
+Aboriginal Peoples Act 1954 (Act 134)
+2.
+Anti-Corruption Act 1997 (Act 575)
+3.
+Anti-Trafficking in Person and Anti-Smuggling of Migrants Act 2007 (Act 670)
+4.
+Child Act 2001 (Act 611)
+5.
+Children and Young Persons (Employment) Act 1966 (Act 350)
+6.
+Companies Act 2016 (Act 777)
+7.
+Control of Supplies Act 1961 (Act 122)
+8.
+Destruction of Disease-Bearing Insects Act 1975
+9.
+Drainage Works Act 1954 (1988)
+10.
+Electricity Supply Act 1990 (Act 447)
+11.
+Employees Provident Fund Act 1991 (Act 452)
+12.
+Employeesâ€™ Minimum Standards of Housing, Accommodations and Amenities Act
+1990 (Act 446)
+13.
+Employeesâ€™ Social Security Act 1969 (Act 4)
+14.
+Employment (Restriction) Act 1968 (Act 796)
+15.
+Employment Act 1955 (Act 265)
+16.
+Energy Commission Act 2001 (Act 610)
+17.
+Environmental Quality Act 1974 (Act 127) and its regulations
+18.
+Factories and Machinery Act 1967 (Act 139) and its regulations
+19.
+Fire Services Act 1988 (Act 341)
+20.
+Holidays Act 1951 (Act 369)
+21.
+Human Resources Development Act 1992 (Act 491)
+22.
+Immigration Act 1959/63 (Act 155)
+23.
+Industrial Relations Act 1967 (Act 177)
+24.
+Irrigation Areas Act 1953 (Act 386)
+25.
+Land Acquisition Act 1960 (Act 486)
+26.
+Land Conservation Act 1960 (Act 385)
+Johore Vide Enactment No. 15 of 1960;
+Kedah Vide Enactment No. 13 of 1960;
+Kelantan Vide Enactment No. 6 of 1960;
+Malacca Vide Enacatment No. 7 of 1960;
+Enakmen Penempatan Terengganu, 1356.
+Negeri Sembilan Vide Enactment No. 21 of 1960;
+Pahang Vide Enactment No. 13 of 1960;
+Penang Vide Enactment No. 4 of 1960;
+Perak Vide Enactment No. 6 of 1960;
+Perlis Vide Enactment No. 12 of 1960;
+Selangor Vide Enactment No. 7 of 1960; and
+Terengganu Vide Enactment No. 9 of 1960;
+27.
+Malaysian Anti-Corruption Commission Act 2009 (Act 694) and its regulations
+28.
+Malaysian Palm Oil Board Act 1998 (Act 582) and its regulations
+29.
+Minimum Retirement Age Act 2012 (Act 753)
+No.
+Legislation
+30.
+National Forestry Act 1984 (Act 313)
+31.
+National Land Code (Act 828)
+32.
+National Parks Act 1980
+33.
+National Wages Consultative Act 2011 (Act 732) and its regulations
+34.
+Occupational Safety and Health Act 1994 (Act 514) and its regulations
+35.
+Passports Act 1966 (Act 150)
+36.
+Penal Code (Act 574)
+37.
+Pensions Act 1980 (Act 227)
+38.
+Pesticide Act 1974 (Act 149) and its regulations
+39.
+Plant Quarantine Act 1976 (Act 167)
+40.
+Private Employment Agency Act 1981 (Act 246)
+41.
+Road Transport Act 1987 (Act 333)
+42.
+Sales Tax Act 1972 (Act 64)
+43.
+Street, Drainage and Building Act 1974 (Act 133)
+44.
+Trade Unions Act 1959
+45.
+Water Services Industry Act 2006 (Act 655)
+46.
+Waters Act 1920 (Act 418) and its regulations
+47.
+Weight and Measures Act 1972 (Act 71)
+48.
+Wildlife Conservation Act 2010 (Act 716)
+49.
+Windfall Profit Levy Act 1998 (Act 592)
+50.
+Worker's Compensation Act, 1952 (Act 273)
+51.
+Sabah:
+Biodiversity Enactment 2000
+Drainage And Irrigation Ordinance, 1956 (Sabah No. 15 of 1956)
+Forest Enactment, 1968 (Sabah No. 2 of 1968)
+Forestry Development Authority Enactment 1981 (Sabah No. 24 of 1981)
+Labour Ordinance (Sabah Cap. 67)
+Land Acquisition Ordinance (Sabah Cap. 69)
+Land Development Board Enactment 1981 (Sabah No. 23 of 1981)
+Land Ordinance (Sabah Cap. 68)
+Water Resources Enactment 1998 (Sabah No. 6 of 1998)
+Water Supply Enactment 2003
+Wildlife Conservation Enactment 1997 (Sabah No. 6 of 1997)
+52.
+Sarawak:
+Biodiversity Centre Ordinance 1997
+Forests Ordinance, 2015 (Cap. 71)
+Labour Ordinance, 1952 (Cap. 76 (1958 Ed.))
+Land Code, 1958 (Cap. 81 (1958 Ed.))
+National Parks and Nature Reserves Ordinance, 1998 (Cap. 27)
+Natural Resources and Environment Ordinance, 1949 (Cap. 84 (1958 Ed.))
+Water Ordinance, 1994 (Cap. 13)
+Wild Life Protection Ordinance, 1998 (Cap. 26)

@@ -1,6 +1,6 @@
 "use client"
 import { useState, useMemo } from "react"
-import rawData from "@/data/hasil-bulanan.json"
+import { useHasil, getLatestMonth } from "@/lib/supabase/useHasil"
 
 type P = {
   pol_pn: string; bil: number; nama: string
@@ -9,12 +9,6 @@ type P = {
   pct_setahun: number; pendapatan: number; kos: number; untung_rugi: number
 }
 
-const dataBulanan = rawData.bulan
-const bulanTerkini = [...dataBulanan].reverse().find(b =>
-  b.getah.some(p => (p.hasil_kg ?? 0) > 0)
-) ?? dataBulanan[dataBulanan.length - 1]
-const getah = bulanTerkini.getah as P[]
-
 function fmt(n: number, d = 0) { return n.toLocaleString("ms-MY", { minimumFractionDigits: d, maximumFractionDigits: d }) }
 
 function PctBadge({ v }: { v: number }) {
@@ -22,12 +16,49 @@ function PctBadge({ v }: { v: number }) {
   return <span className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-bold min-w-[52px] text-center ${cls}`}>{fmt(v,1)}%</span>
 }
 
+type Sort = "pol" | "pct_desc" | "pct_asc" | "hasil_desc" | "ur_desc"
 type Tab = "fizikal" | "kewangan"
 
 export default function GetahPage() {
+  const { data: dataBulanan, loading } = useHasil()
+  const bulanTerkini = useMemo(() => getLatestMonth(dataBulanan), [dataBulanan])
+  const getah = (bulanTerkini?.getah ?? []) as P[]
+  const polList = useMemo(() => ["", ...Array.from(new Set(getah.map(p => p.pol_pn))).sort()], [getah])
+
+  const [pol, setPol] = useState("")
+  const [q, setQ] = useState("")
+  const [sort, setSort] = useState<Sort>("pol")
   const [tab, setTab] = useState<Tab>("fizikal")
-  const [q, setQ]     = useState("")
-  const rows = useMemo(() => getah.filter(p => !q || p.nama.toLowerCase().includes(q.toLowerCase()) || p.pol_pn.toLowerCase().includes(q.toLowerCase())), [q])
+
+  const rows = useMemo(() => {
+    let r = getah.filter(p => (!pol || p.pol_pn === pol) && (!q || p.nama.toLowerCase().includes(q.toLowerCase())))
+    if (sort === "pct_desc") r = [...r].sort((a,b) => b.pct_setahun - a.pct_setahun)
+    else if (sort === "pct_asc") r = [...r].sort((a,b) => a.pct_setahun - b.pct_setahun)
+    else if (sort === "hasil_desc") r = [...r].sort((a,b) => b.hasil_kg - a.hasil_kg)
+    else if (sort === "ur_desc") r = [...r].sort((a,b) => b.untung_rugi - a.untung_rugi)
+    else r = [...r].sort((a,b) => a.pol_pn.localeCompare(b.pol_pn) || a.bil - b.bil)
+    return r
+  }, [pol, q, sort, getah])
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <h1 className="text-2xl font-bold">Projek Getah</h1>
+        <p className="text-muted-foreground text-sm">Memuat data...</p>
+      </div>
+    )
+  }
+
+  if (!bulanTerkini) {
+    return (
+      <div className="space-y-4">
+        <h1 className="text-2xl font-bold">Projek Getah</h1>
+        <div className="bg-card rounded-xl border p-8 text-center">
+          <p className="text-muted-foreground">Tiada data projek getah.</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4">
@@ -39,25 +70,34 @@ export default function GetahPage() {
         <span className="bg-[#D4A017] text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full">{rows.length} projek</span>
       </div>
 
-      {/* Tabs */}
       <div className="flex gap-1 border-b">
-        {(["fizikal","kewangan"] as Tab[]).map(t => (
+        {(["fizikal", "kewangan"] as Tab[]).map(t => (
           <button key={t} onClick={() => setTab(t)}
-            className={`px-5 py-2 text-sm font-semibold border-b-2 transition-colors capitalize ${tab===t ? "border-[#C0182A] text-[#C0182A]" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
+            className={`px-5 py-2 text-sm font-semibold border-b-2 transition-colors capitalize ${tab === t ? "border-[#D4A017] text-[#D4A017]" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
             {t === "fizikal" ? "📋 Laporan Fizikal" : "💰 Laporan Kewangan"}
           </button>
         ))}
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex gap-3 flex-wrap items-center">
+        <select value={pol} onChange={e => setPol(e.target.value)} className="border rounded-lg px-3 py-2 text-sm bg-background">
+          {polList.map(p => <option key={p} value={p}>{p || "Semua POL/PN"}</option>)}
+        </select>
         <input value={q} onChange={e => setQ(e.target.value)} placeholder="Cari projek..." className="border rounded-lg px-3 py-2 text-sm bg-background w-52" />
+        <select value={sort} onChange={e => setSort(e.target.value as Sort)} className="border rounded-lg px-3 py-2 text-sm bg-background">
+          <option value="pol">POL/PN</option>
+          <option value="pct_desc">% Capai (Tinggi)</option>
+          <option value="pct_asc">% Capai (Rendah)</option>
+          <option value="hasil_desc">Hasil KG (Tinggi)</option>
+          {tab === "kewangan" && <option value="ur_desc">Untung/Rugi</option>}
+        </select>
       </div>
 
       <div className="overflow-x-auto rounded-xl border bg-card">
         <table className="w-full text-sm">
           <thead className="bg-slate-800 text-white">
             {tab === "fizikal" ? (
-              <tr>{["POL/PN","Bil","Nama Projek","Luas Kaw (Hek)","Luas Ditoreh (Hek)","Peserta","Hasil (KG)","kg/hek","Matlamat Setahun (KG)","% Capai Setahun"].map((h,i)=>(
+              <tr>{["POL/PN","Bil","Nama Projek","Luas Kaw (Hek)","Luas Ditoreh (Hek)","Peserta","Hasil (KG)","KG/HeK Ditoreh","Matlamat Setahun (KG)","% Capai Setahun"].map((h,i)=>(
                 <th key={i} className={`py-2.5 px-3 text-[11px] font-semibold uppercase whitespace-nowrap ${i>2?"text-right":"text-left"}`}>{h}</th>
               ))}</tr>
             ) : (
@@ -68,31 +108,45 @@ export default function GetahPage() {
           </thead>
           <tbody>
             {rows.map((p, i) => {
+              const showGroup = sort === "pol" && (i === 0 || rows[i-1].pol_pn !== p.pol_pn)
+              const grp = sort === "pol" ? rows.filter(r => r.pol_pn === p.pol_pn) : []
+              const grpHasil = grp.reduce((a,r)=>a+r.hasil_kg,0)
               const margin = p.pendapatan > 0 ? (p.untung_rugi / p.pendapatan * 100) : 0
+              const colSpan = tab === "fizikal" ? 10 : 8
+
               return (
-                <tr key={i} className="border-b border-border/50 hover:bg-muted/30">
-                  {tab === "fizikal" ? <>
-                    <td className="px-3 py-2 text-xs">{p.pol_pn}</td>
-                    <td className="px-3 py-2">{p.bil}</td>
-                    <td className="px-3 py-2 font-medium">{p.nama}</td>
-                    <td className="px-3 py-2 text-right">{fmt(p.luas_hek,2)}</td>
-                    <td className="px-3 py-2 text-right">{fmt(p.luas_ditoreh,2)}</td>
-                    <td className="px-3 py-2 text-right">{p.peserta}</td>
-                    <td className="px-3 py-2 text-right font-semibold">{fmt(p.hasil_kg)}</td>
-                    <td className="px-3 py-2 text-right font-semibold text-blue-700">{fmt(p.kg_hek,2)}</td>
-                    <td className="px-3 py-2 text-right">{fmt(p.matlamat_setahun)}</td>
-                    <td className="px-3 py-2 text-right"><PctBadge v={p.pct_setahun}/></td>
-                  </> : <>
-                    <td className="px-3 py-2 text-xs">{p.pol_pn}</td>
-                    <td className="px-3 py-2">{p.bil}</td>
-                    <td className="px-3 py-2 font-medium">{p.nama}</td>
-                    <td className="px-3 py-2 text-right font-semibold">{fmt(p.hasil_kg)}</td>
-                    <td className="px-3 py-2 text-right">{fmt(p.pendapatan)}</td>
-                    <td className="px-3 py-2 text-right">{fmt(p.kos)}</td>
-                    <td className={`px-3 py-2 text-right font-semibold ${p.untung_rugi>=0?"text-green-600":"text-red-600"}`}>{fmt(p.untung_rugi)}</td>
-                    <td className={`px-3 py-2 text-right text-xs font-semibold ${margin>=0?"text-green-600":"text-red-600"}`}>{fmt(margin,1)}%</td>
-                  </>}
-                </tr>
+                <>
+                  {showGroup && (
+                    <tr key={`g${i}`} className="bg-muted/50">
+                      <td colSpan={colSpan} className="px-3 py-1.5 text-xs font-bold text-muted-foreground">
+                        📍 {p.pol_pn} — {grp.length} projek | Hasil: {fmt(grpHasil)} KG
+                      </td>
+                    </tr>
+                  )}
+                  <tr key={i} className="border-b border-border/50 hover:bg-muted/30">
+                    {tab === "fizikal" ? <>
+                      <td className="px-3 py-2 text-xs">{p.pol_pn}</td>
+                      <td className="px-3 py-2">{p.bil}</td>
+                      <td className="px-3 py-2 font-medium">{p.nama}</td>
+                      <td className="px-3 py-2 text-right">{fmt(p.luas_hek,2)}</td>
+                      <td className="px-3 py-2 text-right">{fmt(p.luas_ditoreh,2)}</td>
+                      <td className="px-3 py-2 text-right">{p.peserta}</td>
+                      <td className="px-3 py-2 text-right font-semibold">{fmt(p.hasil_kg)}</td>
+                      <td className="px-3 py-2 text-right font-semibold text-blue-700">{fmt(p.kg_hek,2)}</td>
+                      <td className="px-3 py-2 text-right">{fmt(p.matlamat_setahun)}</td>
+                      <td className="px-3 py-2 text-right"><PctBadge v={p.pct_setahun}/></td>
+                    </> : <>
+                      <td className="px-3 py-2 text-xs">{p.pol_pn}</td>
+                      <td className="px-3 py-2">{p.bil}</td>
+                      <td className="px-3 py-2 font-medium">{p.nama}</td>
+                      <td className="px-3 py-2 text-right font-semibold">{fmt(p.hasil_kg)}</td>
+                      <td className="px-3 py-2 text-right">{fmt(p.pendapatan)}</td>
+                      <td className="px-3 py-2 text-right">{fmt(p.kos)}</td>
+                      <td className={`px-3 py-2 text-right font-semibold ${p.untung_rugi>=0?"text-green-600":"text-red-600"}`}>{fmt(p.untung_rugi)}</td>
+                      <td className={`px-3 py-2 text-right text-xs font-semibold ${margin>=0?"text-green-600":"text-red-600"}`}>{fmt(margin,1)}%</td>
+                    </>}
+                  </tr>
+                </>
               )
             })}
           </tbody>
