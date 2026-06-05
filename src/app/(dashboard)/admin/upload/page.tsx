@@ -180,11 +180,22 @@ export default function HasilUploadPage() {
   )
 }
 
+function cleanNum(v: any): number {
+  if (typeof v === "number") return v
+  if (typeof v === "string") {
+    const s = v.replace(/[%\s,]/g, "").replace(/^RM/i, "")
+    const n = parseFloat(s)
+    return isNaN(n) ? 0 : n
+  }
+  return 0
+}
+
 function normalizeRow(jenis: "sawit" | "getah", raw: any): any {
   const row: any = {}
-  const fields = jenis === "sawit"
-    ? ["pol_pn", "bil", "nama", "luas_hek", "luas_dituai", "peserta", "hasil_mt", "mtan_hek", "matlamat_setahun", "pct_setahun", "pendapatan", "kos", "untung_rugi"]
-    : ["pol_pn", "bil", "nama", "luas_hek", "luas_ditoreh", "peserta", "hasil_kg", "kg_hek", "matlamat_setahun", "pct_setahun", "pendapatan", "kos", "untung_rugi"]
+  const numFields = jenis === "sawit"
+    ? ["luas_hek", "luas_dituai", "peserta", "hasil_mt", "mtan_hek", "matlamat_setahun", "pct_setahun", "pendapatan", "kos", "untung_rugi"]
+    : ["luas_hek", "luas_ditoreh", "peserta", "hasil_kg", "kg_hek", "matlamat_setahun", "pct_setahun", "pendapatan", "kos", "untung_rugi"]
+  const fields = ["pol_pn", "bil", "nama", ...numFields]
 
   const headers = Object.keys(raw)
   for (let i = 0; i < fields.length; i++) {
@@ -192,7 +203,7 @@ function normalizeRow(jenis: "sawit" | "getah", raw: any): any {
     const header = headers[i]
     let v = raw[header]
     if (typeof v === "string") v = v.trim()
-    row[field] = v ?? (field === "pol_pn" || field === "nama" ? "" : 0)
+    row[field] = numFields.includes(field) ? cleanNum(v) : (v ?? "")
   }
   return row
 }
