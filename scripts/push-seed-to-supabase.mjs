@@ -1,8 +1,30 @@
 import { createClient } from "@supabase/supabase-js";
-import { readFileSync } from "fs";
+import { readFileSync, existsSync } from "fs";
 
-const SUPABASE_URL = "https://lbklwflwiujdnuricxbt.supabase.co";
-const SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxia2x3Zmx3aXVqZG51cmljeGJ0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTc5ODM4MiwiZXhwIjoyMDk1Mzc0MzgyfQ.VOcBYERgKLgG3QS2ozAZWFGEBJx1CglQ7GQ6UVczgSA";
+// Muat pemboleh ubah persekitaran dari .env.local (diutamakan) atau .env
+// (Node 20.12+/21.7+ menyokong process.loadEnvFile)
+for (const f of [".env.local", ".env"]) {
+  if (existsSync(f)) {
+    try {
+      process.loadEnvFile(f);
+      break;
+    } catch {
+      /* abaikan ralat muat .env */
+    }
+  }
+}
+
+const SUPABASE_URL =
+  process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+const SERVICE_KEY =
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+
+if (!SUPABASE_URL || !SERVICE_KEY) {
+  console.error(
+    "Ralat: sila set NEXT_PUBLIC_SUPABASE_URL dan SUPABASE_SERVICE_ROLE_KEY dalam fail .env.local"
+  );
+  process.exit(1);
+}
 
 const db = createClient(SUPABASE_URL, SERVICE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
@@ -83,7 +105,7 @@ async function main() {
       console.error(`Batch ${i / batchSize + 1} gagal:`, error.message);
       process.exit(1);
     }
-    console.log(`OK Batch ${i / batchSize + 1} — ${batch.length} baris`);
+    console.log(`OK Batch ${i / batchSize + 1} \u2014 ${batch.length} baris`);
   }
 
   console.log(`\nSiap! ${rows.length} baris di-upsert ke Supabase.`);
