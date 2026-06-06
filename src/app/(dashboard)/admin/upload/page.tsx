@@ -169,6 +169,29 @@ export default function HasilUploadPage() {
       }
       if (getahRows.length === 0) addLog("  ⚠ Tiada data Getah ditemui")
 
+      // Renumber bil per POL/PN group
+      const renumberByPol = (rows: any[]) => {
+        const grouped = new Map<string, any[]>()
+        for (const row of rows) {
+          const pol = String(row.pol_pn).toUpperCase().trim()
+          if (!grouped.has(pol)) grouped.set(pol, [])
+          grouped.get(pol)!.push(row)
+        }
+        const result: any[] = []
+        for (const pol of Array.from(grouped.keys())) {
+          const items = grouped.get(pol)!
+          items.sort((a, b) => a.nama.localeCompare(b.nama))
+          items.forEach((item, idx) => {
+            item.bil = idx + 1
+            result.push(item)
+          })
+        }
+        return result
+      }
+
+      const finalSawit = renumberByPol(sawitRows)
+      const finalGetah = renumberByPol(getahRows)
+
       if (sawitRows.length === 0 && getahRows.length === 0) {
         addLog("❌ Tiada data")
         setLoading(false)
@@ -181,8 +204,8 @@ export default function HasilUploadPage() {
       addLog(`📤 Hantar ke Supabase (${namaBulan})...`)
 
       // Deduplicate by project name (keep last occurrence)
-      const dedupSawit = Array.from(new Map(sawitRows.map(r => [r.nama, r])).values())
-      const dedupGetah = Array.from(new Map(getahRows.map(r => [r.nama, r])).values())
+      const dedupSawit = Array.from(new Map(finalSawit.map(r => [r.nama, r])).values())
+      const dedupGetah = Array.from(new Map(finalGetah.map(r => [r.nama, r])).values())
 
       if (dedupSawit.length < sawitRows.length) {
         addLog(`  ⚠ Buang ${sawitRows.length - dedupSawit.length} duplikat Sawit`)
