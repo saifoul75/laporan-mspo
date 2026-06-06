@@ -40,11 +40,28 @@ export default function HasilUploadPage() {
   function cleanJson(json: Record<string, any>[]): Record<string, any>[] {
     return json
       .filter((row) => {
-        const nonEmpty = Object.entries(row).filter(([k, v]) => !k.startsWith("__EMPTY") && v !== null && v !== "" && String(v).trim() !== "")
+        const nonEmpty = Object.entries(row).filter(([k, v]) => 
+          !k.startsWith("__EMPTY") && v !== null && v !== "" && String(v).trim() !== ""
+        )
         if (nonEmpty.length < 3) return false
-        // Hanya keep rows yang ada mapping — ada nama projek + data lain (pol_pn/bil/luas/hasil)
+        
         const mapped = mapHeaders(Object.fromEntries(nonEmpty))
-        return (mapped.nama || mapped.pol_pn) && (mapped.luas_hek || mapped.hasil_mt || mapped.hasil_kg || mapped.bil)
+        
+        // Filter 1: Nama mesti ada dan bukan nombor sahaja
+        if (!mapped.nama || /^\d+$/.test(String(mapped.nama).trim())) return false
+        
+        // Filter 2: Nama tak boleh sama dengan POL/PN (group header)
+        if (mapped.nama && mapped.pol_pn && String(mapped.nama).trim().toUpperCase() === String(mapped.pol_pn).trim().toUpperCase()) return false
+        
+        // Filter 3: Nama tak boleh mengandungi "jumlah", "total", "sub" sahaja
+        const namaLower = String(mapped.nama).toLowerCase()
+        if (namaLower.includes("jumlah") || namaLower.includes("total") || namaLower === "sub") return false
+        
+        // Filter 4: Mesti ada sekurang-kurangnya satu data numerik yang bermakna
+        const hasData = (mapped.luas_hek ?? 0) > 0 || (mapped.hasil_mt ?? 0) > 0 || (mapped.hasil_kg ?? 0) > 0 || (mapped.bil ?? 0) > 0
+        if (!hasData) return false
+        
+        return true
       })
       .map((row) => {
         const cleaned: Record<string, any> = {}
@@ -70,13 +87,26 @@ export default function HasilUploadPage() {
     setLog([])
     const result: typeof preview = { sawit: [], getah: [], mapped: { sawit: {}, getah: {} } }
 
-    for (const [sheetName, key] of [["Sawit", "sawit"], ["Getah", "getah"]] as const) {
-      const ws = wb.Sheets[sheetName]
-      if (!ws) { addLog(`⚠ Sheet ${sheetName} tidak ditemui`); continue }
+    for (const [sheetNames, key] of [[["databaseSwt", "Sawit"], "sawit"], [["DatabaseGth", "Getah"], "getah"]] as const) {
+      let ws: XLSX.WorkSheet | undefined
+      let usedSheetName = ""
+      for (const sheetName of sheetNames) {
+        if (wb.Sheets[sheetName]) {
+          ws = wb.Sheets[sheetName]
+          usedSheetName = sheetName
+          break
+        }
+      }
+      if (!ws) {
+        addLog(`⚠ Tiada sheet ${key} (cuba ${sheetNames.join(" atau ")})`)
+        continue
+      }
+      
       const autoSkip = skipRows > 0 ? skipRows : findHeaderRow(ws)
-      addLog(`🔎 ${sheetName}: auto-detect header di baris ${autoSkip + 1}`)
+      addLog(`🔎 ${usedSheetName}: auto-detect header di baris ${autoSkip + 1}`)
       const json = XLSX.utils.sheet_to_json<Record<string, any>>(ws, { defval: null, range: autoSkip })
       const cleaned = cleanJson(json)
+      
       if (cleaned.length > 0) {
         const headers = Object.keys(cleaned[0])
         result[key] = headers
@@ -87,7 +117,7 @@ export default function HasilUploadPage() {
             return [h, target || "(tidak dimap)"]
           })
         )
-        addLog(`📋 ${sheetName}: ${headers.length} columns, ${cleaned.length} baris (selepas clean)`)
+        addLog(`📋 ${usedSheetName}: ${headers.length} columns, ${cleaned.length} baris bersih`)
       }
     }
     setPreview(result)
@@ -107,33 +137,37 @@ export default function HasilUploadPage() {
 
       addLog(`📂 Membaca fail: ${file.name}`)
 
-      // Baca Sawit sheet
-      const sawitRows: SawitRow[] = []
-      const wsSawit = wb.Sheets["Sawit"]
-      if (wsSawit) {
-        const autoSkip = skipRows > 0 ? skipRows : findHeaderRow(wsSawit)
-        const json = XLSX.utils.sheet_to_json<SawitRow>(wsSawit, { defval: 0, range: autoSkip })
-        const cleaned = cleanJson(json)
-        sawitRows.push(...cleaned.map((row) => normalizeRow("sawit", row)))
-        addLog(`  🔎 Sawit: auto-detect header di baris ${autoSkip + 1}`)
-        addLog(`  Sawit: ${sawitRows.length} baris`)
-      } else {
-        addLog("  ⚠ Sheet Sawit tidak ditemui")
-      }
+      // Baca data - guna databaseSwt/DatabaseGth (clean), fallback ke Sawit/Getah
+      const sawitSheetNames = ["databaseSwt", "Sawit"]
+      const getahSheetNames = ["DatabaseGth", "Getah"]
 
-      // Baca Getah sheet
-      const getahRows: GetahRow[] = []
-      const wsGetah = wb.Sheets["Getah"]
-      if (wsGetah) {
-        const autoSkip = skipRows > 0 ? skipRows : findHeaderRow(wsGetah)
-        const json = XLSX.utils.sheet_to_json<GetahRow>(wsGetah, { defval: 0, range: autoSkip })
-        const cleaned = cleanJson(json)
-        getahRows.push(...cleaned.map((row) => normalizeRow("getah", row)))
-        addLog(`  🔎 Getah: auto-detect header di baris ${autoSkip + 1}`)
-        addLog(`  Getah: ${getahRows.length} baris`)
-      } else {
-        addLog("  ⚠ Sheet Getah tidak ditemui")
+      const sawitRows: SawitRow[] = []
+      for (const sheetName of sawitSheetNames) {
+        const ws = wb.Sheets[sheetName]
+        if (ws) {
+          const autoSkip = skipRows > 0 ? skipRows : findHeaderRow(ws)
+          const json = XLSX.utils.sheet_to_json<SawitRow>(ws, { defval: null, range: autoSkip })
+          const cleaned = cleanJson(json)
+          sawitRows.push(...cleaned.map((row) => normalizeRow("sawit", row)))
+          addLog(`  ✅ Guna sheet: ${sheetName} (header baris ${autoSkip + 1}, ${sawitRows.length} baris bersih)`)
+          break
+        }
       }
+      if (sawitRows.length === 0) addLog("  ⚠ Tiada data Sawit ditemui")
+
+      const getahRows: GetahRow[] = []
+      for (const sheetName of getahSheetNames) {
+        const ws = wb.Sheets[sheetName]
+        if (ws) {
+          const autoSkip = skipRows > 0 ? skipRows : findHeaderRow(ws)
+          const json = XLSX.utils.sheet_to_json<GetahRow>(ws, { defval: null, range: autoSkip })
+          const cleaned = cleanJson(json)
+          getahRows.push(...cleaned.map((row) => normalizeRow("getah", row)))
+          addLog(`  ✅ Guna sheet: ${sheetName} (header baris ${autoSkip + 1}, ${getahRows.length} baris bersih)`)
+          break
+        }
+      }
+      if (getahRows.length === 0) addLog("  ⚠ Tiada data Getah ditemui")
 
       if (sawitRows.length === 0 && getahRows.length === 0) {
         addLog("❌ Tiada data")
@@ -354,7 +388,7 @@ function mapHeaders(obj: any): Record<string, any> {
       result.hasil_mt = v
     } else if (lk.includes("jumlah") && lk.includes("hasil") && lk.includes("kg")) {
       result.hasil_kg = v
-    } else if (lk.includes("%") && lk.includes("capai") && lk.includes("tahun")) {
+    } else if (lk.includes("%") && lk.includes("capai")) {
       result.pct_setahun = v
     } else if (lk.includes("jangkaan") && lk.includes("tahun")) {
       result.matlamat_setahun = v
