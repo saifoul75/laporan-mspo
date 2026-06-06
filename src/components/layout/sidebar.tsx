@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import type { RolPengguna } from "@/types";
 
@@ -11,31 +11,55 @@ interface ItemNav {
   rol?: RolPengguna[];
 }
 
-const ITEM_NAV: ItemNav[] = [
-  { label: "Dashboard", href: "/dashboard" },
-  { label: "Audit", href: "/audit" },
-  { label: "NC", href: "/nc" },
-  { label: "OFI", href: "/ofi" },
-  { label: "Pusat Operasi", href: "/pusat-operasi" },
-  { label: "Laporan", href: "/laporan" },
-  { label: "Aktiviti", href: "/aktiviti" },
-  { label: "Pengguna", href: "/pengguna", rol: ["admin"] },
-  { label: "Tetapan", href: "/tetapan" },
-];
+type ModulId = "hasil" | "audit";
 
-const ITEM_HASIL: ItemNav[] = [
-  { label: "Ringkasan Hasil", href: "/hasil" },
-  { label: "Sawit", href: "/hasil/sawit" },
-  { label: "Getah", href: "/hasil/getah" },
-  { label: "Carta", href: "/hasil/carta" },
-  { label: "Upload Excel", href: "/admin/upload", rol: ["admin"] },
+const MODUL: { id: ModulId; label: string; home: string; item: ItemNav[] }[] = [
+  {
+    id: "hasil",
+    label: "Hasil Projek",
+    home: "/hasil",
+    item: [
+      { label: "Ringkasan Hasil", href: "/hasil" },
+      { label: "Sawit", href: "/hasil/sawit" },
+      { label: "Getah", href: "/hasil/getah" },
+      { label: "Carta", href: "/hasil/carta" },
+      { label: "Upload Excel", href: "/admin/upload", rol: ["admin"] },
+    ],
+  },
+  {
+    id: "audit",
+    label: "Audit MSPO",
+    home: "/dashboard",
+    item: [
+      { label: "Dashboard", href: "/dashboard" },
+      { label: "Audit", href: "/audit" },
+      { label: "NC", href: "/nc" },
+      { label: "OFI", href: "/ofi" },
+      { label: "Pusat Operasi", href: "/pusat-operasi" },
+      { label: "Laporan", href: "/laporan" },
+      { label: "Aktiviti", href: "/aktiviti" },
+      { label: "Pengguna", href: "/pengguna", rol: ["admin"] },
+      { label: "Tetapan", href: "/tetapan" },
+    ],
+  },
 ];
 
 export function Sidebar({ rol }: { rol: RolPengguna }) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  // Tentukan modul aktif dari laluan semasa
+  const modulAktif: ModulId =
+    pathname.startsWith("/hasil") || pathname.startsWith("/admin/upload")
+      ? "hasil"
+      : "audit";
+
+  const modul = MODUL.find((m) => m.id === modulAktif)!;
+  const item = modul.item.filter((i) => !i.rol || i.rol.includes(rol));
 
   return (
     <aside className="hidden w-60 shrink-0 flex-col border-r bg-card md:flex">
+      {/* Jenama */}
       <div className="flex h-16 items-center gap-2 border-b px-4">
         <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-sm font-bold text-primary-foreground">
           M
@@ -46,60 +70,48 @@ export function Sidebar({ rol }: { rol: RolPengguna }) {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
-        {/* Hasil Projek — atas */}
-        <div className="p-3 border-b">
-          <div className="mb-1 px-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-            Hasil Projek
-          </div>
-          <nav className="space-y-1">
-            {ITEM_HASIL.filter((item) => !item.rol || item.rol.includes(rol)).map((item) => {
-              const aktif =
-                item.href === "/hasil"
-                  ? pathname === item.href
-                  : pathname.startsWith(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                    aktif
-                      ? "bg-[#C0182A] text-white"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                  )}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
-
-        {/* MSPO Audit nav — bawah */}
-        <nav className="space-y-1 p-3">
-          {ITEM_NAV.filter((i) => !i.rol || i.rol.includes(rol)).map((item) => {
-            const aktif =
-              item.href === "/dashboard"
-                ? pathname === item.href
-                : pathname.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                  aktif
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                )}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
+      {/* Penukar modul */}
+      <div className="grid grid-cols-2 gap-1 border-b p-2">
+        {MODUL.map((m) => (
+          <button
+            key={m.id}
+            type="button"
+            onClick={() => router.push(m.home)}
+            className={cn(
+              "rounded-md px-2 py-1.5 text-xs font-semibold transition-colors",
+              m.id === modulAktif
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-accent"
+            )}
+          >
+            {m.label}
+          </button>
+        ))}
       </div>
+
+      {/* Menu modul aktif sahaja */}
+      <nav className="flex-1 space-y-1 overflow-y-auto p-3">
+        {item.map((it) => {
+          const aktif =
+            it.href === modul.home
+              ? pathname === it.href
+              : pathname.startsWith(it.href);
+          return (
+            <Link
+              key={it.href}
+              href={it.href}
+              className={cn(
+                "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                aktif
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+              )}
+            >
+              {it.label}
+            </Link>
+          );
+        })}
+      </nav>
     </aside>
   );
 }
