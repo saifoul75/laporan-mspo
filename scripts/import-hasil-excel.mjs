@@ -19,6 +19,32 @@ const COL_GETAH = [
   "pendapatan", "kos", "untung_rugi",
 ];
 
+// ── Pembersihan & pengiraan ──
+
+// Normalkan nama untuk padanan duplikat sahaja (tidak disimpan sebagai paparan).
+// Cth: "TSK ... FASA II" dan "TSK ... FASA 2" dianggap projek yang sama.
+function kunciNama(nama) {
+  return (nama ?? "")
+    .toString()
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, " ")
+    .replace(/\bIV\b/g, "4")
+    .replace(/\bIII\b/g, "3")
+    .replace(/\bII\b/g, "2")
+    .replace(/\bI\b/g, "1");
+}
+
+// Tapis baris sampah: nama kosong, nama sama dengan pol_pn (baris tajuk kawasan),
+// atau nama yang hanya nombor (cth "2").
+function namaSah(p) {
+  const nama = (p.nama ?? "").toString().trim();
+  if (!nama) return false;
+  if (nama === (p.pol_pn ?? "").toString().trim()) return false;
+  if (!isNaN(Number(nama))) return false;
+  return true;
+}
+
 // ── Parse args ──
 const args = argv.slice(2);
 const failExcel = args.find((a) => !a.startsWith("--"));
@@ -40,15 +66,15 @@ const kodBulan = bulanArg;
 console.log(`\n📂 Membaca Excel: ${failExcel}`);
 const wb = read(readFileSync(failExcel), { type: "buffer" });
 
-function bacaSheet(namaSheet, colMap) {
+function bacaSheet(namaSheet, colMap, jenis) {
   const ws = wb.Sheets[namaSheet];
   if (!ws) {
     console.error(`  ⚠ Sheet "${namaSheet}" tidak ditemui!`);
     return [];
   }
   const rows = utils.sheet_to_json(ws, { defval: null });
-  return rows.map((row) => {
-    const mapped = {};
+  const mapped = rows.map((row) => {
+    const m = {};
     colMap.forEach((col) => {
       let v = row[col];
       if (v == null) {
@@ -57,14 +83,49 @@ function bacaSheet(namaSheet, colMap) {
         if (key) v = row[key];
       }
       if (typeof v === "string") v = v.trim();
-      mapped[col] = v ?? (col === "pol_pn" || col === "nama" ? "" : 0);
+      m[col] = v ?? (col === "pol_pn" || col === "nama" ? "" : 0);
     });
-    return mapped;
+    return m;
+  });
+
+  // Buang baris sampah
+  const bersih = mapped.filter(namaSah);
+
+  // Buang duplikat (ikut nama ternormalisasi)
+  const dilihat = new Set();
+  const unik = bersih.filter((p) => {
+    const k = kunciNama(p.nama);
+    if (dilihat.has(k)) return false;
+    dilihat.add(k);
+    return true;
+  });
+
+  const dibuang = mapped.length - unik.length;
+  if (dibuang > 0) {
+    console.log(`  🧹 ${namaSheet}: ${dibuang} baris tidak sah/duplikat dibuang`);
+  }
+
+  // Jana semula bil + kira nilai terbitan
+  return unik.map((p, i) => {
+    const luas = Number(p.luas_hek) || 0;
+    const matlamat = Number(p.matlamat_setahun) || 0;
+    p.bil = i + 1;
+    p.nama = (p.nama ?? "").toString().trim().replace(/\s+/g, " ");
+    if (jenis === "sawit") {
+      const hasil = Number(p.hasil_mt) || 0;
+      p.mtan_hek = luas > 0 ? Number((hasil / luas).toFixed(2)) : 0;
+      p.pct_setahun = matlamat > 0 ? Number(((hasil / matlamat) * 100).toFixed(1)) : 0;
+    } else {
+      const hasil = Number(p.hasil_kg) || 0;
+      p.kg_hek = luas > 0 ? Number((hasil / luas).toFixed(2)) : 0;
+      p.pct_setahun = matlamat > 0 ? Number(((hasil / matlamat) * 100).toFixed(1)) : 0;
+    }
+    return p;
   });
 }
 
-const sawitBaru = bacaSheet("Sawit", COL_SAWIT);
-const getahBaru = bacaSheet("Getah", COL_GETAH);
+const sawitBaru = bacaSheet("Sawit", COL_SAWIT, "sawit");
+const getahBaru = bacaSheet("Getah", COL_GETAH, "getah");
 
 console.log(`  Sawit: ${sawitBaru.length} baris`);
 console.log(`  Getah: ${getahBaru.length} baris`);
