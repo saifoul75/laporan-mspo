@@ -1,10 +1,40 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
+// ── Pembersihan & pengiraan ──
+
+// Normalkan nama untuk padanan duplikat sahaja (tidak disimpan sebagai paparan).
+// Cth: "TSK ... FASA II" dan "TSK ... FASA 2" dianggap projek yang sama.
+function kunciNama(nama: any): string {
+  return (nama ?? "")
+    .toString()
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, " ")
+    .replace(/\bIV\b/g, "4")
+    .replace(/\bIII\b/g, "3")
+    .replace(/\bII\b/g, "2")
+    .replace(/\bI\b/g, "1");
+}
+
+// Tapis baris sampah: nama kosong, nama sama dengan pol_pn (baris tajuk kawasan),
+// atau nama yang hanya nombor (cth "2").
+function namaSah(p: any): boolean {
+  const nama = (p?.nama ?? "").toString().trim();
+  if (!nama) return false;
+  if (nama === (p?.pol_pn ?? "").toString().trim()) return false;
+  if (!isNaN(Number(nama))) return false;
+  return true;
+}
+
+function bersihkanNama(nama: any): string {
+  return (nama ?? "").toString().trim().replace(/\s+/g, " ");
+}
+
 export async function POST(req: Request) {
   try {
     const supabase = createClient();
-    
+
     // Check auth
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
@@ -29,44 +59,76 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid data format" }, { status: 400 });
     }
 
-    // Prepare upsert data
-    const sawitRows = sawit.map((p: any) => ({
-      kod_bulan,
-      nama_bulan,
-      jenis: "sawit",
-      pol_pn: p.pol_pn || "",
-      bil: p.bil || 0,
-      nama: p.nama || "",
-      peserta: p.peserta || 0,
-      luas_hek: p.luas_hek || 0,
-      luas_operasi: p.luas_dituai || 0,
-      hasil: p.hasil_mt || 0,
-      hasil_per_hek: p.mtan_hek || 0,
-      matlamat_setahun: p.matlamat_setahun || 0,
-      pct_setahun: p.pct_setahun || 0,
-      pendapatan: p.pendapatan || 0,
-      kos: p.kos || 0,
-      untung_rugi: p.untung_rugi || 0,
-    }));
+    // ── Sawit: tapis sampah → buang duplikat → jana bil → kira nilai terbitan ──
+    const dilihatSawit = new Set<string>();
+    const sawitRows = sawit
+      .filter(namaSah)
+      .filter((p: any) => {
+        const k = kunciNama(p.nama);
+        if (dilihatSawit.has(k)) return false;
+        dilihatSawit.add(k);
+        return true;
+      })
+      .map((p: any, i: number) => {
+        const luas = Number(p.luas_hek) || 0;
+        const hasil = Number(p.hasil_mt) || 0;
+        const matlamat = Number(p.matlamat_setahun) || 0;
+        return {
+          kod_bulan,
+          nama_bulan,
+          jenis: "sawit",
+          pol_pn: bersihkanNama(p.pol_pn),
+          bil: i + 1,
+          nama: bersihkanNama(p.nama),
+          peserta: Number(p.peserta) || 0,
+          luas_hek: luas,
+          luas_operasi: Number(p.luas_dituai) || 0,
+          hasil,
+          hasil_per_hek: luas > 0 ? Number((hasil / luas).toFixed(2)) : 0,
+          matlamat_setahun: matlamat,
+          pct_setahun: matlamat > 0 ? Number(((hasil / matlamat) * 100).toFixed(1)) : 0,
+          pendapatan: Number(p.pendapatan) || 0,
+          kos: Number(p.kos) || 0,
+          untung_rugi: Number(p.untung_rugi) || 0,
+        };
+      });
 
-    const getahRows = getah.map((p: any) => ({
-      kod_bulan,
-      nama_bulan,
-      jenis: "getah",
-      pol_pn: p.pol_pn || "",
-      bil: p.bil || 0,
-      nama: p.nama || "",
-      peserta: p.peserta || 0,
-      luas_hek: p.luas_hek || 0,
-      luas_operasi: p.luas_ditoreh || 0,
-      hasil: p.hasil_kg || 0,
-      hasil_per_hek: p.kg_hek || 0,
-      matlamat_setahun: p.matlamat_setahun || 0,
-      pct_setahun: p.pct_setahun || 0,
-      pendapatan: p.pendapatan || 0,
-      kos: p.kos || 0,
-      untung_rugi: p.untung_rugi || 0,
-    }));
+    // ── Getah: logik sama ──
+    const dilihatGetah = new Set<string>();
+    const getahRows = getah
+      .filter(namaSah)
+      .filter((p: any) => {
+        const k = kunciNama(p.nama);
+        if (dilihatGetah.has(k)) return false;
+        dilihatGetah.add(k);
+        return true;
+      })
+      .map((p: any, i: number) => {
+        const luas = Number(p.luas_hek) || 0;
+        const hasil = Number(p.hasil_kg) || 0;
+        const matlamat = Number(p.matlamat_setahun) || 0;
+        return {
+          kod_bulan,
+          nama_bulan,
+          jenis: "getah",
+          pol_pn: bersihkanNama(p.pol_pn),
+          bil: i + 1,
+          nama: bersihkanNama(p.nama),
+          peserta: Number(p.peserta) || 0,
+          luas_hek: luas,
+          luas_operasi: Number(p.luas_ditoreh) || 0,
+          hasil,
+          hasil_per_hek: luas > 0 ? Number((hasil / luas).toFixed(2)) : 0,
+          matlamat_setahun: matlamat,
+          pct_setahun: matlamat > 0 ? Number(((hasil / matlamat) * 100).toFixed(1)) : 0,
+          pendapatan: Number(p.pendapatan) || 0,
+          kos: Number(p.kos) || 0,
+          untung_rugi: Number(p.untung_rugi) || 0,
+        };
+      });
+
+    const dibuang =
+      (sawit.length - sawitRows.length) + (getah.length - getahRows.length);
 
     // Upsert sawit
     if (sawitRows.length > 0) {
@@ -84,9 +146,11 @@ export async function POST(req: Request) {
       if (errGetah) throw new Error(`Getah upsert failed: ${errGetah.message}`);
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      message: `Berjaya import ${sawitRows.length} sawit + ${getahRows.length} getah` 
+    return NextResponse.json({
+      success: true,
+      message:
+        `Berjaya import ${sawitRows.length} sawit + ${getahRows.length} getah` +
+        (dibuang > 0 ? ` (${dibuang} baris tidak sah/duplikat dibuang)` : ""),
     });
   } catch (err: any) {
     console.error("Upload error:", err);
