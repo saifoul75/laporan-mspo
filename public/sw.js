@@ -31,19 +31,28 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   const req = event.request;
-
-  if (req.method !== "GET") return;
   const url = new URL(req.url);
+
+  // 1. Tapis skema non-http(s)
+  if (req.method !== "GET") return;
+  if (url.protocol !== "http:" && url.protocol !== "https:") return;
+
+  // 2. Skip aset build Next.js (biar Next handle caching sendiri)
+  if (url.pathname.startsWith("/_next/")) return;
+
+  // 3. Skip API & luaran
   if (url.pathname.startsWith("/api/")) return;
   if (url.hostname.includes("supabase")) return;
 
-  // Network-first untuk navigasi (HTML pages) — pastikan shell baru sentiasa dipakai
+  // Network-first untuk navigasi (HTML pages)
   if (req.mode === "navigate") {
     event.respondWith(
       fetch(req)
         .then((res) => {
-          const salinan = res.clone();
-          caches.open(VERSI_CACHE).then((cache) => cache.put(req, salinan));
+          if (res.ok && url.origin === self.location.origin) {
+            const salinan = res.clone();
+            caches.open(VERSI_CACHE).then((cache) => cache.put(req, salinan));
+          }
           return res;
         })
         .catch(() =>
@@ -59,8 +68,10 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     fetch(req)
       .then((res) => {
-        const salinan = res.clone();
-        caches.open(VERSI_CACHE).then((cache) => cache.put(req, salinan));
+        if (res.ok && url.origin === self.location.origin) {
+          const salinan = res.clone();
+          caches.open(VERSI_CACHE).then((cache) => cache.put(req, salinan));
+        }
         return res;
       })
       .catch(() =>
