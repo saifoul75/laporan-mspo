@@ -31,7 +31,7 @@ export interface PreviewCapRalat {
 export async function previewGredCap(
   auditId: string
 ): Promise<PreviewCap | PreviewCapRalat> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const {
     data: { user },
@@ -104,7 +104,7 @@ interface MuktamadkanInput {
  *   - Kalau ada dapatan status='Pending', tolak (semua mesti dijawab)
  */
 export async function muktamadkanAudit(input: MuktamadkanInput) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const {
     data: { user },
@@ -222,7 +222,7 @@ interface HantarCapInput {
  * NC status: open → in_progress
  */
 export async function hantarCap(input: HantarCapInput) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, ralat: "Tidak log masuk" };
 
@@ -260,7 +260,7 @@ export async function hantarCap(input: HantarCapInput) {
  * Bila semua NC verified, auto-tukar status audit ke 'selesai'.
  */
 export async function sahCap(ncId: string, auditId: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, ralat: "Tidak log masuk" };
 
@@ -317,7 +317,7 @@ export async function sahCap(ncId: string, auditId: string) {
  * Bila semua NC verified, auto-tukar status audit ke 'selesai'.
  */
 export async function verifyCap(ncId: string, auditId: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, ralat: "Tidak log masuk" };
 
@@ -379,7 +379,7 @@ interface HantarKehadiranInput {
 }
 
 export async function sahkanKehadiran(input: HantarKehadiranInput) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, ralat: "Tidak log masuk" };
 
@@ -405,7 +405,7 @@ export async function sahkanKehadiranBatch(input: {
   auditId: string;
   senarai: { nama: string; jawatan: string }[];
 }) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, ralat: "Tidak log masuk" };
 
@@ -431,7 +431,7 @@ export async function sahkanKehadiranBatch(input: {
 }
 
 export async function mulakanAuditDaripadaOpening(auditId: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, ralat: "Tidak log masuk" };
 
@@ -473,7 +473,7 @@ export async function mulakanAuditDaripadaOpening(auditId: string) {
  * 2. Pengguna ialah admin atau lead_auditor
  */
 export async function padamAuditDraf(auditId: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const {
     data: { user },
@@ -533,7 +533,7 @@ const SESI_2026 = [
 ];
 
 export async function seedSesiAudit() {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, ralat: "Tidak log masuk." };
@@ -568,7 +568,7 @@ export async function seedSesiAudit() {
 // ============================================================
 
 export async function stressTestSelatan2() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, ralat: "Tidak log masuk." };
 
@@ -720,7 +720,7 @@ export async function dapatkanBankJawapan(
   klausaKod: string,
   status: string
 ): Promise<BankJawapan | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from("bank_jawapan")
     .select("catatan_bukti, tindakan_pembetulan, semakan_tapak, punca_akar")

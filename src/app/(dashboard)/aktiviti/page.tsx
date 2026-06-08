@@ -41,7 +41,7 @@ const VARIAN_JENIS: Record<string, "default" | "secondary" | "destructive" | "ou
 };
 
 export default async function HalamanAktiviti() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

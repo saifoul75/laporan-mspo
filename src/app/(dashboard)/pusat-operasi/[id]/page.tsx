@@ -26,9 +26,10 @@ const LABEL_JENIS: Record<string, string> = {
 export default async function HalamanPODetail({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const supabase = createClient();
+  const { id } = await params;
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -37,7 +38,7 @@ export default async function HalamanPODetail({
   const { data: po } = await supabase
     .from("pusat_operasi")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
   if (!po) notFound();
 
@@ -47,7 +48,7 @@ export default async function HalamanPODetail({
     .select(
       "id, no_rujukan, tarikh_audit, tarikh_tamat, status, jenis_audit, catatan"
     )
-    .eq("pusat_operasi_id", params.id)
+    .eq("pusat_operasi_id", id)
     .order("tarikh_audit", { ascending: false });
 
   // Kira agregat dapatan keseluruhan untuk PO ni

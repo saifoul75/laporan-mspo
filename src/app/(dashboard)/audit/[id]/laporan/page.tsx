@@ -11,9 +11,10 @@ import type { StatusDapatan, GredNC } from "@/types";
 export default async function HalamanLaporan({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const supabase = createClient();
+  const { id } = await params;
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -26,14 +27,14 @@ export default async function HalamanLaporan({
       .select(
         "*, pusat_operasi:pusat_operasi_id (kod, nama, wilayah)"
       )
-      .eq("id", params.id)
+      .eq("id", id)
       .single(),
     supabase
       .from("dapatan")
       .select(
         "id, status, gred_nc, catatan, bukti_audit, cadangan_tindakan, pic, tarikh_siap_target, item_semakan:item_semakan_id (kod, tajuk, fail_rujukan, kriteria:kriteria_id (kod, prinsip:prinsip_id (kod, tajuk)))"
       )
-      .eq("audit_id", params.id),
+      .eq("audit_id", id),
   ]);
 
   const { data: audit, error: ralatAudit } = auditRes;
@@ -45,7 +46,7 @@ export default async function HalamanLaporan({
     return (
       <div className="space-y-4">
         <Link
-          href={`/audit/${params.id}`}
+          href={`/audit/${id}`}
           className="text-sm text-muted-foreground hover:underline"
         >
           ← Audit
@@ -61,7 +62,7 @@ export default async function HalamanLaporan({
                 {ralatAudit?.message ?? "Ralat tidak diketahui"}
               </div>
               <div className="mt-2 text-xs">
-                Audit ID: <span className="font-mono">{params.id}</span>
+                Audit ID: <span className="font-mono">{id}</span>
               </div>
               <div className="mt-2 text-xs">
                 Jika anda tidak sepatutnya nampak audit ini, sila hubungi admin.
@@ -97,7 +98,7 @@ export default async function HalamanLaporan({
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <Link href={`/audit/${params.id}`} className="text-sm text-muted-foreground hover:underline">
+          <Link href={`/audit/${id}`} className="text-sm text-muted-foreground hover:underline">
             ← Audit
           </Link>
           <h2 className="mt-2 text-2xl font-bold">Laporan Audit</h2>
@@ -109,7 +110,7 @@ export default async function HalamanLaporan({
         </div>
         <div className="flex gap-2 print:hidden">
           <a
-            href={`/api/laporan/${params.id}/pdf`}
+            href={`/api/laporan/${id}/pdf`}
             target="_blank"
             rel="noopener"
             className="inline-flex h-10 items-center rounded-md border border-input bg-background px-4 text-sm font-medium hover:bg-accent"
@@ -117,7 +118,7 @@ export default async function HalamanLaporan({
             Muat Turun PDF
           </a>
           <a
-            href={`/api/laporan/${params.id}/pptx`}
+            href={`/api/laporan/${id}/pptx`}
             target="_blank"
             rel="noopener"
             className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90"
@@ -129,7 +130,7 @@ export default async function HalamanLaporan({
       </div>
 
       {/* Amaran kalau Dexie ada dapatan belum di-sync untuk audit ini */}
-      <AmaranSyncLaporan auditId={params.id} />
+      <AmaranSyncLaporan auditId={id} />
 
       <Card>
         <CardHeader>
@@ -161,7 +162,7 @@ export default async function HalamanLaporan({
                 </li>
               </ul>
               <div className="mt-2 font-mono text-[11px]">
-                Audit ID: {params.id}
+                Audit ID: {id}
               </div>
             </div>
           )}

@@ -28,7 +28,7 @@ type BarisOFI = {
 };
 
 export default async function HalamanOFI() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

@@ -14,9 +14,10 @@ import { formatTarikh, formatTarikhMasa } from "@/lib/utils";
 export default async function HalamanAudit({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const supabase = createClient();
+  const { id } = await params;
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -27,7 +28,7 @@ export default async function HalamanAudit({
     .select(
       "*, pusat_operasi:pusat_operasi_id (kod, nama, wilayah, daerah, negeri, keluasan_hektar)"
     )
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
   if (!audit) notFound();
 
@@ -44,7 +45,7 @@ export default async function HalamanAudit({
     .select(
       "status_display_en, start_date_live, end_date_live, cap_baki_hari"
     )
-    .eq("audit_id", params.id)
+     .eq("audit_id", id)
     .single();
 
   const po = audit.pusat_operasi as
@@ -63,19 +64,19 @@ export default async function HalamanAudit({
       supabase
         .from("dapatan")
         .select("status, gred_nc")
-        .eq("audit_id", params.id),
+        .eq("audit_id", id),
       supabase
         .from("nc")
         .select("*", { count: "exact", head: true })
-        .eq("audit_id", params.id),
+        .eq("audit_id", id),
       supabase
         .from("ofi")
         .select("*", { count: "exact", head: true })
-        .eq("audit_id", params.id),
+        .eq("audit_id", id),
       supabase
         .from("kehadiran_opening_meeting")
         .select("id, nama, jawatan, ditandatangan_pada")
-        .eq("audit_id", params.id)
+        .eq("audit_id", id)
         .order("ditandatangan_pada"),
     ]);
 
