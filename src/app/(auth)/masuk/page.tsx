@@ -41,18 +41,24 @@ export default function HalamanMasuk() {
   async function onSubmit(data: DataMasuk) {
     setMemuat(true);
     setRalat(null);
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
-      email: data.email,
-      password: data.kata_laluan,
-    });
-    if (error) {
-      setRalat(error.message);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.kata_laluan,
+      });
+      if (error) {
+        setRalat(error.message);
+        return;
+      }
+      router.push("/dashboard");
+      router.refresh();
+    } catch (e) {
+      const mesej = e instanceof Error ? e.message : "Ralat tidak diketahui";
+      setRalat(mesej);
+    } finally {
       setMemuat(false);
-      return;
     }
-    router.push("/dashboard");
-    router.refresh();
   }
 
   return (
