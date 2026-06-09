@@ -38,7 +38,7 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
-  const laluanAwam = ["/masuk", "/daftar", "/auth"];
+  const laluanAwam = ["/masuk", "/daftar", "/auth", "/sw.js"];
   const adalahLaluanAwam = laluanAwam.some((p) => pathname.startsWith(p));
 
   if (!user && !adalahLaluanAwam && pathname !== "/") {
