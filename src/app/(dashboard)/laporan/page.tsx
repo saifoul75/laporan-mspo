@@ -22,7 +22,7 @@ const STATUS_BOLEH_LAPOR = [
 ];
 
 export default async function HalamanLaporan() {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Ambil senarai laporan + kiraan keseluruhan (untuk diagnostik)
   const [senaraiRes, kiraanRes] = await Promise.all([

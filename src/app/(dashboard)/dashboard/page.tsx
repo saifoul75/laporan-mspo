@@ -16,7 +16,7 @@ type AuditTerkini = {
 };
 
 export default async function HalamanDashboard() {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const [{ count: jumlahAudit }, { count: jumlahPO }, { count: jumlahItem }, { data: auditTerkini }] =
     await Promise.all([

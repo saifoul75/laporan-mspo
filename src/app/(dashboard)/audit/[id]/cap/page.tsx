@@ -16,9 +16,10 @@ const LABEL_STATUS_NC: Record<string, string> = {
 export default async function HalamanCap({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const supabase = createClient();
+  const { id } = await params;
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -33,20 +34,20 @@ export default async function HalamanCap({
   const { data: audit } = await supabase
     .from("audit")
     .select("id, no_rujukan, status, cap_due_date, cap_due_days, cap_grade_basis, lead_auditor_id")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
   if (!audit) notFound();
 
   const { data: ncList } = await supabase
     .from("nc")
     .select("*")
-    .eq("audit_id", params.id)
+     .eq("audit_id", id)
     .order("no_nc");
 
   const { data: dapatanList } = await supabase
     .from("dapatan")
     .select("id, item_semakan_id, status, gred_nc")
-    .eq("audit_id", params.id)
+     .eq("audit_id", id)
     .eq("status", "NC");
 
   const { data: itemList } = await supabase

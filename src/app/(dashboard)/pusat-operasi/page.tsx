@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BorangPusatOperasi } from "@/components/audit/borang-pusat-operasi";
 
 export default async function HalamanPusatOperasi() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: senarai } = await supabase
     .from("pusat_operasi")
     .select("*")

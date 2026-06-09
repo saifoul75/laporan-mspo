@@ -10,10 +10,12 @@ export default async function HalamanChecklist({
   params,
   searchParams,
 }: {
-  params: { id: string };
-  searchParams: { klausa?: string };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ klausa?: string }>;
 }) {
-  const supabase = createClient();
+  const { id } = await params;
+  const { klausa } = await searchParams;
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -25,7 +27,7 @@ export default async function HalamanChecklist({
     .select(
       "id, no_rujukan, tarikh_audit, status, jenis_audit, lead_auditor_id, auditor_ids, pusat_operasi:pusat_operasi_id (id, kod, nama, wilayah)"
     )
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (!audit) notFound();
@@ -36,7 +38,7 @@ export default async function HalamanChecklist({
       supabase.from("prinsip").select("*").order("nombor"),
       supabase.from("kriteria").select("*").order("susunan"),
       supabase.from("item_semakan").select("*").order("susunan"),
-      supabase.from("dapatan").select("*").eq("audit_id", params.id),
+      supabase.from("dapatan").select("*")    .eq("audit_id", id),
     ]);
 
   return (
@@ -70,7 +72,7 @@ export default async function HalamanChecklist({
         itemList={itemList ?? []}
         dapatanAwal={dapatanList ?? []}
         penggunaId={user.id}
-        klausaAwal={searchParams?.klausa}
+        klausaAwal={klausa}
       />
     </div>
   );

@@ -36,7 +36,7 @@ type BarisSenaraiAudit = {
 };
 
 export default async function HalamanSenaraiAudit() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: senarai } = await supabase
     .from("audit")
     .select(

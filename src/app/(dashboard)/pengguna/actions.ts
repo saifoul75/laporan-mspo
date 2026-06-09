@@ -7,7 +7,7 @@ import type { RolPengguna } from "@/types";
 const ROL_SAH: RolPengguna[] = ["admin", "lead_auditor", "auditor", "po_user"];
 
 async function pastikanAdmin() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

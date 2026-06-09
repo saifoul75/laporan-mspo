@@ -44,7 +44,7 @@ export async function TimelineAktivitiAudit({
   auditId: string;
   had?: number;
 }) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: senarai } = await supabase
     .from("aktiviti")
     .select(

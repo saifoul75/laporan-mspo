@@ -33,7 +33,7 @@ function bersihkanNama(nama: any): string {
 
 export async function POST(req: Request) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Check auth
     const { data: { user }, error: authError } = await supabase.auth.getUser();

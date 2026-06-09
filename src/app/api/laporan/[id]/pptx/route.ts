@@ -54,15 +54,16 @@ const LABEL_JENIS: Record<string, string> = {
   audit_persijilan_semula: "Persijilan Semula",
 };
 
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
-  const supabase = createClient();
+export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Tidak diauthentikasi" }, { status: 401 });
 
   const { data: audit, error: ralatAudit } = await supabase
     .from("audit")
     .select("*, pusat_operasi:pusat_operasi_id (kod, nama, wilayah, daerah, negeri, keluasan_hektar)")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (ralatAudit || !audit) {
@@ -84,9 +85,9 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
   }
 
   const { data: dapatanRaw } = await supabase
-    .from("dapatan")
-    .select("id, status, gred_nc, catatan, bukti_audit, cadangan_tindakan, pic, tarikh_siap_target, item_semakan:item_semakan_id (kod, tajuk, fail_rujukan)")
-    .eq("audit_id", params.id);
+     .from("dapatan")
+     .select("id, status, gred_nc, catatan, bukti_audit, cadangan_tindakan, pic, tarikh_siap_target, item_semakan:item_semakan_id (kod, tajuk, fail_rujukan)")
+     .eq("audit_id", id);
 
   const dapatan = (dapatanRaw ?? []) as unknown as Dapatan[];
   const ncMajor = dapatan.filter((d) => d.status === "NC" && d.gred_nc === "major");

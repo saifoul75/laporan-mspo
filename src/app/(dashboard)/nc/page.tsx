@@ -32,7 +32,7 @@ type BarisNC = {
 };
 
 export default async function HalamanNC() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

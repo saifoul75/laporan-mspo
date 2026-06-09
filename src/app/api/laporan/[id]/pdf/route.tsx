@@ -7,9 +7,10 @@ import path from "path";
 
 export async function GET(
   _req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const supabase = createClient();
+  const { id } = await params;
+  const supabase = await createClient();
 
   const {
     data: { user },
@@ -26,23 +27,23 @@ export async function GET(
     .select(
       "*, pusat_operasi:pusat_operasi_id (kod, nama, wilayah, daerah, negeri, keluasan_hektar)"
     )
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (ralatAudit) {
-    return NextResponse.json(
-      {
-        error: "Gagal muat audit",
-        butiran: ralatAudit.message,
-        audit_id: params.id,
-      },
-      { status: 500 }
-    );
+      return NextResponse.json(
+        {
+          error: "Gagal muat audit",
+          butiran: ralatAudit.message,
+          audit_id: id,
+        },
+        { status: 500 }
+      );
   }
 
   if (!audit) {
     return NextResponse.json(
-      { error: "Audit tidak dijumpai", audit_id: params.id },
+      { error: "Audit tidak dijumpai", audit_id: id },
       { status: 404 }
     );
   }
@@ -75,17 +76,17 @@ export async function GET(
     .select(
       "id, status, gred_nc, catatan, bukti_audit, cadangan_tindakan, pic, tarikh_siap_target, item_semakan:item_semakan_id (kod, tajuk, fail_rujukan, kriteria:kriteria_id (kod, prinsip:prinsip_id (kod, tajuk)))"
     )
-    .eq("audit_id", params.id);
+     .eq("audit_id", id);
 
   if (ralatDapatan) {
-    return NextResponse.json(
-      {
-        error: "Gagal muat dapatan",
-        butiran: ralatDapatan.message,
-        audit_id: params.id,
-      },
-      { status: 500 }
-    );
+      return NextResponse.json(
+        {
+          error: "Gagal muat dapatan",
+          butiran: ralatDapatan.message,
+          audit_id: id,
+        },
+        { status: 500 }
+      );
   }
 
   let logoBase64: string | null = null;
