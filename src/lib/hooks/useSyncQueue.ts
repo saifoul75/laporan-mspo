@@ -54,13 +54,15 @@ export function useSyncQueue(): KeadaanSync {
 
   // Auto-segar bila mount + bila online berubah
   useEffect(() => {
-    segarkan();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    segarkan().catch(() => {});
   }, [segarkan]);
 
   // Auto-trigger sync bila online & ada baki
   useEffect(() => {
     if (online && baki > 0 && status === "idle") {
-      cubaSync();
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      cubaSync().catch(() => {});
     }
   }, [online, baki, status, cubaSync]);
 
