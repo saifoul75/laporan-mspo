@@ -16,8 +16,9 @@ export const config = {
      * - _next/static (fail statik)
      * - _next/image (pengoptimum imej)
      * - favicon.ico, manifest, icons
+     * - sw.js, sw-version.js (service worker tak boleh di-redirect)
      * - fail dengan sambungan (gambar, font, dll)
      */
-    "/((?!_next/static|_next/image|favicon.ico|manifest.json|icons|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff2?)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|manifest.json|icons|sw.js|sw-version.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff2?)$).*)",
   ],
 };
