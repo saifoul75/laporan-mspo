@@ -3,8 +3,24 @@ name: CI
 on:
   push:
     branches: [master]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - ".kilo/**"
+      - "backup.ps1"
+      - ".github/dependabot.yml"
   pull_request:
     branches: [master]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - ".kilo/**"
+      - "backup.ps1"
+      - ".github/dependabot.yml"
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   semak:
