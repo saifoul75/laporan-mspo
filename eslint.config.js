@@ -1,20 +1,22 @@
-const next = require('eslint-config-next');
-const tsPlugin = require('@typescript-eslint/eslint-plugin');
+const { FlatCompat } = require('@eslint/eslintrc');
+
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+});
 
 module.exports = [
   {
     ignores: ['.kilo/**', '.next/**', 'out/**', 'build/**', 'public/sw.js'],
   },
-  ...next,
+  ...compat.extends('next/core-web-vitals', 'next/typescript'),
   {
-    files: ['**/*.{ts,tsx,js,mjs}'],
-    plugins: {
-      '@typescript-eslint': tsPlugin,
-    },
     rules: {
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-empty-object-type': 'off',
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
     },
   },
 ];
