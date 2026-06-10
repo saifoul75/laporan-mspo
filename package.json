@@ -44,5 +44,8 @@
     "tailwindcss": "^3.4.1",
     "typescript": "^5",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+  },
+  "overrides": {
+    "postcss": "^8.5.15"
   }
 }
