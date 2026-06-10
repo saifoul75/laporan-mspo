@@ -113,9 +113,10 @@ export function useHasil() {
     setLoading(false)
   }
 
-  useEffect(() => {
-    reload()
-  }, [])
+   useEffect(() => {
+     // eslint-disable-next-line react-hooks/set-state-in-effect
+     reload()
+   }, [])
 
   return { data, loading, reload }
 }

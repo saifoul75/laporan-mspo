@@ -54,6 +54,7 @@ export function AmaranSyncLaporan({ auditId }: { auditId: string }) {
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- polling pattern, bukan cascading render
     muatKiraan();
     const t = setInterval(muatKiraan, 5_000);
     return () => clearInterval(t);

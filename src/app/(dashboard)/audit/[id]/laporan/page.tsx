@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BadgeStatus } from "@/components/ui/badge-status";
 import { ButangCetak } from "@/components/layout/butang-cetak";
+import { ButangKongsi } from "@/components/audit/butang-kongsi";
 import { AmaranSyncLaporan } from "@/components/audit/amaran-sync-laporan";
 import { formatTarikh } from "@/lib/utils";
 import type { StatusDapatan, GredNC } from "@/types";
@@ -20,8 +21,8 @@ export default async function HalamanLaporan({
   } = await supabase.auth.getUser();
   if (!user) redirect("/masuk");
 
-  // Jalankan kedua-dua query secara selari untuk kurangkan latency
-  const [auditRes, dapatanRes] = await Promise.all([
+  // Jalankan ketiga-tiga query secara selari untuk kurangkan latency
+  const [auditRes, dapatanRes, laporanRes] = await Promise.all([
     supabase
       .from("audit")
       .select(
@@ -35,10 +36,19 @@ export default async function HalamanLaporan({
         "id, status, gred_nc, catatan, bukti_audit, cadangan_tindakan, pic, tarikh_siap_target, item_semakan:item_semakan_id (kod, tajuk, fail_rujukan, kriteria:kriteria_id (kod, prinsip:prinsip_id (kod, tajuk)))"
       )
       .eq("audit_id", id),
+    // Ambil status kongsi untuk ButangKongsi
+    supabase
+      .from("laporan")
+      .select("token_kongsi, kongsi_aktif")
+      .eq("audit_id", id)
+      .maybeSingle(),
   ]);
 
   const { data: audit, error: ralatAudit } = auditRes;
   const { data: dapatan, error: ralatDapatan } = dapatanRes;
+  // laporanRes boleh null (laporan belum dijana) — ButangKongsi handle kes ini
+  const tokenKongsi = laporanRes.data?.token_kongsi ?? null;
+  const kongsiAktif = laporanRes.data?.kongsi_aktif ?? false;
 
   // Bezakan antara "tiada langsung" (notFound) dan "RLS/error" (papar mesej)
   if (!audit && !ralatAudit) notFound();
@@ -108,7 +118,7 @@ export default async function HalamanLaporan({
             {formatTarikh(audit.tarikh_audit)}
           </p>
         </div>
-        <div className="flex gap-2 print:hidden">
+        <div className="flex flex-wrap gap-2 print:hidden">
           <a
             href={`/api/laporan/${id}/pdf`}
             target="_blank"
@@ -125,6 +135,12 @@ export default async function HalamanLaporan({
           >
             Muat Turun PowerPoint
           </a>
+          {/* Butang kongsi — urus pautan awam tanpa auth */}
+          <ButangKongsi
+            auditId={id}
+            tokenAsal={tokenKongsi}
+            aktifAsal={kongsiAktif}
+          />
           <ButangCetak />
         </div>
       </div>

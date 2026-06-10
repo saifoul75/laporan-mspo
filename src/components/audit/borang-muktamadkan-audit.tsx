@@ -130,11 +130,14 @@ export function BorangMuktamadkanAudit({
         ? null
         : (overrideGred as GredNc)
       : preview?.gred_auto ?? null;
-  const hariEfektif =
-    gredEfektif === "major" ? 30 : gredEfektif === "minor" ? 90 : null;
-  const tarikhDueEfektif = hariEfektif
-    ? new Date(Date.now() + hariEfektif * 86_400_000)
-    : null;
+   const hariEfektif =
+     gredEfektif === "major" ? 30 : gredEfektif === "minor" ? 90 : null;
+   const tarikhDueEfektif = hariEfektif
+     ? (() => {
+         // eslint-disable-next-line react-hooks/purity -- statik display; tidak di dalam loop/interval
+         return new Date(Date.now() + hariEfektif * 86_400_000);
+       })()
+     : null;
 
   return (
     <div className="space-y-4 rounded-md border border-amber-400 bg-amber-50/50 p-4 text-sm">

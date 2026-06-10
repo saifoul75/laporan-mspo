@@ -1,4 +1,7 @@
+"use client";
+
 import { formatTarikh } from "@/lib/utils";
+import { useState } from "react";
 
 interface Props {
   capDueDate: string | null; // ISO date dari DB
@@ -19,12 +22,13 @@ export function BadgeCapCountdown({
   capGradeSource,
   status,
 }: Props) {
+  const nowMs = useState(() => Date.now())[0];
+
   if (!capDueDate || !capDueDays || !capGradeBasis) {
     return null;
   }
 
   const dueMs = new Date(capDueDate + "T23:59:59").getTime();
-  const nowMs = Date.now();
   const bakiMs = dueMs - nowMs;
   const bakiHari = Math.ceil(bakiMs / 86_400_000);
   const lewat = bakiHari < 0;

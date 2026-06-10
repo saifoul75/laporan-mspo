@@ -1,10 +1,13 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { cache } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BorangCap } from "@/components/audit/borang-cap";
 import { ButangVerifyCap } from "@/components/audit/butang-verify-cap";
+
+const getNow = cache(() => Date.now());
 
 const LABEL_STATUS_NC: Record<string, string> = {
   open: "Open",
@@ -70,7 +73,7 @@ export default async function HalamanCap({
   let bakiHari: number | null = null;
   if (audit.cap_due_date) {
     const dueMs = new Date(audit.cap_due_date + "T23:59:59").getTime();
-    bakiHari = Math.ceil((dueMs - Date.now()) / 86_400_000);
+     bakiHari = Math.ceil((dueMs - getNow()) / 86_400_000);
   }
 
   return (

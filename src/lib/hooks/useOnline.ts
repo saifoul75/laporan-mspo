@@ -8,11 +8,13 @@ import { useEffect, useState } from "react";
  */
 export function useOnline(): boolean {
   // Default true untuk SSR; client akan auto-correct selepas mount.
-  const [online, setOnline] = useState<boolean>(true);
+  const [online, setOnline] = useState<boolean>(() => {
+    if (typeof navigator !== "undefined") return navigator.onLine;
+    return true;
+  });
 
   useEffect(() => {
     if (typeof navigator === "undefined") return;
-    setOnline(navigator.onLine);
 
     const naik = () => setOnline(true);
     const turun = () => setOnline(false);

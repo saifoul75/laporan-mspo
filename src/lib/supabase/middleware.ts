@@ -38,7 +38,10 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
-  const laluanAwam = ["/masuk", "/daftar", "/auth", "/sw.js"];
+
+  // /share dibenarkan tanpa auth — tidak diubah hala ke /masuk
+  // /api/laporan/kongsi juga awam (PDF download untuk pemegang token)
+  const laluanAwam = ["/masuk", "/daftar", "/auth", "/sw.js", "/share", "/api/laporan/kongsi"];
   const adalahLaluanAwam = laluanAwam.some((p) => pathname.startsWith(p));
 
   if (!user && !adalahLaluanAwam && pathname !== "/") {
@@ -47,7 +50,13 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && adalahLaluanAwam) {
+  // Pengguna log masuk tidak diubah hala ke dashboard dari /share atau /api/laporan/kongsi
+  if (
+    user &&
+    adalahLaluanAwam &&
+    !pathname.startsWith("/share") &&
+    !pathname.startsWith("/api/laporan/kongsi")
+  ) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);
