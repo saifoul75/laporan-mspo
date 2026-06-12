@@ -178,11 +178,10 @@ export function DashboardAwam({ data: dataBulanan }: { data: BulanData[] }) {
 
   return (
     <div
-      className="space-y-6 select-none"
+      className="space-y-6"
       onCopy={handleCopyPaste}
       onCut={handleCopyPaste}
       onPaste={handleCopyPaste}
-      style={{ userSelect: "none", WebkitUserSelect: "none" } as React.CSSProperties}
     >
       {/* Filters */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-4">
