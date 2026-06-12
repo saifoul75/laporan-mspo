@@ -2,6 +2,51 @@
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 
+// Geographic mapping: PO -> Negeri
+const PO_NEGERI: Record<string, string> = {
+  BESUT: "Terengganu",
+  DUNGUN: "Terengganu",
+  "KUALA BERANG": "Terengganu",
+  GERIK: "Perak",
+  "KG GAJAH": "Perak",
+  "KUALA KANGSAR": "Perak",
+  MANJUNG: "Perak",
+  SELAMA: "Perak",
+  KUANTAN: "Pahang",
+  LIPIS: "Pahang",
+  PEKAN: "Pahang",
+  RAUB: "Pahang",
+  ROMPIN: "Pahang",
+  MACHANG: "Kelantan",
+  KEDAH: "Kedah",
+  JOHOR: "Johor",
+  MELAKA: "Melaka",
+  "N SEMBILAN": "Negeri Sembilan",
+  SELANGOR: "Selangor",
+}
+
+// Geographic mapping: Negeri -> Wilayah
+const NEGERI_WILAYAH: Record<string, string> = {
+  Perak: "Utara",
+  Kedah: "Utara",
+  Selangor: "Utara",
+  Terengganu: "Timur",
+  Kelantan: "Timur",
+  Pahang: "Tengah",
+  "Negeri Sembilan": "Selatan",
+  Melaka: "Selatan",
+  Johor: "Selatan",
+}
+
+export function getNegeri(row: HasilRow): string {
+  return row.negeri || PO_NEGERI[row.pol_pn] || "Lain-lain"
+}
+
+export function getWilayah(row: HasilRow): string {
+  const negeri = getNegeri(row)
+  return row.wilayah || NEGERI_WILAYAH[negeri] || "Lain-lain"
+}
+
 export type HasilRow = {
   id: string
   kod_bulan: string
@@ -20,6 +65,8 @@ export type HasilRow = {
   pendapatan: number
   kos: number
   untung_rugi: number
+  negeri?: string | null
+  wilayah?: string | null
 }
 
 export type PS = {
@@ -27,6 +74,7 @@ export type PS = {
   luas_hek: number; luas_dituai: number; peserta: number
   hasil_mt: number; mtan_hek: number; matlamat_setahun: number
   pct_setahun: number; pendapatan: number; kos: number; untung_rugi: number
+  negeri?: string | null; wilayah?: string | null
 }
 
 export type PG = {
@@ -34,6 +82,7 @@ export type PG = {
   luas_hek: number; luas_ditoreh: number; peserta: number
   hasil_kg: number; kg_hek: number; matlamat_setahun: number
   pct_setahun: number; pendapatan: number; kos: number; untung_rugi: number
+  negeri?: string | null; wilayah?: string | null
 }
 
 export type BulanData = { kod: string; nama: string; sawit: PS[]; getah: PG[] }
@@ -53,6 +102,8 @@ function rowToPS(r: HasilRow): PS {
     pendapatan: r.pendapatan,
     kos: r.kos,
     untung_rugi: r.untung_rugi,
+    negeri: r.negeri,
+    wilayah: r.wilayah,
   }
 }
 
@@ -71,10 +122,12 @@ function rowToPG(r: HasilRow): PG {
     pendapatan: r.pendapatan,
     kos: r.kos,
     untung_rugi: r.untung_rugi,
+    negeri: r.negeri,
+    wilayah: r.wilayah,
   }
 }
 
-function groupByMonth(rows: HasilRow[]): BulanData[] {
+export function groupByMonth(rows: HasilRow[]): BulanData[] {
   const map = new Map<string, BulanData>()
   for (const row of rows) {
     if (!map.has(row.kod_bulan)) {
@@ -92,7 +145,30 @@ function groupByMonth(rows: HasilRow[]): BulanData[] {
   return Array.from(map.values()).sort((a, b) => a.kod.localeCompare(b.kod))
 }
 
-export function useHasil() {
+export function getProjekList(data: BulanData[], jenis: "sawit" | "getah"): string[] {
+  const names = new Set<string>()
+  data.forEach(b => {
+    if (jenis === "sawit") b.sawit.forEach(p => names.add(p.nama))
+    else b.getah.forEach(p => names.add(p.nama))
+  })
+  return Array.from(names).sort()
+}
+
+export function findSawitByNama(data: BulanData[], nama: string) {
+  return data.map(b => ({
+    bulan: b.nama.split(" ")[0].substring(0, 3),
+    ...(b.sawit.find(p => p.nama === nama) || {}),
+  })) as ({ bulan: string } & Partial<PS>)[]
+}
+
+export function findGetahByNama(data: BulanData[], nama: string) {
+  return data.map(b => ({
+    bulan: b.nama.split(" ")[0].substring(0, 3),
+    ...(b.getah.find(p => p.nama === nama) || {}),
+  })) as ({ bulan: string } & Partial<PG>)[]
+}
+
+export function useHasil(opts?: { token?: string }) {
   const [data, setData] = useState<BulanData[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -100,6 +176,14 @@ export function useHasil() {
     setLoading(true)
     try {
       const supabase = createClient()
+      
+      if (opts?.token) {
+        // Token mode: validate token server-side, but we can't do that from client hook
+        // So token mode should only be used server-side. This is a client hook limitation.
+        console.warn("Token mode called from client hook — this should be server-side only")
+        return
+      }
+      
       const { data: rows, error } = await supabase
         .from("hasil_bulanan")
         .select("*")

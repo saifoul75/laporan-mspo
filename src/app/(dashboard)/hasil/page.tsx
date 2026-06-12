@@ -1,57 +1,45 @@
 "use client"
-import { useState, useMemo } from "react"
-import { useHasil, getLatestMonth, type BulanData, type PS, type PG } from "@/lib/supabase/useHasil"
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts"
-
-function fmt(n: number | undefined | null, d = 0): string {
-  if (n == null || isNaN(n)) return "—"
-  return n.toLocaleString("ms-MY", { minimumFractionDigits: d, maximumFractionDigits: d })
-}
-
-function getProjekList(data: BulanData[], jenis: "sawit" | "getah"): string[] {
-  const names = new Set<string>()
-  data.forEach(b => {
-    if (jenis === "sawit") b.sawit.forEach(p => names.add(p.nama))
-    else b.getah.forEach(p => names.add(p.nama))
-  })
-  return Array.from(names).sort()
-}
-
-function findSawitByNama(data: BulanData[], nama: string) {
-  return data.map(b => ({
-    bulan: b.nama.split(" ")[0].substring(0, 3),
-    ...(b.sawit.find(p => p.nama === nama) || {}),
-  })) as ({ bulan: string } & Partial<PS>)[]
-}
-
-function findGetahByNama(data: BulanData[], nama: string) {
-  return data.map(b => ({
-    bulan: b.nama.split(" ")[0].substring(0, 3),
-    ...(b.getah.find(p => p.nama === nama) || {}),
-  })) as ({ bulan: string } & Partial<PG>)[]
-}
+import { useEffect } from "react"
+import { useHasil } from "@/lib/supabase/useHasil"
+import { DashboardAwam } from "@/components/hasil/dashboard-awam"
 
 export default function HasilPage() {
   const { data: dataBulanan, loading } = useHasil()
-  const [pilihProjek, setPilihProjek] = useState("")
-  const [jenisProjek, setJenisProjek] = useState<"sawit" | "getah">("sawit")
 
-  const projekList = useMemo(() => getProjekList(dataBulanan, jenisProjek), [dataBulanan, jenisProjek])
-  const latest = useMemo(() => getLatestMonth(dataBulanan), [dataBulanan])
+  useEffect(() => {
+    // Disable right-click
+    const handleContextMenu = (e: MouseEvent) => e.preventDefault()
+    // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.key === "F12" ||
+        (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) ||
+        (e.ctrlKey && e.key === "u")
+      ) {
+        e.preventDefault()
+      }
+    }
+    document.addEventListener("contextmenu", handleContextMenu)
+    document.addEventListener("keydown", handleKeyDown)
+    return () => {
+      document.removeEventListener("contextmenu", handleContextMenu)
+      document.removeEventListener("keydown", handleKeyDown)
+    }
+  }, [])
 
   if (loading) {
     return (
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold">Ringkasan Prestasi Hasil</h1>
-          <p className="text-muted-foreground text-sm mt-1">Memuat data...</p>
+          <p className="text-gray-500 text-sm mt-1">Memuat data...</p>
         </div>
-        <div className="grid grid-cols-4 gap-4">
-          {[1,2,3,4].map(i => (
-            <div key={i} className="bg-card border-l-4 border-muted rounded-xl p-4 shadow-sm">
-              <div className="h-3 bg-muted animate-pulse rounded w-3/4 mb-2" />
-              <div className="h-6 bg-muted animate-pulse rounded w-1/2 mb-2" />
-              <div className="h-3 bg-muted animate-pulse rounded w-2/3" />
+        <div className="grid grid-cols-2 gap-4">
+          {[1, 2].map(i => (
+            <div key={i} className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+              <div className="h-3 bg-gray-200 animate-pulse rounded w-3/4 mb-2" />
+              <div className="h-8 bg-gray-200 animate-pulse rounded w-1/2 mb-2" />
+              <div className="h-3 bg-gray-200 animate-pulse rounded w-2/3" />
             </div>
           ))}
         </div>
@@ -59,348 +47,17 @@ export default function HasilPage() {
     )
   }
 
-  if (!latest || dataBulanan.length === 0) {
-    return (
-      <div className="space-y-6">
-        <h1 className="text-2xl font-bold">Ringkasan Prestasi Hasil</h1>
-        <div className="bg-card rounded-xl border p-8 text-center">
-          <p className="text-muted-foreground">Tiada data hasil. Sila upload di halaman Admin Upload.</p>
-        </div>
-      </div>
-    )
-  }
-
-  const sawit = latest.sawit
-  const getah = latest.getah
-
-  const ts_hasil  = sawit.reduce((a, p) => a + (p.hasil_mt ?? 0), 0)
-  const ts_pend   = sawit.reduce((a, p) => a + (p.pendapatan ?? 0), 0)
-  const ts_ur     = sawit.reduce((a, p) => a + (p.untung_rugi ?? 0), 0)
-  const valid     = sawit.filter(p => (p.pct_setahun ?? 0) > 0)
-  const avg_pct   = valid.length ? valid.reduce((a, p) => a + p.pct_setahun, 0) / valid.length : 0
-  const tg_hasil  = getah.reduce((a, p) => a + (p.hasil_kg ?? 0), 0)
-  const tg_ur     = getah.reduce((a, p) => a + (p.untung_rugi ?? 0), 0)
-
-  const projekSawit = pilihProjek ? findSawitByNama(dataBulanan, pilihProjek) : []
-  const projekGetah = pilihProjek ? findGetahByNama(dataBulanan, pilihProjek) : []
-  const projekSawitValid = projekSawit.filter(p => p.hasil_mt != null)
-  const projekGetahValid = projekGetah.filter(p => p.hasil_kg != null)
-  const sawitSetakatTerkini = projekSawitValid[projekSawitValid.length - 1]
-  const getahSetakatTerkini = projekGetahValid[projekGetahValid.length - 1]
-  const chartData = jenisProjek === "sawit"
-    ? projekSawit.filter(p => p.hasil_mt != null).map(p => ({ bulan: p.bulan, hasil: p.hasil_mt, untung: p.untung_rugi }))
-    : projekGetah.filter(p => p.hasil_kg != null).map(p => ({ bulan: p.bulan, hasil: p.hasil_kg, untung: p.untung_rugi }))
-
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Ringkasan Prestasi Hasil</h1>
-          <p className="text-muted-foreground text-sm mt-1">Semua projek sawit &amp; getah — setakat {latest.nama}</p>
-        </div>
-        <span className="bg-[#D4A017] text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full">{latest.nama.toUpperCase()}</span>
+      <div>
+        <h1 className="text-2xl font-bold">Ringkasan Prestasi Hasil</h1>
+        <p className="text-gray-500 text-sm mt-1">Semua projek sawit &amp; getah</p>
       </div>
-
-      {/* Cards Ringkasan */}
-      <div className="grid grid-cols-4 gap-4">
-        {[
-          { label: "Hasil Sawit BTS", val: fmt(ts_hasil,1)+" MT", sub: sawit.length+" projek sawit", border: "border-[#C0182A]", vc: "" },
-          { label: "% Capai Setahun", val: fmt(avg_pct,1)+"%", sub: "Purata semua projek", border: "border-blue-500", vc: avg_pct >= 25 ? "text-blue-600" : avg_pct >= 20 ? "text-green-600" : "text-red-600" },
-          { label: "U/R Sawit", val: "RM "+fmt(ts_ur), sub: "Pendapatan RM "+fmt(ts_pend), border: "border-green-600", vc: ts_ur >= 0 ? "text-green-600" : "text-red-600" },
-          { label: "Hasil Getah", val: fmt(tg_hasil)+" KG", sub: "U/R: RM "+fmt(tg_ur), border: "border-[#D4A017]", vc: tg_ur >= 0 ? "text-green-600" : "text-red-600" },
-        ].map((c, i) => (
-          <div key={i} className={`bg-card border-l-4 ${c.border} rounded-xl p-4 shadow-sm`}>
-            <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{c.label}</div>
-            <div className={`text-2xl font-bold mt-1 mb-1 ${c.vc}`}>{c.val}</div>
-            <div className="text-[11px] text-muted-foreground">{c.sub}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Jadual Pecahan Bulanan */}
-      <div className="bg-card rounded-xl border p-5">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground mb-3">Pecahan Hasil Mengikut Bulan</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-800 text-white">
-              <tr>
-                {["Bulan","Bil Projek Sawit","Hasil BTS (MT)","U/R Sawit (RM)","Bil Projek Getah","Hasil Getah (KG)","U/R Getah (RM)"].map((h,i) => (
-                  <th key={i} className={`py-2.5 px-3 text-[11px] font-semibold uppercase whitespace-nowrap ${i > 1 ? "text-right" : "text-left"}`}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {dataBulanan.map((b, i) => {
-                const sHasil = b.sawit.reduce((a,p) => a + (p.hasil_mt ?? 0), 0)
-                const sUr = b.sawit.reduce((a,p) => a + (p.untung_rugi ?? 0), 0)
-                const gHasil = b.getah.reduce((a,p) => a + (p.hasil_kg ?? 0), 0)
-                const gUr = b.getah.reduce((a,p) => a + (p.untung_rugi ?? 0), 0)
-                return (
-                  <tr key={i} className="border-b border-border/50 hover:bg-muted/30">
-                    <td className="px-3 py-2 font-semibold">{b.nama}</td>
-                    <td className="px-3 py-2 text-right">{b.sawit.length}</td>
-                    <td className="px-3 py-2 text-right font-bold text-[#C0182A]">{fmt(sHasil, 1)}</td>
-                    <td className={`px-3 py-2 text-right font-bold ${sUr >= 0 ? "text-green-600" : "text-red-600"}`}>{sUr !== 0 ? "RM " + fmt(sUr) : "—"}</td>
-                    <td className="px-3 py-2 text-right">{b.getah.length}</td>
-                    <td className="px-3 py-2 text-right font-bold text-[#D4A017]">{fmt(gHasil)}</td>
-                    <td className={`px-3 py-2 text-right font-bold ${gUr >= 0 ? "text-green-600" : "text-red-600"}`}>{gUr !== 0 ? "RM " + fmt(gUr) : "—"}</td>
-                  </tr>
-                )
-              })}
-              {dataBulanan.length > 1 && (() => {
-                const totSawitHasil = dataBulanan.reduce((a,b) => a + b.sawit.reduce((s,p) => s + (p.hasil_mt ?? 0), 0), 0)
-                const totSawitUr = dataBulanan.reduce((a,b) => a + b.sawit.reduce((s,p) => s + (p.untung_rugi ?? 0), 0), 0)
-                const totGetahHasil = dataBulanan.reduce((a,b) => a + b.getah.reduce((s,p) => s + (p.hasil_kg ?? 0), 0), 0)
-                const totGetahUr = dataBulanan.reduce((a,b) => a + b.getah.reduce((s,p) => s + (p.untung_rugi ?? 0), 0), 0)
-                return (
-                  <tr className="bg-muted/80 font-bold">
-                    <td className="px-3 py-2">JUMLAH</td>
-                    <td className="px-3 py-2 text-right">—</td>
-                    <td className="px-3 py-2 text-right text-[#C0182A]">{fmt(totSawitHasil, 1)}</td>
-                    <td className={`px-3 py-2 text-right ${totSawitUr >= 0 ? "text-green-600" : "text-red-600"}`}>{"RM " + fmt(totSawitUr)}</td>
-                    <td className="px-3 py-2 text-right">—</td>
-                    <td className="px-3 py-2 text-right text-[#D4A017]">{fmt(totGetahHasil)}</td>
-                    <td className={`px-3 py-2 text-right ${totGetahUr >= 0 ? "text-green-600" : "text-red-600"}`}>{"RM " + fmt(totGetahUr)}</td>
-                  </tr>
-                )
-              })()}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Dropdown Pilih Projek */}
-      <div className="bg-card rounded-xl border p-5">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground mb-3">📋 Pilih Projek — Lihat Hasil Mengikut Bulan</h2>
-        <div className="flex gap-3 items-center flex-wrap">
-          <select
-            value={pilihProjek}
-            onChange={e => setPilihProjek(e.target.value)}
-            className="border rounded-lg px-3 py-2 text-sm bg-background flex-1 min-w-[300px] focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
-          >
-            <option value="">-- Pilih projek --</option>
-            {projekList.map(n => (
-              <option key={n} value={n}>{n}</option>
-            ))}
-          </select>
-          <div className="flex gap-1 bg-muted p-1 rounded-lg">
-            <button
-              onClick={() => { setJenisProjek("sawit"); setPilihProjek("") }}
-              className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors ${jenisProjek === "sawit" ? "bg-[#C0182A] text-white shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              Sawit
-            </button>
-            <button
-              onClick={() => { setJenisProjek("getah"); setPilihProjek("") }}
-              className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors ${jenisProjek === "getah" ? "bg-[#D4A017] text-slate-900 shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              Getah
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Jadual Hasil Projek Dipilih */}
-      {pilihProjek && (
-        <div className="bg-card rounded-xl border p-5 space-y-5">
-          <div>
-            <h3 className="font-bold text-lg">{pilihProjek}</h3>
-            <p className="text-sm text-muted-foreground">Prestasi mengikut bulan — {jenisProjek === "sawit" ? "Hasil BTS (MT)" : "Hasil (KG)"}</p>
-          </div>
-
-          {jenisProjek === "sawit" ? (
-            <>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-slate-800 text-white">
-                    <tr>
-                      {["Bulan","POL/PN","Luas (Hek)","Luas Dituai","Peserta","Hasil BTS (MT)","MT/HeK Dituai","Matlamat Setahun","% Capai","Pendapatan (RM)","Kos (RM)","U/R (RM)"].map((h,i) => (
-                        <th key={i} className={`py-2.5 px-3 text-[11px] font-semibold uppercase whitespace-nowrap ${i > 1 ? "text-right" : "text-left"}`}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {projekSawit.map((p, i) => {
-                      const ur = p.untung_rugi ?? 0
-                      return (
-                        <tr key={i} className="border-b border-border/50 hover:bg-muted/30">
-                          <td className="px-3 py-2 font-semibold">{p.bulan}</td>
-                          <td className="px-3 py-2 text-xs">{p.pol_pn ?? "—"}</td>
-                          <td className="px-3 py-2 text-right">{p.luas_hek != null ? fmt(p.luas_hek,2) : "—"}</td>
-                          <td className="px-3 py-2 text-right">{p.luas_dituai != null ? fmt(p.luas_dituai,2) : "—"}</td>
-                          <td className="px-3 py-2 text-right">{p.peserta ?? "—"}</td>
-                          <td className="px-3 py-2 text-right font-bold text-[#C0182A]">{p.hasil_mt != null ? fmt(p.hasil_mt,2) : "—"}</td>
-                          <td className="px-3 py-2 text-right font-semibold text-blue-700">{(p.hasil_mt != null && p.luas_dituai) ? fmt(p.hasil_mt / p.luas_dituai,2) : "—"}</td>
-                          <td className="px-3 py-2 text-right">{p.matlamat_setahun != null ? fmt(p.matlamat_setahun,1) : "—"}</td>
-                          <td className="px-3 py-2 text-right">
-                            {p.pct_setahun != null ? (
-                              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${p.pct_setahun >= 25 ? "bg-blue-100 text-blue-800" : p.pct_setahun >= 20 ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}`}>
-                                {fmt(p.pct_setahun,1)}%
-                              </span>
-                            ) : "—"}
-                          </td>
-                          <td className="px-3 py-2 text-right">{p.pendapatan != null ? fmt(p.pendapatan) : "—"}</td>
-                          <td className="px-3 py-2 text-right">{p.kos != null ? fmt(p.kos) : "—"}</td>
-                          <td className={`px-3 py-2 text-right font-bold ${ur >= 0 ? "text-green-600" : "text-red-600"}`}>
-                            {ur !== 0 ? "RM "+fmt(ur) : "—"}
-                          </td>
-                        </tr>
-                      )
-                    })}
-                    {projekSawitValid.length > 1 && (
-                      <tr className="bg-muted/80 font-bold">
-                        <td className="px-3 py-2">SETAKAT {sawitSetakatTerkini?.bulan?.toUpperCase()}</td>
-                        <td className="px-3 py-2 text-xs">{sawitSetakatTerkini?.pol_pn ?? "—"}</td>
-                        <td className="px-3 py-2 text-right">{sawitSetakatTerkini?.luas_hek != null ? fmt(sawitSetakatTerkini.luas_hek,2) : "—"}</td>
-                        <td className="px-3 py-2 text-right">{sawitSetakatTerkini?.luas_dituai != null ? fmt(sawitSetakatTerkini.luas_dituai,2) : "—"}</td>
-                        <td className="px-3 py-2 text-right">{sawitSetakatTerkini?.peserta ?? "—"}</td>
-                        <td className="px-3 py-2 text-right text-[#C0182A]">{sawitSetakatTerkini?.hasil_mt != null ? fmt(sawitSetakatTerkini.hasil_mt,2) : "—"}</td>
-                        <td className="px-3 py-2 text-right font-semibold text-blue-700">{(sawitSetakatTerkini?.hasil_mt != null && sawitSetakatTerkini?.luas_dituai) ? fmt(sawitSetakatTerkini.hasil_mt / sawitSetakatTerkini.luas_dituai,2) : "—"}</td>
-                        <td className="px-3 py-2 text-right">{sawitSetakatTerkini?.matlamat_setahun != null ? fmt(sawitSetakatTerkini.matlamat_setahun,1) : "—"}</td>
-                        <td className="px-3 py-2 text-right">
-                          {sawitSetakatTerkini?.pct_setahun != null ? (
-                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${sawitSetakatTerkini.pct_setahun >= 25 ? "bg-blue-100 text-blue-800" : sawitSetakatTerkini.pct_setahun >= 20 ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}`}>
-                              {fmt(sawitSetakatTerkini.pct_setahun,1)}%
-                            </span>
-                          ) : "—"}
-                        </td>
-                        <td className="px-3 py-2 text-right">{sawitSetakatTerkini?.pendapatan != null ? fmt(sawitSetakatTerkini.pendapatan) : "—"}</td>
-                        <td className="px-3 py-2 text-right">{sawitSetakatTerkini?.kos != null ? fmt(sawitSetakatTerkini.kos) : "—"}</td>
-                        <td className={`px-3 py-2 text-right ${(sawitSetakatTerkini?.untung_rugi ?? 0) >= 0 ? "text-green-600" : "text-red-600"}`}>
-                          {sawitSetakatTerkini?.untung_rugi != null ? "RM "+fmt(sawitSetakatTerkini.untung_rugi) : "—"}
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
-              {chartData.length > 0 && (
-                <div className="grid grid-cols-2 gap-5 mt-4">
-                  <div className="bg-muted/30 rounded-lg p-4">
-                    <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-3">Trend Hasil BTS (MT)</h4>
-                    <ResponsiveContainer width="100%" height={200}>
-                      <BarChart data={chartData}>
-                        <XAxis dataKey="bulan" tick={{fontSize:12}}/>
-                        <YAxis tick={{fontSize:10}}/>
-                        <Tooltip formatter={(v)=>Number(v ?? 0).toLocaleString("ms-MY",{maximumFractionDigits:2})+" MT"}/>
-                        <Bar dataKey="hasil" fill="#C0182A" radius={[4,4,0,0]} name="Hasil MT"/>
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                  <div className="bg-muted/30 rounded-lg p-4">
-                    <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-3">Trend Untung/Rugi (RM)</h4>
-                    <ResponsiveContainer width="100%" height={200}>
-                      <BarChart data={chartData}>
-                        <XAxis dataKey="bulan" tick={{fontSize:12}}/>
-                        <YAxis tick={{fontSize:10}}/>
-                        <Tooltip formatter={(v)=>"RM "+Number(v ?? 0).toLocaleString("ms-MY",{maximumFractionDigits:0})}/>
-                        <Bar dataKey="untung" name="U/R (RM)">
-                          {chartData.map((d,i)=><Cell key={i} fill={(d.untung ?? 0) >= 0 ? "#16a34a" : "#dc2626"}/>)}
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-              )}
-            </>
-          ) : (
-            <>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-slate-800 text-white">
-                    <tr>
-                      {["Bulan","POL/PN","Luas (Hek)","Luas Ditoreh","Peserta","Hasil (KG)","KG/HeK Ditoreh","Matlamat Setahun","% Capai","Pendapatan (RM)","Kos (RM)","U/R (RM)"].map((h,i) => (
-                        <th key={i} className={`py-2.5 px-3 text-[11px] font-semibold uppercase whitespace-nowrap ${i > 1 ? "text-right" : "text-left"}`}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {projekGetah.map((p, i) => {
-                      const ur = p.untung_rugi ?? 0
-                      return (
-                        <tr key={i} className="border-b border-border/50 hover:bg-muted/30">
-                          <td className="px-3 py-2 font-semibold">{p.bulan}</td>
-                          <td className="px-3 py-2 text-xs">{p.pol_pn ?? "—"}</td>
-                          <td className="px-3 py-2 text-right">{p.luas_hek != null ? fmt(p.luas_hek,2) : "—"}</td>
-                          <td className="px-3 py-2 text-right">{p.luas_ditoreh != null ? fmt(p.luas_ditoreh,2) : "—"}</td>
-                          <td className="px-3 py-2 text-right">{p.peserta ?? "—"}</td>
-                          <td className="px-3 py-2 text-right font-bold text-[#D4A017]">{p.hasil_kg != null ? fmt(p.hasil_kg) : "—"}</td>
-                          <td className="px-3 py-2 text-right font-semibold text-blue-700">{(p.hasil_kg != null && p.luas_ditoreh) ? fmt(p.hasil_kg / p.luas_ditoreh,2) : "—"}</td>
-                          <td className="px-3 py-2 text-right">{p.matlamat_setahun != null ? fmt(p.matlamat_setahun) : "—"}</td>
-                          <td className="px-3 py-2 text-right">
-                            {p.pct_setahun != null ? (
-                              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${p.pct_setahun >= 25 ? "bg-blue-100 text-blue-800" : p.pct_setahun >= 20 ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}`}>
-                                {fmt(p.pct_setahun,1)}%
-                              </span>
-                            ) : "—"}
-                          </td>
-                          <td className="px-3 py-2 text-right">{p.pendapatan != null ? fmt(p.pendapatan) : "—"}</td>
-                          <td className="px-3 py-2 text-right">{p.kos != null ? fmt(p.kos) : "—"}</td>
-                          <td className={`px-3 py-2 text-right font-bold ${ur >= 0 ? "text-green-600" : "text-red-600"}`}>
-                            {ur !== 0 ? "RM "+fmt(ur) : "—"}
-                          </td>
-                        </tr>
-                      )
-                    })}
-                    {projekGetahValid.length > 1 && (
-                      <tr className="bg-muted/80 font-bold">
-                        <td className="px-3 py-2">SETAKAT {getahSetakatTerkini?.bulan?.toUpperCase()}</td>
-                        <td className="px-3 py-2 text-xs">{getahSetakatTerkini?.pol_pn ?? "—"}</td>
-                        <td className="px-3 py-2 text-right">{getahSetakatTerkini?.luas_hek != null ? fmt(getahSetakatTerkini.luas_hek,2) : "—"}</td>
-                        <td className="px-3 py-2 text-right">{getahSetakatTerkini?.luas_ditoreh != null ? fmt(getahSetakatTerkini.luas_ditoreh,2) : "—"}</td>
-                        <td className="px-3 py-2 text-right">{getahSetakatTerkini?.peserta ?? "—"}</td>
-                        <td className="px-3 py-2 text-right text-[#D4A017]">{getahSetakatTerkini?.hasil_kg != null ? fmt(getahSetakatTerkini.hasil_kg) : "—"}</td>
-                        <td className="px-3 py-2 text-right font-semibold text-blue-700">{(getahSetakatTerkini?.hasil_kg != null && getahSetakatTerkini?.luas_ditoreh) ? fmt(getahSetakatTerkini.hasil_kg / getahSetakatTerkini.luas_ditoreh,2) : "—"}</td>
-                        <td className="px-3 py-2 text-right">{getahSetakatTerkini?.matlamat_setahun != null ? fmt(getahSetakatTerkini.matlamat_setahun) : "—"}</td>
-                        <td className="px-3 py-2 text-right">
-                          {getahSetakatTerkini?.pct_setahun != null ? (
-                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${getahSetakatTerkini.pct_setahun >= 25 ? "bg-blue-100 text-blue-800" : getahSetakatTerkini.pct_setahun >= 20 ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}`}>
-                              {fmt(getahSetakatTerkini.pct_setahun,1)}%
-                            </span>
-                          ) : "—"}
-                        </td>
-                        <td className="px-3 py-2 text-right">{getahSetakatTerkini?.pendapatan != null ? fmt(getahSetakatTerkini.pendapatan) : "—"}</td>
-                        <td className="px-3 py-2 text-right">{getahSetakatTerkini?.kos != null ? fmt(getahSetakatTerkini.kos) : "—"}</td>
-                        <td className={`px-3 py-2 text-right ${(getahSetakatTerkini?.untung_rugi ?? 0) >= 0 ? "text-green-600" : "text-red-600"}`}>
-                          {getahSetakatTerkini?.untung_rugi != null ? "RM "+fmt(getahSetakatTerkini.untung_rugi) : "—"}
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
-              {chartData.length > 0 && (
-                <div className="grid grid-cols-2 gap-5 mt-4">
-                  <div className="bg-muted/30 rounded-lg p-4">
-                    <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-3">Trend Hasil Getah (KG)</h4>
-                    <ResponsiveContainer width="100%" height={200}>
-                      <BarChart data={chartData}>
-                        <XAxis dataKey="bulan" tick={{fontSize:12}}/>
-                        <YAxis tick={{fontSize:10}}/>
-                        <Tooltip formatter={(v)=>Number(v ?? 0).toLocaleString("ms-MY",{maximumFractionDigits:0})+" KG"}/>
-                        <Bar dataKey="hasil" fill="#D4A017" radius={[4,4,0,0]} name="Hasil KG"/>
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                  <div className="bg-muted/30 rounded-lg p-4">
-                    <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-3">Trend Untung/Rugi (RM)</h4>
-                    <ResponsiveContainer width="100%" height={200}>
-                      <BarChart data={chartData}>
-                        <XAxis dataKey="bulan" tick={{fontSize:12}}/>
-                        <YAxis tick={{fontSize:10}}/>
-                        <Tooltip formatter={(v)=>"RM "+Number(v ?? 0).toLocaleString("ms-MY",{maximumFractionDigits:0})}/>
-                        <Bar dataKey="untung" name="U/R (RM)">
-                          {chartData.map((d,i)=><Cell key={i} fill={(d.untung ?? 0) >= 0 ? "#16a34a" : "#dc2626"}/>)}
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
+      {dataBulanan.length > 0 ? (
+        <DashboardAwam data={dataBulanan} />
+      ) : (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+          <p className="text-gray-500">Tiada data hasil buat masa ini.</p>
         </div>
       )}
     </div>
