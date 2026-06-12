@@ -3,5 +3,11 @@
 -- Membenarkan anonymous users membaca hasil_bulanan
 -- =====================================================
 
-create policy "Public boleh baca" on public.hasil_bulanan
-  for select using (true);
+-- Drop existing restrictive policies if needed
+DROP POLICY IF EXISTS "Public boleh baca" ON public.hasil_bulanan;
+
+-- Create policy allowing anonymous (role = 'anon') to read
+CREATE POLICY "Anon dapat baca" ON public.hasil_bulanan
+  FOR SELECT
+  USING (auth.role() = 'anon');
+
