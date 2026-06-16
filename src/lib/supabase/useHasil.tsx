@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/client"
 
 const PO_NEGERI: Record<string, string> = {
   BESUT: "Terengganu", DUNGUN: "Terengganu", "KUALA BERANG": "Terengganu",
-  GERIK: "Perak", "KG GAJAH": "Perak", "KUALA KANGSAR": "Perak", MANJUNG: "Perak", SELAMA: "Perak",
+  GERIK: "Perak", "KG.GAJAH": "Perak", "KUALA KANGSAR": "Perak", MANJUNG: "Perak", SELAMA: "Perak",
   KUANTAN: "Pahang", LIPIS: "Pahang", PEKAN: "Pahang", RAUB: "Pahang", ROMPIN: "Pahang",
   MACHANG: "Kelantan",
   KEDAH: "Kedah", SIK: "Kedah",
