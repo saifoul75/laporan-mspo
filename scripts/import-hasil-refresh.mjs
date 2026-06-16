@@ -124,11 +124,15 @@ function bulanan(p, monthKey) {
   const order = BULAN_KEY.indexOf(monthKey);
   const idx = getCumulIdx(p, monthKey);
   if (idx === undefined) return 0;
-  const cur = Number(p.raw[idx]) || 0;
+  const rawVal = p.raw[idx];
+  if (rawVal === null || rawVal === undefined || rawVal === "") return 0;
+  const cur = Number(rawVal) || 0;
   if (order === 0) return cur;
   const prevIdx = getCumulIdx(p, BULAN_KEY[order - 1]);
   if (prevIdx === undefined) return cur;
-  const prev = Number(p.raw[prevIdx]) || 0;
+  const prevRaw = p.raw[prevIdx];
+  if (prevRaw === null || prevRaw === undefined || prevRaw === "") return 0;
+  const prev = Number(prevRaw) || 0;
   return cur - prev;
 }
 
