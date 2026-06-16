@@ -19,21 +19,37 @@ export default async function Page({
   }
 
   const sb = createServiceClient()
-  const { data, error } = await sb
-    .from("hasil_bulanan")
-    .select("*")
-    .order("kod_bulan", { ascending: true })
+  const PAGE = 1000
+  const allRows: any[] = []
+  let from = 0
+  let hasMore = true
 
-  if (error) {
-    console.error("Failed to fetch hasil_bulanan:", error)
-    return (
-      <div className="p-8 text-center">
-        <p className="text-red-600">Ralat masa fetch data. Sila hubungi pentadbir.</p>
-      </div>
-    )
+  while (hasMore) {
+    const { data, error } = await sb
+      .from("hasil_bulanan")
+      .select("*")
+      .order("tahun", { ascending: true })
+      .order("bulan", { ascending: true })
+      .range(from, from + PAGE - 1)
+
+    if (error) {
+      console.error("Failed to fetch hasil_bulanan:", error)
+      return (
+        <div className="p-8 text-center">
+          <p className="text-red-600">Ralat masa fetch data. Sila hubungi pentadbir.</p>
+        </div>
+      )
+    }
+    if (!data || data.length === 0) {
+      hasMore = false
+    } else {
+      allRows.push(...data)
+      from += PAGE
+      if (data.length < PAGE) hasMore = false
+    }
   }
 
-  const bulanData = groupByMonth(data || [])
+  const bulanData = groupByMonth(allRows)
 
   return (
     <div className="max-w-7xl mx-auto p-6">
