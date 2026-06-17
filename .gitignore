@@ -41,5 +41,3 @@ next-env.d.ts
 
 # generated SW version (auto by prebuild/predev)
 public/sw-version.js
-
-.vercel

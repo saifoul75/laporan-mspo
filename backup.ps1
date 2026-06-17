@@ -14,7 +14,7 @@
 # Backup termasuk:
 #   - Semua source code (.tsx, .ts, .sql, dll)
 #   - Migration files
-#   - PROGRESS.md, TATACARA.md
+#   - PROGRESS.md, TATACARA.md (sekarang di docs/)
 #   - Snapshot data DB (15 tables)
 #
 # Backup TAK termasuk:

@@ -5,7 +5,7 @@ const file = readFileSync('supabase/migrations/0017_seed_hasil_bulanan.sql', 'ut
 const header = file.split('\n').filter(l => l.startsWith('--')).join('\n');
 const lines = file.split('\n').filter(l => l.startsWith('insert'));
 
-const dir = join('supabase', 'seed-chunks');
+const dir = join('supabase', 'seeds', 'chunks');
 mkdirSync(dir, { recursive: true });
 
 const grouped = {};

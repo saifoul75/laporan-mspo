@@ -1,11 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import { readFileSync } from "node:fs";
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-if (!url || !key) { console.error("env missing"); process.exit(1); }
-
-const sb = createClient(url, key, { auth: { persistSession: false } });
+const sb = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
+  { auth: { persistSession: false } }
+);
 
 const PO_WILAYAH = {
   'GERIK':'UTARA','KEDAH':'UTARA','KG.GAJAH':'UTARA','KUALA KANGSAR':'UTARA',
@@ -22,14 +22,13 @@ const BULAN_NAMA = ['','Januari','Februari','Mac','April','Mei','Jun','Julai','O
 
 const json = JSON.parse(readFileSync("src/data/hasil-bulanan.json", "utf8"));
 
-console.log("Ambil master 2026 dari DB untuk tentukan in_master_2026...");
+console.log("Ambil master 2026 dari DB...");
 const { data: masterSawit } = await sb.from("projek_master_2026").select("nama_projek").eq("jenis", "SAWIT");
 const { data: masterGetah } = await sb.from("projek_master_2026").select("nama_projek").eq("jenis", "GETAH");
 const masterSet = {
   SAWIT: new Set((masterSawit || []).map(r => r.nama_projek.toUpperCase().trim())),
   GETAH: new Set((masterGetah || []).map(r => r.nama_projek.toUpperCase().trim())),
 };
-console.log(`  Master SAWIT: ${masterSet.SAWIT.size}, Master GETAH: ${masterSet.GETAH.size}`);
 
 const semuaBaris = [];
 for (const bulan of json.bulan) {
@@ -75,10 +74,7 @@ for (const bulan of json.bulan) {
   }
 }
 
-console.log(`\nJumlah baris untuk insert: ${semuaBaris.length}`);
-
-const inMasterCount = semuaBaris.filter(r => r.in_master_2026).length;
-console.log(`In master 2026: ${inMasterCount} (${((inMasterCount / semuaBaris.length) * 100).toFixed(1)}%)`);
+console.log(`Jumlah baris untuk insert: ${semuaBaris.length}`);
 
 const BATCH = 500;
 let ok = 0;

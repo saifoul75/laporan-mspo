@@ -24,32 +24,32 @@ const NEGERI_WILAYAH: Record<string, string> = {
 }
 
 export function getNegeri(row: HasilRow): string {
-  return PO_NEGERI[row.pusat_operasi] || "Lain-lain"
+  return PO_NEGERI[row.pol_pn] || "Lain-lain"
 }
 
 export function getWilayah(row: HasilRow): string {
-  return row.wilayah || NEGERI_WILAYAH[getNegeri(row)] || "Lain-lain"
+  if (row.wilayah) return row.wilayah.charAt(0).toUpperCase() + row.wilayah.slice(1).toLowerCase()
+  const n = getNegeri(row)
+  const w = NEGERI_WILAYAH[n]
+  if (w) return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
+  return "Lain-lain"
 }
 
 export type HasilRow = {
   id: number
   tahun: number
   bulan: number
-  bulan_nama: string
-  jenis: "SAWIT" | "GETAH"
-  pusat_operasi: string
-  pusat_operasi_master: string | null
-  pusat_operasi_final: string | null
-  wilayah: string | null
-  kategori: string | null
-  kategori_master: string | null
-  nama_projek: string
-  luas_kawasan_hek: number
-  luas_produktif_hek: number
-  bilangan_peserta: number
-  hasil: number
+  jenis: "sawit" | "getah"
+  pol_pn: string
+  nama: string
+  peserta: number
+  luas_hek: number
+  luas_operasi: number
   unit: string
-  in_master_2026: boolean
+  kod_bulan: string
+  nama_bulan: string
+  wilayah: string | null
+  hasil: number
 }
 
 export type PS = {
@@ -72,14 +72,14 @@ export type BulanData = { kod: string; nama: string; sawit: PS[]; getah: PG[] }
 
 function rowToPS(r: HasilRow): PS {
   return {
-    pol_pn: r.pusat_operasi,
+    pol_pn: r.pol_pn,
     bil: 0,
-    nama: r.nama_projek,
-    luas_hek: Number(r.luas_kawasan_hek) || 0,
-    luas_dituai: Number(r.luas_produktif_hek) || 0,
-    peserta: Number(r.bilangan_peserta) || 0,
+    nama: r.nama,
+    luas_hek: Number(r.luas_hek) || 0,
+    luas_dituai: Number(r.luas_operasi) || 0,
+    peserta: Number(r.peserta) || 0,
     hasil_mt: Number(r.hasil) || 0,
-    mtan_hek: Number(r.luas_produktif_hek) > 0 ? Number(r.hasil) / Number(r.luas_produktif_hek) : 0,
+    mtan_hek: Number(r.luas_operasi) > 0 ? Number(r.hasil) / Number(r.luas_operasi) : 0,
     matlamat_setahun: 0,
     pct_setahun: 0,
     pendapatan: 0,
@@ -91,14 +91,14 @@ function rowToPS(r: HasilRow): PS {
 
 function rowToPG(r: HasilRow): PG {
   return {
-    pol_pn: r.pusat_operasi,
+    pol_pn: r.pol_pn,
     bil: 0,
-    nama: r.nama_projek,
-    luas_hek: Number(r.luas_kawasan_hek) || 0,
-    luas_ditoreh: Number(r.luas_produktif_hek) || 0,
-    peserta: Number(r.bilangan_peserta) || 0,
+    nama: r.nama,
+    luas_hek: Number(r.luas_hek) || 0,
+    luas_ditoreh: Number(r.luas_operasi) || 0,
+    peserta: Number(r.peserta) || 0,
     hasil_kg: Number(r.hasil) || 0,
-    kg_hek: Number(r.luas_produktif_hek) > 0 ? Number(r.hasil) / Number(r.luas_produktif_hek) : 0,
+    kg_hek: Number(r.luas_operasi) > 0 ? Number(r.hasil) / Number(r.luas_operasi) : 0,
     matlamat_setahun: 0,
     pct_setahun: 0,
     pendapatan: 0,
@@ -111,12 +111,12 @@ function rowToPG(r: HasilRow): PG {
 export function groupByMonth(rows: HasilRow[]): BulanData[] {
   const map = new Map<string, BulanData>()
   for (const row of rows) {
-    const key = `${row.tahun}-${String(row.bulan).padStart(2, "0")}`
+    const key = row.kod_bulan || `${row.tahun}-${String(row.bulan).padStart(2, "0")}`
     if (!map.has(key)) {
-      map.set(key, { kod: key, nama: row.bulan_nama, sawit: [], getah: [] })
+      map.set(key, { kod: key, nama: row.nama_bulan || key, sawit: [], getah: [] })
     }
     const month = map.get(key)!
-    if (row.jenis === "SAWIT") month.sawit.push(rowToPS(row))
+    if (row.jenis === "sawit") month.sawit.push(rowToPS(row))
     else month.getah.push(rowToPG(row))
   }
 
@@ -130,6 +130,11 @@ export function groupByMonth(rows: HasilRow[]): BulanData[] {
   return Array.from(map.values()).sort((a, b) => a.kod.localeCompare(b.kod))
 }
 
+function bulanSingkat(nama: string | null | undefined): string {
+  if (!nama) return ""
+  return nama.split(" ")[0]?.substring(0, 3) ?? ""
+}
+
 export function getProjekList(data: BulanData[], jenis: "sawit" | "getah"): string[] {
   const names = new Set<string>()
   data.forEach(b => {
@@ -141,14 +146,14 @@ export function getProjekList(data: BulanData[], jenis: "sawit" | "getah"): stri
 
 export function findSawitByNama(data: BulanData[], nama: string) {
   return data.map(b => ({
-    bulan: b.nama.split(" ")[0].substring(0, 3),
+    bulan: bulanSingkat(b.nama),
     ...(b.sawit.find(p => p.nama === nama) || {}),
   })) as ({ bulan: string } & Partial<PS>)[]
 }
 
 export function findGetahByNama(data: BulanData[], nama: string) {
   return data.map(b => ({
-    bulan: b.nama.split(" ")[0].substring(0, 3),
+    bulan: bulanSingkat(b.nama),
     ...(b.getah.find(p => p.nama === nama) || {}),
   })) as ({ bulan: string } & Partial<PG>)[]
 }
