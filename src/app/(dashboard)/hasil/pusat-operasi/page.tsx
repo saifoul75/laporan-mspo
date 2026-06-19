@@ -22,12 +22,6 @@ export default function HasilPustakOperasiPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (selectedPO) {
-      fetchData()
-    }
-  }, [selectedPO, selectedMode])
-
   const fetchData = async () => {
     try {
       setLoading(true)
@@ -51,6 +45,14 @@ export default function HasilPustakOperasiPage() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (selectedPO) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchData()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedPO, selectedMode])
 
   return (
     <div className="space-y-6">

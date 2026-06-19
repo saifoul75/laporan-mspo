@@ -130,7 +130,7 @@ export function DashboardAwam({ data: dataBulanan }: { data: BulanData[] }) {
 
   // Adaptive breakdown table
   const breakdownData = useMemo(() => {
-    let rows = filteredRows
+    const rows = filteredRows
     const groupByField = getGroupingField(filters)
 
     const map = new Map<string, { sawit: number; sawitLuas: number; getah: number; getahLuas: number }>()

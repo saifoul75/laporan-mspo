@@ -1,14 +1,12 @@
-const { FlatCompat } = require('@eslint/eslintrc');
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
+const nextCoreWebVitals = require('eslint-config-next/core-web-vitals');
+const nextTypescript = require('eslint-config-next/typescript');
 
 module.exports = [
   {
     ignores: ['.kilo/**', '.next/**', 'out/**', 'build/**', 'public/sw.js'],
   },
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
+  ...nextCoreWebVitals,
+  ...nextTypescript,
   {
     rules: {
       '@typescript-eslint/no-explicit-any': 'warn',
@@ -17,6 +15,12 @@ module.exports = [
         'warn',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
+    },
+  },
+  {
+    files: ['**/*.config.{js,ts,mjs,cjs}', 'tailwind.config.ts', 'postcss.config.*'],
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
     },
   },
 ];

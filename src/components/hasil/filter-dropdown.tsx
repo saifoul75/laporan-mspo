@@ -19,10 +19,6 @@ export function FilterDropdown({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchPustakOperasi()
-  }, [])
-
   const fetchPustakOperasi = async () => {
     try {
       setLoading(true)
@@ -42,6 +38,12 @@ export function FilterDropdown({
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchPustakOperasi()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   if (loading) {
     return (
