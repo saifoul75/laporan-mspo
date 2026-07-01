@@ -33,16 +33,16 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@types/node": "^20",
+    "@types/node": "^26",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@typescript-eslint/eslint-plugin": "^8.61.0",
-    "@typescript-eslint/parser": "^8.61.0",
-    "eslint": "^9",
-    "eslint-config-next": "^16.2.0",
+    "@typescript-eslint/eslint-plugin": "^8.62.1",
+    "@typescript-eslint/parser": "^8.62.1",
+    "eslint": "^10",
+    "eslint-config-next": "^16.2.9",
     "postcss": "^8.5.15",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5",
+    "tailwindcss": "^4.3.2",
+    "typescript": "^6",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "overrides": {
