@@ -5,7 +5,6 @@ import { createClient } from "@/lib/supabase/client";
 import { Butang } from "@/components/ui/butang";
 import { Badge } from "@/components/ui/badge";
 import { PetunjukSync } from "@/components/layout/petunjuk-sync";
-import { cn } from "@/lib/utils";
 import type { RolPengguna } from "@/types";
 
 const LABEL_ROL: Record<RolPengguna, string> = {
@@ -15,23 +14,11 @@ const LABEL_ROL: Record<RolPengguna, string> = {
   po_user: "Pusat Operasi",
 };
 
-const MODUL: { id: "hasil" | "audit"; label: string; home: string }[] = [
-  { id: "hasil", label: "Hasil", home: "/hasil" },
-  { id: "audit", label: "Audit", home: "/dashboard" },
-];
-
 export function TopBar({ nama, rol }: { nama: string; rol: RolPengguna }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Tentukan modul aktif dari laluan semasa (selaras dengan Sidebar)
-  const modulAktif =
-    pathname.startsWith("/hasil") || pathname.startsWith("/admin/upload")
-      ? "hasil"
-      : "audit";
-
   function getTajuk() {
-    if (pathname.startsWith("/hasil")) return "Dashboard Hasil Projek — RISDA Plantation Sdn Bhd"
     return "Sistem Audit MSPO"
   }
 
@@ -51,27 +38,7 @@ export function TopBar({ nama, rol }: { nama: string; rol: RolPengguna }) {
           </div>
         </div>
 
-        {/* Penukar modul — paparan mobile sahaja (sidebar uruskan desktop) */}
-        <div className="flex gap-1 md:hidden">
-          {MODUL.map((m) => (
-            <button
-              key={m.id}
-              type="button"
-              onClick={() => router.push(m.home)}
-              className={cn(
-                "rounded-md px-2.5 py-1 text-xs font-semibold transition-colors",
-                m.id === modulAktif
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-accent"
-              )}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Tajuk penuh — desktop sahaja (mobile guna penukar di atas) */}
-        <h1 className="hidden text-base font-semibold md:block">{getTajuk()}</h1>
+        <h1 className="text-base font-semibold">{getTajuk()}</h1>
       </div>
 
       <div className="flex items-center gap-3">
