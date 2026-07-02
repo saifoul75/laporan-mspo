@@ -44,3 +44,5 @@ public/sw-version.js
 
 # database backups (CSV + schema dumps — large, not for repo)
 /scripts/backups/
+
+.kilo/kilo.json
