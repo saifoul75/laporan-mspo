@@ -17,13 +17,11 @@ const MODUL: { id: ModulId; label: string; home: string; item: ItemNav[] }[] = [
   {
     id: "hasil",
     label: "Hasil Projek",
-    home: "/hasil",
+    home: "/hasil/po",
     item: [
-      { label: "Ringkasan Hasil", href: "/hasil" },
-      { label: "Sawit", href: "/hasil/sawit" },
-      { label: "Getah", href: "/hasil/getah" },
-      { label: "Carta", href: "/hasil/carta" },
-      { label: "Upload Excel", href: "/admin/upload", rol: ["admin"] },
+      { label: "Tab PO", href: "/hasil/po" },
+      { label: "Tab Wilayah", href: "/hasil/wilayah" },
+      { label: "Tab HQ", href: "/hasil/hq" },
     ],
   },
   {
@@ -50,9 +48,7 @@ export function Sidebar({ rol }: { rol: RolPengguna }) {
 
   // Tentukan modul aktif dari laluan semasa
   const modulAktif: ModulId =
-    pathname.startsWith("/hasil") || pathname.startsWith("/admin/upload")
-      ? "hasil"
-      : "audit";
+    pathname.startsWith("/hasil") ? "hasil" : "audit";
 
   const modul = MODUL.find((m) => m.id === modulAktif)!;
   const item = modul.item.filter((i) => !i.rol || i.rol.includes(rol));

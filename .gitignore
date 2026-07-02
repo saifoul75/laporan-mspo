@@ -41,3 +41,6 @@ next-env.d.ts
 
 # generated SW version (auto by prebuild/predev)
 public/sw-version.js
+
+# database backups (CSV + schema dumps — large, not for repo)
+/scripts/backups/

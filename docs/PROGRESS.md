@@ -1,7 +1,9 @@
 # PROGRESS — MSPO Audit System
 
 > Log progress untuk kerja Fasa 3 (Modul 3.1 - 3.4) sistem audit MSPO.
-> Tarikh kemaskini terakhir: 29 Mei 2026
+> Tarikh kemaskini terakhir: 21 Jun 2026
+>
+> **Update 21/6 (Kilo - Sesi Petang):** Modul 3.5 CAP Submission UI siap. Modul 3.1 Opening Meeting Attendance siap (single + batch mode). Bank Jawapan import dari Excel Janet — 370 rekod (74 klausa × 5 status). Punca Akar untuk setiap NC klausa. Fix PPTX route corruption (Claude garbage code).
 >
 > **Update 29/5:** Crosscheck Guidance MS2530-2-2:2022 → jumpa 12 indicator missing (4.4.3 +9, 4.4.1 +2, 4.2.3 +1). Migration `0015` ditambah — 74 → 86 item_semakan. PPTX route.ts refactor guna slide-queue pattern.
 >
@@ -105,6 +107,34 @@ update public.audit
   - Original was 1243 lines, now 944 lines (clean)
   - Duplicate closing + extra CAP/PENUTUP slide removed
 - **Verified:** TypeScript ✅, Next.js build ✅
+
+### Sesi 21 Jun 2026 (Sambungan — Kilo)
+
+#### 8. Bank Jawapan Import (Modul 3.2 Reference Data)
+- **Source:** `C:\Users\USER\Desktop\MSPO\AUDIT DALAM 2026\FINAL\00_FAIL_SUMBER\Checklist_Audit_MSPO_v6_5_QC_FINAL_ASAL.xlsx` (sheet "Bank Jawapan Klausa")
+- `supabase/migrations/0013_bank_jawapan.sql` — table `bank_jawapan`:
+  - Columns: `klausa_kod`, `status` (C/OFI/NC/Pending/N/A), `catatan_bukti`, `tindakan_pembetulan`, `dokumen_bukti_wajib`, `semakan_tapak`, `panduan_na`
+  - 370 rekod diimport: 74 klausa × 5 status
+  - Applied to remote DB ✅
+- `supabase/migrations/0014_punca_akar_bank.sql` — tambah column `punca_akar`
+  - 74 NC entries dengan punca akar unik per klausa
+- `src/app/(dashboard)/audit/actions.ts` — server action:
+  - `dapatkanBankJawapan(klausaKod, status)` — return bank data
+- `src/components/audit/checklist-audit.tsx` — `handleStatusChange()`:
+  - Auto-fill catatan/bukti_audit/cadangan/punca_akar bila pilih status NC/N/OFI/C/N/A/Pending
+  - Map: Y→C, N→NC, NC→NC, OFI→OFI, NA→N/A, Pending→Pending
+
+#### 9. Opening Meeting — Batch Entry Mode
+- `src/components/audit/borang-kehadiran-opening.tsx` — tambah tab **Batch (ramai)**:
+  - Format: `Nama - Jawatan` per baris (atau `Nama, Jawatan`)
+  - Parse & register semua serentak
+- `src/app/(dashboard)/audit/actions.ts` — server action:
+  - `sahkanKehadiranBatch({ auditId, senarai })` — multi-row insert
+
+#### 10. Build & Stress Test
+- `npm run build` — ✅ Compiled successfully, 17 pages generated
+- Dev server running di `http://localhost:3000` (port 3000)
+- 4 pre-existing `_` warnings (unused catch params) dalam PPTX route — bukan dari kerja baru
 
 ### Sesi 28 Mei 2026 (Sesi Pagi — Claude)
 
