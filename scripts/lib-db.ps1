@@ -18,8 +18,11 @@ $script:TABLE_IMPORT_ORDER = @(
     "seksyen_fail",
     "item_semakan",
     "bank_jawapan",
-    "projek_master_2026",
-    "crosswalk_daerah_po",
+    # 2026-07-02: projek_master_2026 & crosswalk_daerah_po dibuang (orphan,
+    # tiada rujukan kod, dedup dengan projek_ref/po_wilayah). Data asal
+    # dikekal sebagai _archive_* sebelum drop, canonical list ikut nama baru.
+    "_archive_projek_master_2026",
+    "_archive_crosswalk_daerah_po",
     "po_wilayah",
 
     # === KUMPULAN C: Sesi & Projek (FK → master/rujukan) ===
