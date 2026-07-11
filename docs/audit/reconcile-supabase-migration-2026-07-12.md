@@ -18,7 +18,7 @@ Supabase projek `lbklwflwiujdnuricxbt` tanpa kehilangan data. Dua isu drift dike
    pada `v_ranking_po`) **belum direkod** dalam `supabase_migrations.schema_migrations` remote,
    walaupun kesan fix tersebut sudah wujud pada remote (diaplikasi secara ad-hoc sebelum ini).
 2. Remote mempunyai migration `20260703165325` (`drop_permissive_insert_policy_aktiviti`) yang
-   **tiada dalam mana-mana folder migrations** repo tempatan — menyebabkan sejarah tidak segerak.
+   **tiada dalam mana-mana folder migrations** repo tempatan, lalu menyebabkan sejarah tidak segerak.
 
 Kedua-dua migration sebenarnya **tidak berkaitan** (objek berbeza: view vs policy). Rekonsiliasi
 hanya memperbaiki *rekod sejarah*, bukan skema atau data.
@@ -29,7 +29,7 @@ hanya memperbaiki *rekod sejarah*, bukan skema atau data.
 
 | Versi | Local | Remote | Catatan |
 |---|---|---|---|
-| `0000`–`0024` | ✅ | ✅ | Selaras |
+| `0000` hingga `0024` | ✅ | ✅ | Selaras |
 | `0025` | ✅ | ❌ | Fix `v_ranking_po` belum direkod (kesan sudah ada di remote) |
 | `20260703165325` | ❌ | ✅ | Drop policy `aktiviti` tiada fail tempatan |
 
@@ -45,21 +45,21 @@ hanya memperbaiki *rekod sejarah*, bukan skema atau data.
 
 ## c. Arahan yang dijalankan
 
-1. `git checkout -b chore/reconcile-supabase-migration-history` — cipta branch.
-2. `supabase db dump --linked -f backups/reconcile-2026-07-12/schema.sql` — **gagal**:
+1. `git checkout -b chore/reconcile-supabase-migration-history`: cipta branch.
+2. `supabase db dump --linked -f backups/reconcile-2026-07-12/schema.sql`: **gagal**:
    persekitaran tiada Docker Desktop (`failed to inspect docker image`). Tiada `schema.sql`
    berguna dihasilkan.
-3. `supabase db query --linked` — sandaran sejarah `supabase_migrations.schema_migrations`
+3. `supabase db query --linked`: sandaran sejarah `supabase_migrations.schema_migrations`
    ke `backups/reconcile-2026-07-12/supabase_migrations_history.json`.
-4. `supabase db query --linked` — snapshot skema objek dalam-skop ke
+4. `supabase db query --linked`: snapshot skema objek dalam-skop ke
    `backups/reconcile-2026-07-12/schema_snapshot.sql`.
 5. Cipta `supabase/migrations/20260703165325_drop_permissive_insert_policy_aktiviti.sql`
    (kandungan: `drop policy "Sistem boleh tulis aktiviti" on public.aktiviti;`).
-6. `supabase migration list` — papar status sejarah.
-7. `supabase db push --dry-run` — pemerhatian sahaja (tiada eksekusi).
-8. `supabase migration repair --linked --status applied --yes 0025` — rekod `0025` sebagai applied.
-9. `supabase migration list` — pengesahan selepas repair.
-10. `supabase db query --linked` — pengesahan read-only keadaan remote (v_ranking_po, policy, trigger).
+6. `supabase migration list`: papar status sejarah.
+7. `supabase db push --dry-run`: pemerhatian sahaja (tiada eksekusi).
+8. `supabase migration repair --linked --status applied --yes 0025`: rekod `0025` sebagai applied.
+9. `supabase migration list`: pengesahan selepas repair.
+10. `supabase db query --linked`: pengesahan read-only keadaan remote (v_ranking_po, policy, trigger).
 
 ---
 
@@ -97,17 +97,17 @@ Versi `0025` kini berstatus **applied** dalam `supabase_migrations.schema_migrat
 
 | Versi | Local | Remote |
 |---|---|---|
-| `0000`–`0024` | ✅ | ✅ |
+| `0000` hingga `0024` | ✅ | ✅ |
 | `0025` | ✅ | ✅ |
 | `20260703165325` | ✅ | ✅ |
 
-Semua migration `0000`–`0025` dan `20260703165325` kini **Local + Remote**. Tiada migration tertunggak.
+Semua migration `0000` hingga `0025` dan `20260703165325` kini **Local + Remote**. Tiada migration tertunggak.
 
 Pengesanan remote read-only (2026-07-12 00:14 +08:00):
 
 | Pemeriksaan | Hasil |
 |---|---|
-| `0000`–`0025` dalam `schema_migrations` | 26 baris ✅ |
+| `0000` hingga `0025` dalam `schema_migrations` | 26 baris ✅ |
 | `20260703165325` dalam `schema_migrations` | 1 baris ✅ |
 | `v_ranking_po` mengandungi `MAX(v_capai_matlamat.luas_berhasil)` | `true` ✅ |
 | Policy `Sistem boleh tulis aktiviti` | 0 (tiada) ✅ |
@@ -149,7 +149,7 @@ dalam kontena) yang **tidak tersedia** dalam persekitaran ini, dan kata laluan p
 tidak boleh diekstrak secara selamat untuk `pg_dump` terus.
 
 Ini **tidak menjejaskan keselamatan rollback** kerana `migration repair` hanya menambah satu
-rekod ke jadual `supabase_migrations.schema_migrations` (lihat seksyen j) — tiada skema atau data
+rekod ke jadual `supabase_migrations.schema_migrations` (lihat seksyen j), tiada skema atau data
 aplikasi diubah. Sandaran sejarah penuh (seksyen h) mencukupi sebagai artefak rollback. Sandaran
 data penuh boleh dijalankan kemudian di persekitaran dengan Docker/PG jika dikehendaki.
 
@@ -175,11 +175,11 @@ proses (process non-compliance)** yang perlu dicatatkan untuk semakan audit.
 
 ## l. Impak ketidakpatuhan
 
-Impak sebenar adalah **terhad dan boleh diterbalikkan (reversible)**:
+Impak sebenar **terhad dan boleh diterbalikkan (reversible)**:
 - Operasi hanya menyentuh `supabase_migrations.schema_migrations` (bukan skema/data aplikasi).
 - Keputusan diverifikasi sepenuhnya secara read-only dan didapati selaras dengan keadaan yang
   diingini (seksyen f).
-- Rollback adalah mudah: memadam baris `0025` dari `schema_migrations` (sandaran di seksyen h).
+- Proses rollback mudah: memadam baris `0025` dari `schema_migrations` (sandaran di seksyen h).
 Tiada kerosakan fungsi, tiada kehilangan data, dan tiada perubahan kepada `v_ranking_po`,
 policy, atau trigger. Risiko audit ialah keperluan penyemakan prosedur kelulusan dua-pintu pada
 masa hadapan, bukan kerosakan teknikal.
