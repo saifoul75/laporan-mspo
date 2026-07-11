@@ -46,3 +46,6 @@ public/sw-version.js
 /scripts/backups/
 
 .kilo/kilo.json
+
+# reconciliation backup 2026-07-12 (local only, jangan commit)
+backups/reconcile-2026-07-12/
