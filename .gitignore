@@ -42,7 +42,10 @@ next-env.d.ts
 # generated SW version (auto by prebuild/predev)
 public/sw-version.js
 
-# database backups (CSV + schema dumps — large, not for repo)
+# database backups (CSV and schema dumps, large and not for repo)
 /scripts/backups/
 
 .kilo/kilo.json
+
+# reconciliation backup 2026-07-12 (local only, jangan commit)
+backups/reconcile-2026-07-12/
