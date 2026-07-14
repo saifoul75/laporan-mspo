@@ -149,7 +149,6 @@ CREATE POLICY "Padam dapatan - admin lead"
   TO authenticated
   USING (
     public.rol_semasa() IN ('admin', 'lead_auditor')
-    OR lead_auditor_id = auth.uid()
     OR EXISTS (
       SELECT 1 FROM public.audit a
       WHERE a.id = dapatan.audit_id AND a.lead_auditor_id = auth.uid()

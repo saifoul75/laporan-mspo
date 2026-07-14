@@ -52,8 +52,9 @@ SELECT policyname, roles::text FROM pg_policies WHERE tablename='objects' AND po
 "@
 
 try {
-    $fullQuery | npx supabase db execute 2>&1 | Out-File -FilePath ".\pre-0026-policies-$ts.txt" -Encoding utf8
+    $fullQuery | npx supabase db query --linked 2>&1 | Out-File -FilePath ".\pre-0026-policies-$ts.txt" -Encoding utf8
     Write-Host "  -> pre-0026-policies-$ts.txt disimpan" -ForegroundColor Green
+    Get-Content ".\pre-0026-policies-$ts.txt" | Select-Object -First 30 | ForEach-Object { Write-Host "    $_" }
 } catch {
     Write-Host "  -> Gagal dump policies: $($_.Exception.Message)" -ForegroundColor Red
 }
