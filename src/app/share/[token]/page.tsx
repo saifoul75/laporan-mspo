@@ -1,14 +1,9 @@
-// /share/[token] — Paparan laporan audit AWAM (tanpa log masuk)
-// Laluan ini tersenarai dalam laluanAwam (middleware.ts) dan tidak memerlukan auth.
-// Token diselesaikan → laporan → audit + dapatan. Token tidak sah → 404.
-
 import { notFound } from "next/navigation";
 import { createPublicClient } from "@/lib/supabase/public";
 import { BadgeStatus } from "@/components/ui/badge-status";
 import { formatTarikh } from "@/lib/utils";
 import type { StatusDapatan, GredNC } from "@/types";
 
-// ─── Metadata ────────────────────────────────────────────────────────────────
 export async function generateMetadata({
   params,
 }: {
@@ -20,23 +15,34 @@ export async function generateMetadata({
   }
   const supabase = createPublicClient();
 
-  const { data: laporan } = await supabase
-    .from("laporan")
-    .select("audit:audit_id (no_rujukan, pusat_operasi:pusat_operasi_id (nama))")
-    .eq("token_kongsi", token)
-    .eq("kongsi_aktif", true)
-    .single();
+  const { data: laporan } = await supabase.rpc("dapatkan_laporan_dengan_token", {
+    p_token: token,
+  });
 
-  if (!laporan) return { title: "Laporan Tidak Dijumpai" };
+  if (!laporan || (Array.isArray(laporan) && laporan.length === 0)) {
+    return { title: "Laporan Tidak Dijumpai" };
+  }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const audit = laporan.audit as any;
+  const first = Array.isArray(laporan) ? laporan[0] : laporan;
+
+  const { data: auditData } = await supabase.rpc("dapatkan_audit_dengan_token", {
+    p_token: token,
+  });
+
+  const auditInfo = Array.isArray(auditData) ? auditData[0] : auditData;
+
+  if (!auditInfo) return { title: "Laporan Tidak Dijumpai" };
+
+  const { data: poData } = await supabase.rpc("dapatkan_po_dengan_token", {
+    p_token: token,
+  });
+  const poInfo = Array.isArray(poData) ? poData[0] : poData;
+
   return {
-    title: `Laporan Audit ${audit?.no_rujukan ?? ""} — ${audit?.pusat_operasi?.nama ?? ""}`,
+    title: `Laporan Audit ${auditInfo.no_rujukan ?? ""} — ${poInfo?.nama ?? ""}`,
   };
 }
 
-// ─── Halaman ─────────────────────────────────────────────────────────────────
 export default async function HalamanKongsiLaporan({
   params,
 }: {
@@ -44,99 +50,103 @@ export default async function HalamanKongsiLaporan({
 }) {
   const { token } = await params;
 
-  // Sanitasi asas: token mestilah alphanumeric/dash/underscore sahaja
   if (!/^[a-zA-Z0-9_-]{8,}$/.test(token)) notFound();
 
   const supabase = createPublicClient();
 
-  // 1. Selesaikan token → laporan + ringkasan statistik
-  const { data: laporan } = await supabase
-    .from("laporan")
-    .select(
-      "audit_id, jumlah_y, jumlah_n, jumlah_nc_major, jumlah_nc_minor, jumlah_ofi, jumlah_na, jumlah_pending"
-    )
-    .eq("token_kongsi", token)
-    .eq("kongsi_aktif", true)
-    .single();
+  const { data: laporanData } = await supabase.rpc("dapatkan_laporan_dengan_token", {
+    p_token: token,
+  });
 
-  // Token tidak wujud atau dikahwinkan (disabled) → 404
-  if (!laporan) notFound();
+  if (!laporanData || (Array.isArray(laporanData) && laporanData.length === 0)) {
+    notFound();
+  }
+
+  const laporan = Array.isArray(laporanData) ? laporanData[0] : laporanData;
+
+  if (!laporan || !laporan.audit_id) notFound();
 
   const auditId = laporan.audit_id as string;
 
-  // 2. Muat audit + pusat operasi secara selari dengan dapatan
-  const [auditRes, dapatanRes] = await Promise.all([
-    supabase
-      .from("audit")
-      .select(
-        "id, no_rujukan, tarikh_audit, tarikh_tamat, jenis_audit, status, catatan, lead_auditor_id, auditor_ids, pusat_operasi:pusat_operasi_id (kod, nama, wilayah, daerah, negeri, keluasan_hektar)"
-      )
-      .eq("id", auditId)
-      .single(),
-
-    supabase
-      .from("dapatan")
-      .select(
-        "id, status, gred_nc, catatan, cadangan_tindakan, pic, tarikh_siap_target, item_semakan:item_semakan_id (kod, tajuk, fail_rujukan, kriteria:kriteria_id (kod, prinsip:prinsip_id (kod, tajuk)))"
-      )
-      .eq("audit_id", auditId),
+  const [
+    { data: auditRpc },
+    { data: poData },
+    { data: penggunaData },
+    { data: dapatanData },
+  ] = await Promise.all([
+    supabase.rpc("dapatkan_audit_dengan_token", { p_token: token }),
+    supabase.rpc("dapatkan_po_dengan_token", { p_token: token }),
+    supabase.rpc("dapatkan_pengguna_dengan_token", { p_token: token }),
+    supabase.rpc("dapatkan_dapatan_dengan_token", { p_token: token }),
   ]);
 
-  if (!auditRes.data) notFound();
+  const auditInfo = Array.isArray(auditRpc) ? auditRpc[0] : auditRpc;
+  if (!auditInfo) notFound();
 
-  const audit = auditRes.data;
-  const dapatanList = dapatanRes.data ?? [];
+  const po = (Array.isArray(poData) ? poData[0] : poData) ?? {};
+  const penggunaList = (Array.isArray(penggunaData) ? penggunaData : penggunaData ? [penggunaData] : []) as {
+    id: string;
+    nama_penuh: string;
+  }[];
 
-  // 3. Nama auditor (optional — kegagalan tidak sekat paparan)
-  let namaLead = "";
-  let namaAuditorLain = "";
+  const leadId = auditInfo.lead_auditor_id as string | undefined;
+  const auditorIds = (auditInfo.auditor_ids as string[]) ?? [];
 
-  if (audit.lead_auditor_id) {
-    const { data: p } = await supabase
-      .from("pengguna")
-      .select("nama_penuh")
-      .eq("id", audit.lead_auditor_id)
-      .single();
-    namaLead = p?.nama_penuh ?? "";
+  const namaLead = leadId ? penggunaList.find((p) => p.id === leadId)?.nama_penuh ?? "" : "";
+  const pembantuId = auditorIds.find((uid) => uid !== leadId);
+  const namaAuditorLain = pembantuId
+    ? penggunaList.find((p) => p.id === pembantuId)?.nama_penuh ?? ""
+    : "";
+
+  let dapatanList: Array<{
+    id: string;
+    status: string;
+    gred_nc: string | null;
+    catatan: string | null;
+    cadangan_tindakan: string | null;
+    pic: string | null;
+    tarikh_siap_target: string | null;
+  }> = [];
+
+  if (dapatanData) {
+    const raw = Array.isArray(dapatanData) ? dapatanData : [dapatanData];
+    dapatanList = raw as typeof dapatanList;
   }
 
-  const auditorIds: string[] = (audit.auditor_ids as string[]) ?? [];
-  const pembantuId = auditorIds.find((uid) => uid !== audit.lead_auditor_id);
-  if (pembantuId) {
-    const { data: p } = await supabase
-      .from("pengguna")
-      .select("nama_penuh")
-      .eq("id", pembantuId)
-      .single();
-    namaAuditorLain = p?.nama_penuh ?? "";
+  if (!dapatanList || dapatanList.length === 0) {
+    const { data: fallback } = await supabase
+      .from("dapatan")
+      .select("id, status, gred_nc, catatan, cadangan_tindakan, pic, tarikh_siap_target")
+      .eq("audit_id", auditId);
+    if (fallback) {
+      dapatanList = fallback as typeof dapatanList;
+    }
   }
 
-  // 4. Pisahkan dapatan mengikut status
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const po = (audit.pusat_operasi as any) ?? {};
-
-  const ncList = dapatanList.filter(
-    (d) => d.status === "NC"
-  ) as unknown as BarisDapatan[];
-  const ofiList = dapatanList.filter(
-    (d) => d.status === "OFI"
-  ) as unknown as BarisDapatan[];
-
-  // Statistik langsung dari jadual laporan (lebih dipercayai)
   const stats = {
     Y: laporan.jumlah_y,
     N: laporan.jumlah_n,
     NCMaj: laporan.jumlah_nc_major,
     NCMin: laporan.jumlah_nc_minor,
-    NC: laporan.jumlah_nc_major + laporan.jumlah_nc_minor,
+    NC: (laporan.jumlah_nc_major ?? 0) + (laporan.jumlah_nc_minor ?? 0),
     OFI: laporan.jumlah_ofi,
     NA: laporan.jumlah_na,
     Pending: laporan.jumlah_pending,
   };
 
+  const auditDisplay = {
+    no_rujukan: auditInfo.no_rujukan,
+    jenis_audit: auditInfo.jenis_audit,
+    status: auditInfo.status,
+    tarikh_audit: (auditInfo as { tarikh_audit?: string }).tarikh_audit,
+    tarikh_tamat: (auditInfo as { tarikh_tamat?: string }).tarikh_tamat,
+  };
+
+  const ncList = dapatanList.filter((d) => d.status === "NC") as unknown as BarisDapatan[];
+  const ofiList = dapatanList.filter((d) => d.status === "OFI") as unknown as BarisDapatan[];
+
   return (
     <div className="min-h-screen bg-background">
-      {/* ── Header ── */}
       <header className="border-b bg-card px-4 py-4 sm:px-6">
         <div className="mx-auto max-w-4xl">
           <div className="flex items-center gap-3">
@@ -144,40 +154,31 @@ export default async function HalamanKongsiLaporan({
               M
             </div>
             <div>
-              <div className="text-xs text-muted-foreground">
-                RISDA Plantation Sdn Bhd
-              </div>
-              <div className="font-semibold text-sm">
-                Laporan Audit MSPO — Paparan Awam (Baca Sahaja)
-              </div>
+              <div className="text-xs text-muted-foreground">RISDA Plantation Sdn Bhd</div>
+              <div className="font-semibold text-sm">Laporan Audit MSPO — Paparan Awam (Baca Sahaja)</div>
             </div>
           </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-4xl space-y-6 px-4 py-6 sm:px-6">
-        {/* ── Maklumat Audit ── */}
         <div className="rounded-lg border bg-card p-5">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="space-y-1">
-              <h1 className="text-xl font-bold sm:text-2xl">
-                {audit.no_rujukan}
-              </h1>
+              <h1 className="text-xl font-bold sm:text-2xl">{auditDisplay.no_rujukan}</h1>
               <p className="text-sm text-muted-foreground">
-                {po.nama} {po.wilayah ? `· Wilayah ${po.wilayah}` : ""}
-                {po.daerah ? ` · ${po.daerah}` : ""}
-                {po.negeri ? `, ${po.negeri}` : ""}
+                {(po as { nama?: string }).nama ?? ""}{" "}
+                {(po as { wilayah?: string }).wilayah ? `· Wilayah ${(po as { wilayah?: string }).wilayah}` : ""}
+                {(po as { daerah?: string }).daerah ? ` · ${(po as { daerah?: string }).daerah}` : ""}
+                {(po as { negeri?: string }).negeri ? `, ${(po as { negeri?: string }).negeri}` : ""}
               </p>
               <p className="text-sm text-muted-foreground">
-                {formatTarikh(audit.tarikh_audit)}
-                {audit.tarikh_tamat
-                  ? ` – ${formatTarikh(audit.tarikh_tamat)}`
-                  : ""}
+                {auditDisplay.tarikh_audit ? formatTarikh(auditDisplay.tarikh_audit) : ""}
+                {auditDisplay.tarikh_tamat ? ` – ${formatTarikh(auditDisplay.tarikh_tamat)}` : ""}
               </p>
             </div>
-            {/* Butang Muat Turun PDF */}
             <a
-              href={`/api/laporan/kongsi/${token}/pdf`}
+              href={`/api/laporan/kongsi/${encodeURIComponent(token)}/pdf`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex shrink-0 items-center gap-2 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent"
@@ -202,25 +203,21 @@ export default async function HalamanKongsiLaporan({
             </a>
           </div>
 
-          {/* Grid maklumat tambahan */}
           <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 border-t pt-4 text-sm sm:grid-cols-3">
-            <MaklumatItem label="Jenis Audit" nilai={formatJenisAudit(audit.jenis_audit)} />
-            <MaklumatItem label="Status" nilai={formatStatusAudit(audit.status)} />
-            {po.keluasan_hektar && (
+            <MaklumatItem label="Jenis Audit" nilai={formatJenisAudit(String(auditDisplay.jenis_audit ?? ""))} />
+            <MaklumatItem label="Status" nilai={formatStatusAudit(String(auditDisplay.status ?? ""))} />
+            {(po as { keluasan_hektar?: number }).keluasan_hektar && (
               <MaklumatItem
                 label="Keluasan"
-                nilai={`${Number(po.keluasan_hektar).toLocaleString("ms-MY")} hek`}
+                nilai={`${Number((po as { keluasan_hektar?: number }).keluasan_hektar).toLocaleString("ms-MY")} hek`}
               />
             )}
             {namaLead && <MaklumatItem label="Lead Auditor" nilai={namaLead} />}
-            {namaAuditorLain && (
-              <MaklumatItem label="Auditor" nilai={namaAuditorLain} />
-            )}
+            {namaAuditorLain && <MaklumatItem label="Auditor" nilai={namaAuditorLain} />}
             <MaklumatItem label="Standard" nilai="MS2530-2-2:2022" />
           </dl>
         </div>
 
-        {/* ── Ringkasan Statistik ── */}
         <div className="rounded-lg border bg-card p-5">
           <h2 className="mb-4 font-semibold">Ringkasan Dapatan</h2>
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
@@ -252,37 +249,29 @@ export default async function HalamanKongsiLaporan({
           </div>
         </div>
 
-        {/* ── Senarai NC ── */}
         {ncList.length > 0 && (
           <div className="rounded-lg border bg-card p-5">
             <h2 className="mb-4 font-semibold">
               Senarai Non-Conformity (NC){" "}
-              <span className="text-sm font-normal text-muted-foreground">
-                — {ncList.length} item
-              </span>
+              <span className="text-sm font-normal text-muted-foreground">— {ncList.length} item</span>
             </h2>
             <JadualDapatan rows={ncList} />
           </div>
         )}
 
-        {/* ── Senarai OFI ── */}
         {ofiList.length > 0 && (
           <div className="rounded-lg border bg-card p-5">
             <h2 className="mb-4 font-semibold">
               Peluang Penambahbaikan (OFI){" "}
-              <span className="text-sm font-normal text-muted-foreground">
-                — {ofiList.length} item
-              </span>
+              <span className="text-sm font-normal text-muted-foreground">— {ofiList.length} item</span>
             </h2>
             <JadualDapatan rows={ofiList} />
           </div>
         )}
 
-        {/* Nota bawah */}
         <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-          <strong>Nota:</strong> Ini laporan baca sahaja yang dikongsi oleh
-          juruaudit RISDA Plantation Sdn Bhd. Untuk pertanyaan, sila hubungi
-          Jabatan Perladangan secara terus.
+          <strong>Nota:</strong> Ini laporan baca sahaja yang dikongsi oleh juruaudit RISDA Plantation Sdn Bhd. Untuk
+          pertanyaan, sila hubungi Jabatan Perladangan secara terus.
         </div>
       </main>
 
@@ -292,8 +281,6 @@ export default async function HalamanKongsiLaporan({
     </div>
   );
 }
-
-// ─── Komponen Dalaman ─────────────────────────────────────────────────────────
 
 function MaklumatItem({ label, nilai }: { label: string; nilai: string }) {
   return (
@@ -312,7 +299,7 @@ type BarisDapatan = {
   cadangan_tindakan: string | null;
   pic: string | null;
   tarikh_siap_target: string | null;
-  item_semakan: {
+  item_semakan?: {
     kod: string;
     tajuk: string;
     fail_rujukan: number | null;
@@ -336,37 +323,27 @@ function JadualDapatan({ rows }: { rows: BarisDapatan[] }) {
         <tbody className="divide-y">
           {rows.map((r) => (
             <tr key={r.id} className="align-top">
-              <td className="p-2 font-mono text-xs whitespace-nowrap">
-                {r.item_semakan?.kod ?? "-"}
-              </td>
-              <td className="p-2 text-xs leading-relaxed">
-                {r.item_semakan?.tajuk ?? "-"}
-              </td>
+              <td className="p-2 font-mono text-xs whitespace-nowrap">{r.item_semakan?.kod ?? "-"}</td>
+              <td className="p-2 text-xs leading-relaxed">{r.item_semakan?.tajuk ?? "-"}</td>
               <td className="p-2 text-xs">
-                {r.item_semakan?.fail_rujukan
-                  ? `Fail ${r.item_semakan.fail_rujukan}`
-                  : "-"}
+                {r.item_semakan?.fail_rujukan ? `Fail ${r.item_semakan.fail_rujukan}` : "-"}
               </td>
               <td className="p-2">
                 <BadgeStatus status={r.status} />
                 {r.gred_nc && (
-                  <span className="ml-1 text-xs uppercase text-muted-foreground">
-                    ({r.gred_nc})
-                  </span>
+                  <span className="ml-1 text-xs uppercase text-muted-foreground">({r.gred_nc})</span>
                 )}
               </td>
               <td className="p-2 text-xs leading-relaxed">
                 {r.catatan ?? "-"}
                 {r.cadangan_tindakan && (
                   <div className="mt-1 text-muted-foreground">
-                    <span className="font-medium">Cadangan:</span>{" "}
-                    {r.cadangan_tindakan}
+                    <span className="font-medium">Cadangan:</span> {r.cadangan_tindakan}
                   </div>
                 )}
                 {r.tarikh_siap_target && (
                   <div className="mt-0.5 text-muted-foreground">
-                    <span className="font-medium">Sasaran:</span>{" "}
-                    {formatTarikh(r.tarikh_siap_target)}
+                    <span className="font-medium">Sasaran:</span> {formatTarikh(r.tarikh_siap_target)}
                   </div>
                 )}
               </td>
@@ -378,8 +355,6 @@ function JadualDapatan({ rows }: { rows: BarisDapatan[] }) {
     </div>
   );
 }
-
-// ─── Pembantu Format ──────────────────────────────────────────────────────────
 
 function formatJenisAudit(jenis: string): string {
   const map: Record<string, string> = {
