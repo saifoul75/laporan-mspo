@@ -28,6 +28,40 @@ export interface PreviewCapRalat {
  * - Major mengatasi Minor (sama logik dengan fn_kira_gred_basis di DB)
  * - Pulang juga kiraan ringkas dapatan untuk konteks UI
  */
+async function semakAksesAudit(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  auditId: string,
+  userId: string
+): Promise<{ ok: true } | { ok: false; ralat: string }> {
+  const { data: audit } = await supabase
+    .from("audit")
+    .select("id, lead_auditor_id, auditor_ids, pusat_operasi_id")
+    .eq("id", auditId)
+    .single();
+
+  if (!audit) return { ok: false, ralat: "Audit tidak dijumpai." };
+
+  const { data: profil } = await supabase
+    .from("pengguna")
+    .select("rol, pusat_operasi_id")
+    .eq("id", userId)
+    .single();
+
+  if (!profil) return { ok: false, ralat: "Profil tidak dijumpai." };
+
+  const isAdminLeadAuditor = ["admin", "lead_auditor", "auditor"].includes(profil.rol);
+  const isAssigned =
+    audit.lead_auditor_id === userId ||
+    (Array.isArray(audit.auditor_ids) && (audit.auditor_ids as string[]).includes(userId));
+  const isPoMember = profil.pusat_operasi_id != null && profil.pusat_operasi_id === audit.pusat_operasi_id;
+
+  if (!isAdminLeadAuditor && !isAssigned && !isPoMember) {
+    return { ok: false, ralat: "Tiada akses kepada audit ini." };
+  }
+
+  return { ok: true };
+}
+
 export async function previewGredCap(
   auditId: string
 ): Promise<PreviewCap | PreviewCapRalat> {
@@ -37,6 +71,9 @@ export async function previewGredCap(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, ralat: "Tidak log masuk" };
+
+  const akses = await semakAksesAudit(supabase, auditId, user.id);
+  if (!akses.ok) return { ok: false, ralat: akses.ralat };
 
   const { data: dapatan, error } = await supabase
     .from("dapatan")
@@ -126,10 +163,14 @@ export async function muktamadkanAudit(input: MuktamadkanInput) {
     };
   }
 
+  // Semak akses audit (IDOR protection)
+  const aksesAudit = await semakAksesAudit(supabase, input.auditId, user.id);
+  if (!aksesAudit.ok) return { ok: false, ralat: aksesAudit.ralat };
+
   // Semak audit
   const { data: audit, error: ralatAudit } = await supabase
     .from("audit")
-    .select("id, status, tarikh_muktamad")
+    .select("id, status, tarikh_muktamad, lead_auditor_id, auditor_ids")
     .eq("id", input.auditId)
     .single();
 
@@ -220,6 +261,7 @@ interface HantarCapInput {
 /**
  * Auditee hantar CAP (tindakan pembetulan) untuk satu NC.
  * NC status: open → in_progress
+ * IDOR protection: semak audit membership
  */
 export async function hantarCap(input: HantarCapInput) {
   const supabase = await createClient();
@@ -237,6 +279,10 @@ export async function hantarCap(input: HantarCapInput) {
     .single();
 
   if (!nc) return { ok: false, ralat: "NC tidak dijumpai." };
+
+  const akses = await semakAksesAudit(supabase, nc.audit_id, user.id);
+  if (!akses.ok) return { ok: false, ralat: akses.ralat };
+
   if (nc.status !== "open") {
     return { ok: false, ralat: `NC berstatus "${nc.status}" — hanya NC 'open' boleh dihantar CAP.` };
   }
@@ -249,20 +295,22 @@ export async function hantarCap(input: HantarCapInput) {
     })
     .eq("id", input.ncId);
 
-  if (error) return { ok: false, ralat: error.message };
+  if (error) return { ok: false, ralat: "Ralat sistem. Sila cuba lagi." };
 
   revalidatePath(`/audit/${nc.audit_id}/cap`);
   return { ok: true };
 }
 
 /**
- * Lead Auditor sahkan CAP — closed → verified.
- * Bila semua NC verified, auto-tukar status audit ke 'selesai'.
+ * Lead Auditor sahkan CAP — in_progress → closed
  */
 export async function sahCap(ncId: string, auditId: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, ralat: "Tidak log masuk" };
+
+  const akses = await semakAksesAudit(supabase, auditId, user.id);
+  if (!akses.ok) return { ok: false, ralat: akses.ralat };
 
   const { data: profil } = await supabase
     .from("pengguna")
@@ -276,11 +324,16 @@ export async function sahCap(ncId: string, auditId: string) {
 
   const { data: nc } = await supabase
     .from("nc")
-    .select("id, status")
+    .select("id, status, audit_id")
     .eq("id", ncId)
     .single();
 
   if (!nc) return { ok: false, ralat: "NC tidak dijumpai." };
+
+  if (nc.audit_id !== auditId) {
+    return { ok: false, ralat: "NC tidak sepadan dengan audit." };
+  }
+
   if (nc.status !== "in_progress") {
     return { ok: false, ralat: `NC berstatus "${nc.status}" — hanya NC 'in_progress' boleh disahkan.` };
   }
@@ -290,7 +343,7 @@ export async function sahCap(ncId: string, auditId: string) {
     .update({ status: "closed" })
     .eq("id", ncId);
 
-  if (error) return { ok: false, ralat: error.message };
+  if (error) return { ok: false, ralat: "Ralat sistem. Sila cuba lagi." };
 
   // Semak kalau semua NC sudah verified → auto tutup audit
   const { count: ncBaki } = await supabase
@@ -314,12 +367,14 @@ export async function sahCap(ncId: string, auditId: string) {
 
 /**
  * Lead Auditor verify CAP — closed → verified (final).
- * Bila semua NC verified, auto-tukar status audit ke 'selesai'.
  */
 export async function verifyCap(ncId: string, auditId: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, ralat: "Tidak log masuk" };
+
+  const akses = await semakAksesAudit(supabase, auditId, user.id);
+  if (!akses.ok) return { ok: false, ralat: akses.ralat };
 
   const { data: profil } = await supabase
     .from("pengguna")
@@ -333,11 +388,16 @@ export async function verifyCap(ncId: string, auditId: string) {
 
   const { data: nc } = await supabase
     .from("nc")
-    .select("id, status")
+    .select("id, status, audit_id")
     .eq("id", ncId)
     .single();
 
   if (!nc) return { ok: false, ralat: "NC tidak dijumpai." };
+
+  if (nc.audit_id !== auditId) {
+    return { ok: false, ralat: "NC tidak sepadan dengan audit." };
+  }
+
   if (nc.status !== "closed") {
     return { ok: false, ralat: `NC berstatus "${nc.status}" — hanya NC 'closed' boleh diverifikasi.` };
   }
@@ -347,7 +407,7 @@ export async function verifyCap(ncId: string, auditId: string) {
     .update({ status: "verified" })
     .eq("id", ncId);
 
-  if (error) return { ok: false, ralat: error.message };
+  if (error) return { ok: false, ralat: "Ralat sistem. Sila cuba lagi." };
 
   // Semak kalau semua NC sudah verified → auto tutup audit
   const { count: ncBaki } = await supabase
@@ -386,6 +446,9 @@ export async function sahkanKehadiran(input: HantarKehadiranInput) {
   if (!input.nama || !input.nama.trim()) return { ok: false, ralat: "Nama wajib diisi." };
   if (!input.jawatan || !input.jawatan.trim()) return { ok: false, ralat: "Jawatan wajib diisi." };
 
+  const akses = await semakAksesAudit(supabase, input.auditId, user.id);
+  if (!akses.ok) return { ok: false, ralat: akses.ralat };
+
   const { error } = await supabase
     .from("kehadiran_opening_meeting")
     .insert({
@@ -395,7 +458,7 @@ export async function sahkanKehadiran(input: HantarKehadiranInput) {
       ditandatangan_pada: new Date().toISOString(),
     });
 
-  if (error) return { ok: false, ralat: error.message };
+  if (error) return { ok: false, ralat: "Ralat sistem." };
 
   revalidatePath(`/audit/${input.auditId}`);
   return { ok: true };
@@ -408,6 +471,9 @@ export async function sahkanKehadiranBatch(input: {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, ralat: "Tidak log masuk" };
+
+  const akses = await semakAksesAudit(supabase, input.auditId, user.id);
+  if (!akses.ok) return { ok: false, ralat: akses.ralat };
 
   const rows = input.senarai
     .filter((s) => s.nama.trim() && s.jawatan.trim())
@@ -424,7 +490,7 @@ export async function sahkanKehadiranBatch(input: {
     .from("kehadiran_opening_meeting")
     .insert(rows);
 
-  if (error) return { ok: false, ralat: error.message };
+  if (error) return { ok: false, ralat: "Ralat sistem." };
 
   revalidatePath(`/audit/${input.auditId}`);
   return { ok: true, count: rows.length };
@@ -434,6 +500,9 @@ export async function mulakanAuditDaripadaOpening(auditId: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, ralat: "Tidak log masuk" };
+
+  const akses = await semakAksesAudit(supabase, auditId, user.id);
+  if (!akses.ok) return { ok: false, ralat: akses.ralat };
 
   const { data: profil } = await supabase
     .from("pengguna")
@@ -461,7 +530,7 @@ export async function mulakanAuditDaripadaOpening(auditId: string) {
     .update({ status: "sedang_dijalankan" })
     .eq("id", auditId);
 
-  if (error) return { ok: false, ralat: error.message };
+  if (error) return { ok: false, ralat: "Ralat sistem." };
 
   revalidatePath(`/audit/${auditId}`);
   return { ok: true };

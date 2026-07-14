@@ -117,12 +117,13 @@ export async function GET(
     />
   );
 
+  const safeRef = String(audit.no_rujukan ?? "laporan").replace(/[^a-zA-Z0-9-_]/g, "_");
   return new NextResponse(new Uint8Array(buffer), {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="Laporan-${audit.no_rujukan}.pdf"`,
-      // Benarkan cache ringkas di CDN (5 minit) — kandungan tidak berubah tanpa token baru
-      "Cache-Control": "public, max-age=300, stale-while-revalidate=60",
+      "Content-Disposition": `attachment; filename="Laporan-${safeRef}.pdf"`,
+      "Cache-Control": "private, no-store",
+      "X-Content-Type-Options": "nosniff",
     },
   });
 }

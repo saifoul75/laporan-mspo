@@ -67,7 +67,28 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     .single();
 
   if (ralatAudit || !audit) {
-    return NextResponse.json({ error: "Audit tidak dijumpai", butiran: ralatAudit?.message }, { status: 404 });
+    return NextResponse.json({ error: "Audit tidak dijumpai" }, { status: 404 });
+  }
+
+  const { data: profilAkses } = await supabase
+    .from("pengguna")
+    .select("rol, pusat_operasi_id")
+    .eq("id", user.id)
+    .single();
+
+  if (!profilAkses) {
+    return NextResponse.json({ error: "Profil tidak dijumpai" }, { status: 403 });
+  }
+
+  const poAuditId = (audit as unknown as Record<string, unknown>).pusat_operasi_id as string | undefined;
+  const hasAccessPptx =
+    ["admin", "lead_auditor", "auditor"].includes(profilAkses.rol) ||
+    (poAuditId != null && poAuditId === profilAkses.pusat_operasi_id) ||
+    (audit as { lead_auditor_id?: string }).lead_auditor_id === user.id ||
+    ((audit as { auditor_ids?: string[] }).auditor_ids ?? []).includes(user.id);
+
+  if (!hasAccessPptx) {
+    return NextResponse.json({ error: "Tiada akses kepada audit ini" }, { status: 403 });
   }
 
   let _namaLead = "-";

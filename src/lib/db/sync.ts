@@ -1,12 +1,11 @@
-// Sync engine: proses barisan_sync dari Dexie ke Supabase.
-// Strategy: dapatan upsert via (audit_id, item_semakan_id), dengan retry exponential backoff.
-
 import { createClient } from "@/lib/supabase/client";
 import { db, type BarisanSync, type DapatanTempatan } from "@/lib/db/dexie";
 
 type DapatanTempatanInput = DapatanTempatan;
 
 const HAD_CUBAAN = 5;
+const MAX_QUEUE_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+const MAX_QUEUE_SIZE = 500;
 
 export type HasilSync = {
   jumlah: number;
@@ -17,10 +16,6 @@ export type HasilSync = {
 
 let sedangBerjalan = false;
 
-/**
- * Proses semua item dalam barisan_sync.
- * Selamat untuk dipanggil banyak kali — guard `sedangBerjalan`.
- */
 export async function jalankanSync(): Promise<HasilSync> {
   if (sedangBerjalan) {
     return { jumlah: 0, berjaya: 0, gagal: 0, ralat: [] };
@@ -35,7 +30,29 @@ export async function jalankanSync(): Promise<HasilSync> {
     }
 
     const supabase = createClient();
-    // Ambil yang belum cukup cubaan
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return hasil;
+    }
+
+    const countQueue = await db.barisan_sync.count();
+    if (countQueue > MAX_QUEUE_SIZE) {
+      const toDelete = countQueue - MAX_QUEUE_SIZE;
+      const oldest = await db.barisan_sync.orderBy("dicipta_pada").limit(toDelete).toArray();
+      for (const item of oldest) {
+        if (item.id !== undefined) await db.barisan_sync.delete(item.id);
+      }
+    }
+
+    const now = Date.now();
+    await db.barisan_sync
+      .where("dicipta_pada")
+      .below(now - MAX_QUEUE_AGE_MS)
+      .delete();
+
     const senarai = await db.barisan_sync
       .where("cubaan")
       .below(HAD_CUBAAN)
@@ -45,7 +62,7 @@ export async function jalankanSync(): Promise<HasilSync> {
 
     for (const item of senarai) {
       try {
-        await prosesSatu(supabase, item);
+        await prosesSatu(supabase, item, user.id);
         if (item.id !== undefined) {
           await db.barisan_sync.delete(item.id);
         }
@@ -60,7 +77,6 @@ export async function jalankanSync(): Promise<HasilSync> {
             ralat_terakhir: mesej,
           });
         }
-        // Tandakan rekod tempatan sebagai ralat
         if (item.jenis === "dapatan") {
           await db.dapatan
             .update(item.rekod_id, {
@@ -80,7 +96,8 @@ export async function jalankanSync(): Promise<HasilSync> {
 
 async function prosesSatu(
   supabase: ReturnType<typeof createClient>,
-  item: BarisanSync
+  item: BarisanSync,
+  userId: string
 ) {
   if (item.jenis === "dapatan") {
     if (item.operasi === "padam") {
@@ -90,21 +107,36 @@ async function prosesSatu(
         .eq("id", item.rekod_id);
       if (error) throw new Error(error.message);
     } else {
+      const rawPayload = item.payload as Record<string, unknown>;
+      const safePayload = {
+        audit_id: rawPayload.audit_id,
+        item_semakan_id: rawPayload.item_semakan_id,
+        status: rawPayload.status,
+        gred_nc: rawPayload.gred_nc,
+        catatan: rawPayload.catatan,
+        bukti_audit: rawPayload.bukti_audit,
+        punca_akar: rawPayload.punca_akar,
+        cadangan_tindakan: rawPayload.cadangan_tindakan,
+        pic: rawPayload.pic,
+        tarikh_siap_target: rawPayload.tarikh_siap_target,
+        latitud: rawPayload.latitud,
+        longitud: rawPayload.longitud,
+        ketepatan_gps: rawPayload.ketepatan_gps,
+        diaudit_oleh: userId,
+      };
+
       const { data, error } = await supabase
         .from("dapatan")
-        .upsert(item.payload as object, {
+        .upsert(safePayload as object, {
           onConflict: "audit_id,item_semakan_id",
         })
         .select()
         .single();
       if (error) throw new Error(error.message);
 
-      // Update rekod tempatan dengan id sebenar dari server (kalau berbeza)
-      // dan tandakan selesai
       if (data && typeof data === "object" && "id" in data) {
         const rekodServer = data as Record<string, unknown> & { id: string };
         const idServer = rekodServer.id;
-        // Padam rekod tempatan dengan id sementara, ganti dengan id server
         if (idServer !== item.rekod_id) {
           await db.dapatan.delete(item.rekod_id).catch(() => {});
         }
@@ -123,28 +155,18 @@ async function prosesSatu(
   }
 
   if (item.jenis === "audit") {
-    // Tidak digunakan buat masa ini — audit dicipta secara online sahaja.
-    // Skip sahaja, jangan throw supaya cubaan tidak bertambah.
     return;
   }
 
   if (item.jenis === "bukti") {
-    // Bukti perlu upload ke Storage; belum implement upload offline blob.
-    // Skip sahaja, jangan throw supaya cubaan tidak bertambah.
     return;
   }
 }
 
-/**
- * Kira bilangan item dalam barisan sync (yang belum lebihi had cubaan).
- */
 export async function kiraBaki(): Promise<number> {
   return db.barisan_sync.where("cubaan").below(HAD_CUBAAN).count();
 }
 
-/**
- * Kira item yang telah gagal melebihi had cubaan (perlu intervensi manual).
- */
 export async function kiraGagal(): Promise<number> {
   return db.barisan_sync.where("cubaan").aboveOrEqual(HAD_CUBAAN).count();
 }

@@ -15,6 +15,9 @@ export async function generateMetadata({
   params: Promise<{ token: string }>;
 }) {
   const { token } = await params;
+  if (!/^[a-zA-Z0-9_-]{8,}$/.test(token)) {
+    return { title: "Laporan Tidak Dijumpai" };
+  }
   const supabase = createPublicClient();
 
   const { data: laporan } = await supabase
