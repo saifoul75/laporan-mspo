@@ -64,7 +64,30 @@ WHERE routine_name LIKE '%dengan_token%';
 ```
 3. Putar rahsia jika backup lama bocor.
 
-## 9. Risiko Baki
+## 9. Rekod Putaran Kunci Staging — 15 Julai 2026
+
+* **Tarikh:** 15 Julai 2026 15:57 MYT (live audit)
+* **Sebab:** Backup `D:\BACKUP MSPO\backup-2026-05-28_16-52` mengandungi `.env.local` + `pooler-url`
+* **Skop:** Staging sahaja — production HOLD
+* **Kunci diputar (zero-downtime):**
+  * `SUPABASE_SERVICE_ROLE_KEY` — Supabase Dashboard Reset JWT Secret
+  * `NEXT_PUBLIC_SUPABASE_ANON_KEY` — reset bersama JWT
+  * `SUPABASE_DB_URL` (Pooler) — password reset
+  * `GMAIL_APP_PASSWORD` — Google App Passwords RISDA Staging
+  * `CRON_SECRET` — `crypto.randomBytes(32)` hex
+* **Vercel Staging Env:** Update Preview+Development, redeploy no-cache
+* **Verify:** /dashboard 200, /audit baca OK, anon SELECT laporan =0, /share palsu 404 sah 200, Org A vs Audit B 403, `Bearer OLD /api/qc-nightly` 401 `Bearer NEW` 200
+* **Pembersihan:** `backup-2026-05-28_16-52` Shift+Del kekal, `Test-Path` False verified 15 Julai 2026 16:02 MYT
+* **Dokumen prosedur:** `docs/ROTATION_KUNCI_STAGING.md`
+
+## 10. Pemantauan 24 Jam Staging
+
+* **Jam 0-1:** Tiada OOM, tiada ECONNREFUSED KV, tiada log dedah token_kongsi/pooler-url/stack trace
+* **Rate Limit:** Tanpa KV log AMARAN MemoryStore fallback expected, dengan KV warning hilang + 429 distributed verified
+* **Status:** LULUS BERSYARAT staging, HOLD production
+
+## 11. Risiko Baki
 
 * Offline Dexie tidak encrypted — mitigasi CSP.
 * Storage LIKE tidak 100% strict — enforce path konvensyen di apps-script upload.
+* CSP masih unsafe-inline/unsafe-eval (Next.js perlukan).
