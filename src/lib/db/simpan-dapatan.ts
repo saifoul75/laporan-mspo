@@ -1,10 +1,3 @@
-// Helper: simpan dapatan secara offline-first.
-// Strategy:
-//   1. Tulis ke IndexedDB (Dexie) sebagai sumber kebenaran tempatan
-//   2. Tambah ke barisan_sync untuk dihantar ke Supabase
-//   3. Cetuskan sync (fire-and-forget) — kalau online, ia akan terus pergi
-//   4. Pulangkan rekod tempatan supaya UI boleh kemaskini optimistik
-
 import { db, antrikanSync, type DapatanTempatan } from "@/lib/db/dexie";
 import { jalankanSync } from "@/lib/db/sync";
 import type { Dapatan, StatusDapatan, GredNC } from "@/types";
@@ -26,10 +19,6 @@ export interface PayloadSimpanan {
   diaudit_oleh: string;
 }
 
-/**
- * Simpan dapatan ke Dexie + queue. Pulangkan rekod yang disimpan
- * (dengan id sementara kalau baru).
- */
 export async function simpanDapatanOffline(
   payload: PayloadSimpanan,
   idSediaAda?: string
@@ -61,15 +50,24 @@ export async function simpanDapatanOffline(
 
   await db.dapatan.put(rekod);
 
-  // Payload untuk Supabase (tanpa id supaya server boleh assign kalau baru,
-  // dan upsert akan match ikut composite (audit_id, item_semakan_id)).
   const payloadSupabase = {
-    ...payload,
+    audit_id: payload.audit_id,
+    item_semakan_id: payload.item_semakan_id,
+    status: payload.status,
+    gred_nc: payload.gred_nc,
+    catatan: payload.catatan,
+    bukti_audit: payload.bukti_audit,
+    punca_akar: payload.punca_akar,
+    cadangan_tindakan: payload.cadangan_tindakan,
+    pic: payload.pic,
+    tarikh_siap_target: payload.tarikh_siap_target,
+    latitud: payload.latitud,
+    longitud: payload.longitud,
+    ketepatan_gps: payload.ketepatan_gps,
   };
 
   await antrikanSync("dapatan", id, idSediaAda ? "kemaskini" : "cipta", payloadSupabase);
 
-  // Cuba sync sekarang (kalau offline, jalankanSync akan no-op)
   if (typeof navigator !== "undefined" && navigator.onLine) {
     void jalankanSync().catch(() => {});
   }
@@ -81,13 +79,9 @@ function jana_uuid(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
     return crypto.randomUUID();
   }
-  // Fallback ringkas
   return "tmp-" + Math.random().toString(36).slice(2) + "-" + Date.now();
 }
 
-/**
- * Tukarkan rekod tempatan ke jenis Dapatan untuk konsumsi UI.
- */
 export function keDapatan(t: DapatanTempatan): Partial<Dapatan> {
   return {
     id: t.id,

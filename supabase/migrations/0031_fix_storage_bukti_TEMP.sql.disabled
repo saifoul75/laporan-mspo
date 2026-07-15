@@ -1,0 +1,25 @@
+-- ROLLBACK COMPENSATION — DISABLED — storage bukti-audit
+-- Cara aktifkan: rename .sql.disabled -> .sql, push
+-- Tujuan: pulihkan polisi loose sementara jika upload/baca bukti pecah selepas 0027
+-- MASA PEMULIHAN: <2 minit
+
+DROP POLICY IF EXISTS "Bukti audit - baca dengan akses audit" ON storage.objects;
+DROP POLICY IF EXISTS "Bukti audit - muat naik dengan akses audit" ON storage.objects;
+DROP POLICY IF EXISTS "Bukti audit - padam dengan akses admin/lead" ON storage.objects;
+DROP POLICY IF EXISTS "Bukti audit - kemaskini dengan akses admin/lead" ON storage.objects;
+
+-- Loose fallback (sementara sahaja)
+CREATE POLICY "Auditor muat naik bukti TEMP"
+  ON storage.objects
+  FOR INSERT TO authenticated
+  WITH CHECK (bucket_id = 'bukti-audit' AND auth.uid() IS NOT NULL);
+
+CREATE POLICY "Auditor baca bukti TEMP"
+  ON storage.objects
+  FOR SELECT TO authenticated
+  USING (bucket_id = 'bukti-audit' AND auth.uid() IS NOT NULL);
+
+DO $$
+BEGIN
+  RAISE NOTICE 'ROLLBACK TEMP: storage bukti-audit dipulihkan ke loose — segera fix dan harden semula';
+END $$;
