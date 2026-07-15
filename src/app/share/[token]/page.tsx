@@ -113,16 +113,6 @@ export default async function HalamanKongsiLaporan({
     dapatanList = raw as typeof dapatanList;
   }
 
-  if (!dapatanList || dapatanList.length === 0) {
-    const { data: fallback } = await supabase
-      .from("dapatan")
-      .select("id, status, gred_nc, catatan, cadangan_tindakan, pic, tarikh_siap_target")
-      .eq("audit_id", auditId);
-    if (fallback) {
-      dapatanList = fallback as typeof dapatanList;
-    }
-  }
-
   const stats = {
     Y: laporan.jumlah_y,
     N: laporan.jumlah_n,
