@@ -95,26 +95,3 @@ export async function antrikanSync(
     dicipta_pada: Date.now(),
   });
 }
-
-// Helper: kira progress audit (offline)
-export async function kiraProgresAudit(audit_id: string) {
-  const [jumlahItem, dapatanList] = await Promise.all([
-    db.item_semakan.count(),
-    db.dapatan.where({ audit_id }).toArray(),
-  ]);
-
-  const dijawab = dapatanList.filter((d) => d.status !== "Pending").length;
-  const peratus = jumlahItem > 0 ? (dijawab / jumlahItem) * 100 : 0;
-
-  return {
-    jumlah_item: jumlahItem,
-    dijawab,
-    peratus: Math.round(peratus),
-    y: dapatanList.filter((d) => d.status === "Y").length,
-    n: dapatanList.filter((d) => d.status === "N").length,
-    nc: dapatanList.filter((d) => d.status === "NC").length,
-    ofi: dapatanList.filter((d) => d.status === "OFI").length,
-    na: dapatanList.filter((d) => d.status === "NA").length,
-    pending: dapatanList.filter((d) => d.status === "Pending").length,
-  };
-}

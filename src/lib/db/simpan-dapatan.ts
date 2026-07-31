@@ -2,7 +2,7 @@ import { db, antrikanSync, type DapatanTempatan } from "@/lib/db/dexie";
 import { jalankanSync } from "@/lib/db/sync";
 import type { Dapatan, StatusDapatan, GredNC } from "@/types";
 
-export interface PayloadSimpanan {
+interface PayloadSimpanan {
   audit_id: string;
   item_semakan_id: string;
   status: StatusDapatan;

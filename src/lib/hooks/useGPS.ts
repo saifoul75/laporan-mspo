@@ -4,14 +4,14 @@
 
 import { useState, useCallback } from "react";
 
-export interface KoordinatGPS {
+interface KoordinatGPS {
   latitud: number;
   longitud: number;
   ketepatan: number; // dalam meter
   pada: number; // epoch ms
 }
 
-export interface KeadaanGPS {
+interface KeadaanGPS {
   koordinat: KoordinatGPS | null;
   memuat: boolean;
   ralat: string | null;
