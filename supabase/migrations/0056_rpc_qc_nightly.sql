@@ -50,6 +50,7 @@ AS $$
 $$;
 
 REVOKE ALL ON FUNCTION public.dapatkan_audit_qc(timestamptz) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.dapatkan_audit_qc(timestamptz) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.dapatkan_audit_qc(timestamptz) TO authenticated, service_role;
 
 -- ------------------------------------------------------------
@@ -77,6 +78,7 @@ END;
 $$;
 
 REVOKE ALL ON FUNCTION public.tulis_qc_log(integer, integer, integer, jsonb) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.tulis_qc_log(integer, integer, integer, jsonb) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.tulis_qc_log(integer, integer, integer, jsonb) TO authenticated, service_role;
 
 COMMIT;
