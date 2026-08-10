@@ -48,4 +48,4 @@ const Butang = React.forwardRef<HTMLButtonElement, ButangProps>(
 );
 Butang.displayName = "Butang";
 
-export { Butang, butangVariants };
+export { Butang };

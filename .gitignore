@@ -49,3 +49,6 @@ public/sw-version.js
 
 # reconciliation backup 2026-07-12 (local only, jangan commit)
 backups/reconcile-2026-07-12/
+
+# fail diagnostik/verifikasi sementara dalam migrations (jangan commit)
+supabase/migrations/_*

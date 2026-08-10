@@ -4,9 +4,9 @@ import { useCallback, useEffect, useState } from "react";
 import { useOnline } from "@/lib/hooks/useOnline";
 import { jalankanSync, kiraBaki, kiraGagal, type HasilSync } from "@/lib/db/sync";
 
-export type StatusSyncSemasa = "idle" | "menyelaras" | "ralat";
+type StatusSyncSemasa = "idle" | "menyelaras" | "ralat";
 
-export interface KeadaanSync {
+interface KeadaanSync {
   online: boolean;
   status: StatusSyncSemasa;
   baki: number;

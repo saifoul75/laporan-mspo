@@ -1,0 +1,26 @@
+-- ROLLBACK COMPENSATION — DISABLED — hanya aktifkan jika RPC pecah di staging
+-- Cara aktifkan: rename .sql.disabled -> .sql, kemudian supabase db push
+-- Tujuan: pulihkan anon SELECT sementara untuk tidak pecahkan /share live
+-- MASA PEMULIHAN: <2 minit (tanpa reset DB)
+
+-- DROP all hardened policies first (idempotent)
+DROP POLICY IF EXISTS "Baca laporan kongsi awam TEMP" ON public.laporan;
+
+-- Recreate temporary loose policy untuk kecemasan sahaja
+CREATE POLICY "Baca laporan kongsi awam TEMP"
+  ON public.laporan
+  FOR SELECT
+  TO anon
+  USING (kongsi_aktif = TRUE AND token_kongsi IS NOT NULL);
+
+-- Re-grant SELECT (jika 0029 revoke)
+GRANT SELECT ON public.laporan TO anon;
+
+-- Nota: Selepas deploy app code rollback (ke commit sebelum 91f7faf),
+-- policy TEMP ini perlu dihapus semula dengan migration 0032 atau manual DROP
+-- untuk kembali ke RPC-only mode.
+
+DO $$
+BEGIN
+  RAISE NOTICE 'ROLLBACK TEMP: anon SELECT laporan dipulihkan — JANGAN biarkan lama, segera fix RPC dan drop semula';
+END $$;

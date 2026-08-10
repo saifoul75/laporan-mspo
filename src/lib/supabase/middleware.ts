@@ -6,6 +6,9 @@ export async function updateSession(request: NextRequest) {
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
+    if (process.env.NODE_ENV === "production") {
+      return new NextResponse("Konfigurasi Supabase tiada", { status: 500 });
+    }
     return NextResponse.next({ request });
   }
 
@@ -34,9 +37,11 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // /share dibenarkan tanpa auth — tidak diubah hala ke /masuk
-  // /api/laporan/kongsi juga awam (PDF download untuk pemegang token)
+  // /share dan /api/laporan/kongsi dibenarkan tanpa auth — diakses via token
   const laluanAwam = ["/masuk", "/daftar", "/auth", "/sw.js", "/share", "/api/laporan/kongsi"];
+
+  // /hasil dilindungi — mesti log masuk (dashboard umum dipindah ke dashboard-hasil)
+  // Tiada bypass untuk /hasil di proxy lagi
   const adalahLaluanAwam = laluanAwam.some((p) => pathname.startsWith(p));
 
   if (!user && !adalahLaluanAwam && pathname !== "/") {

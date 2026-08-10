@@ -31,21 +31,45 @@ export async function GET(
     .single();
 
   if (ralatAudit) {
-      return NextResponse.json(
-        {
-          error: "Gagal muat audit",
-          butiran: ralatAudit.message,
-          audit_id: id,
-        },
-        { status: 500 }
-      );
+    return NextResponse.json(
+      {
+        error: "Gagal muat audit",
+      },
+      { status: 500 }
+    );
   }
 
   if (!audit) {
     return NextResponse.json(
-      { error: "Audit tidak dijumpai", audit_id: id },
+      { error: "Audit tidak dijumpai" },
       { status: 404 }
     );
+  }
+
+  const { data: profil } = await supabase
+    .from("pengguna")
+    .select("rol, pusat_operasi_id")
+    .eq("id", user.id)
+    .single();
+
+  if (!profil) {
+    return NextResponse.json({ error: "Profil tidak dijumpai" }, { status: 403 });
+  }
+
+  const isAdminAuditor = ["admin", "lead_auditor", "auditor"].includes(profil.rol);
+  const isPoMember =
+    "pusat_operasi_id" in audit &&
+    (audit as unknown as Record<string, unknown>).pusat_operasi_id === profil.pusat_operasi_id;
+
+  const isAssigned =
+    (audit as { lead_auditor_id?: string; auditor_ids?: string[] }).lead_auditor_id ===
+      user.id ||
+    (
+      (audit as { auditor_ids?: string[] }).auditor_ids ?? []
+    ).includes(user.id);
+
+  if (!isAdminAuditor && !isPoMember && !isAssigned) {
+    return NextResponse.json({ error: "Tiada akses kepada audit ini" }, { status: 403 });
   }
 
   let namaLeadAuditor = "MOHD SAIFOUL AZUAN BIN MOHD ISA";
@@ -79,14 +103,12 @@ export async function GET(
      .eq("audit_id", id);
 
   if (ralatDapatan) {
-      return NextResponse.json(
-        {
-          error: "Gagal muat dapatan",
-          butiran: ralatDapatan.message,
-          audit_id: id,
-        },
-        { status: 500 }
-      );
+    return NextResponse.json(
+      {
+        error: "Gagal muat dapatan",
+      },
+      { status: 500 }
+    );
   }
 
   let logoBase64: string | null = null;
